@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Citas</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="stylesheet" href="../static/css/calendario.css">
+    <link rel="stylesheet" href="../static/css/adicional.css">
+</head>
+    
+<body>
+    <div class="container">
+        <header>
+            <h1>Calendario de Citas</h1>
+            <!-- Agregar el nombre del calendario específico -->
+            <h2 id="calendarioNombre">
+                {% if calendarios %}
+                    {{ calendarios.nombre_calendario }}
+                {% else %}
+                    Sin calendario seleccionado
+                {% endif %}
+            </h2>
+            <div class="header-controls">
+                <div class="left-controls">
+                    <button class="header-btn volver-btn" onclick="volverAlFormulario()">Volver al formulario</button>
+                    <div class="dropdown">
+                        <button class="header-btn export-btn" onclick="toggleExportMenu()">Exportar Calendario</button>
+                        <div id="exportMenu" class="dropdown-content">
+                            <a href="#" onclick="exportarCalendario('pdf')">Exportar a PDF</a>
+                            <a href="#" onclick="exportarCalendario('excel')">Exportar a Excel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Filtro de procedimientos -->
+            <div class="filtro-container">
+                <label for="filtroProcedimiento">Filtrar por Examen:</label>
+                <select id="filtroProcedimiento" onchange="filtrarPorProcedimiento()">
+                    <option value="todos">Todos los Examenes</option>
+                    <!-- Aquí se pueden agregar más opciones dinámicamente -->
+                </select>
+            </div>
+        </header>
+        
+        <!-- Aquí iría el contenido del calendario -->
+        <div class="calendar">
+            <div class="calendario-header">
+                <div class="calendario-info">
+                    <div class="info-item">
+                        <span class="info-label">Total:</span> <span id="totalCitas" class="info-value">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Confirmadas:</span> <span id="citasConfirmadas" class="info-value">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Reservadas:</span> <span id="citasReservadas" class="info-value">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Disponibles:</span> <span id="slotsDisponibles" class="info-value">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contenedor para la cuadrícula del calendario -->
+            <div id="calendarioGrid" class="calendario-grid">
+                <!-- Aquí se generará la estructura del calendario -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leyenda para estados de citas (cambiado a footer) -->
+    <footer class="calendario-leyenda">
+        <h3>Estados de Citas</h3>
+        <div class="leyenda-item">
+            <div class="color-box disponible"></div>
+            <span>Disponible</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box ocupado-temp"></div>
+            <span>Ocupado Momentáneamente</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box ocupado"></div>
+            <span>Ocupado</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box descanso"></div>
+            <span>Tiempo de Descanso</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box tiempo-fuera"></div>
+            <span>Tiempo Fuera</span>
+        </div>
+    </footer>
+    
+    <!-- Modal para agendar cita (agregado) -->
+    <div id="agendarCitaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Agendar Cita</h2>
+            <form id="formAgendarCita">
+                <input type="hidden" id="agendarHora" name="hora">
+                <input type="hidden" id="agendarDia" name="dia">
+                <!-- Agregar campos del formulario según sea necesario -->
+                <div class="form-group">
+                    <label for="nombrePaciente">Nombre del Paciente:</label>
+                    <input type="text" id="nombrePaciente" name="nombrePaciente" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentoPaciente">Documento:</label>
+                    <input type="text" id="documentoPaciente" name="documentoPaciente" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefonoPaciente">Teléfono:</label>
+                    <input type="tel" id="telefonoPaciente" name="telefonoPaciente" required>
+                </div>
+                <div class="form-group">
+                    <label for="examenesPaciente">Examen:</label>
+                    <select id="examenesPaciente" name="examenesPaciente" required>
+                        <option value="">Seleccione un examen</option>
+                        <!-- Opciones de exámenes se cargarán dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Agendar</button>
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('agendarCitaModal').style.display='none'">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Pasar los datos del calendario al JavaScript
+        const calendarioData = {
+            nombreCalendario: "{{ calendarios.nombre_calendario }}",
+            municipio: "{{ calendarios.municipio }}",
+            procedimiento: "{{ calendarios.procedimiento }}",
+            fechaInicio: "{{ calendarios.fecha_inicio }}",
+            fechaFin: "{{ calendarios.fecha_fin }}",
+            horaInicio: "{{ calendarios.hora_inicio }}",
+            horaFin: "{{ calendarios.hora_fin }}",
+            espacioCitas: "{{ calendarios.espacio_citas }}",
+            tiempoFuera: "{{ calendarios.tiempo_fuera }}",
+            inicioHoraDescanso: "{{ calendarios.inicio_hora_descanso or '' }}",
+            finHoraDescanso: "{{ calendarios.fin_hora_descanso or '' }}"
+        };
+        
+        
+        // Guardar en localStorage para que el script calendario.js pueda usarlo
+        localStorage.setItem('configuracionCalendario', JSON.stringify(calendarioData));
+        
+        // Mostrar el nombre del calendario en la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar el nombre del calendario
+            const nombreCalendarioElement = document.getElementById('calendarioNombre');
+            if (nombreCalendarioElement) {
+                nombreCalendarioElement.textContent = calendarioData.nombreCalendario;
+            }
+        });
+        
+        // Función para generar el calendario manualmente
+        async function generarCalendario() {
+    // Obtener citas desde la API
+    const response = await fetch(`/api/citas/${calendarioData.nombreCalendario}`);
+    const citas = await response.json();
+            console.log("Generando calendario...");
+            const calendarioGrid = document.getElementById('calendarioGrid');
+            
+            if (!calendarioGrid) {
+                console.error("No se encontró el contenedor del calendario");
+                return;
+            }
+            
+            // Limpiar el contenedor
+            calendarioGrid.innerHTML = '';
+            
+            // Crear estructura básica del calendario
+            const horaInicio = calendarioData.horaInicio;
+            const horaFin = calendarioData.horaFin;
+            const fechaInicio = new Date(calendarioData.fechaInicio);
+            const fechaFin = new Date(calendarioData.fechaFin);
+            
+            console.log("Configuración:", {horaInicio, horaFin, fechaInicio, fechaFin});
+            
+            // Extraer horas para el cálculo
+            const horaInicioNum = parseInt(horaInicio.split(':')[0]);
+            const minInicioNum = parseInt(horaInicio.split(':')[1]) || 0;
+            const horaFinNum = parseInt(horaFin.split(':')[0]);
+            const minFinNum = parseInt(horaFin.split(':')[1]) || 0;
+            
+            // Crear tabla para el calendario
+            const table = document.createElement('table');
+            table.className = 'calendario-table';
+            
+            // Crear encabezado con fechas
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            // Celda vacía para la esquina superior izquierda
+            const emptyCell = document.createElement('th');
+            emptyCell.className = 'header-cell empty';
+            headerRow.appendChild(emptyCell);
+            
+            // Generar columnas de fechas
+            for (let d = new Date(fechaInicio); d <= fechaFin; d.setDate(d.getDate() + 1)) {
+                // Verificar si el día es domingo (0 en JavaScript)
+                if (d.getDay() === 0) {
+                    continue; // Saltar los domingos
+                }
+                
+                const dateCell = document.createElement('th');
+                dateCell.className = 'header-cell date';
+                
+                const dayOfWeek = document.createElement('div');
+                dayOfWeek.className = 'day-of-week';
+                dayOfWeek.textContent = d.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase();
+                
+                const dayOfMonth = document.createElement('div');
+                dayOfMonth.className = 'day-of-month';
+                dayOfMonth.textContent = d.getDate();
+                
+                const month = document.createElement('div');
+                month.className = 'month';
+                month.textContent = d.toLocaleDateString('es-ES', { month: 'short' });
+                
+                dateCell.appendChild(dayOfWeek);
+                dateCell.appendChild(dayOfMonth);
+                dateCell.appendChild(month);
+                
+                headerRow.appendChild(dateCell);
+            }
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // Crear cuerpo de la tabla
+            const tbody = document.createElement('tbody');
+            
+            // Generar filas de horas
+            for (let h = horaInicioNum; h < horaFinNum; h++) {
+                // Determinar si se necesitan intervalos
+                const intervaloMinutos = parseInt(calendarioData.espacioCitas) || 60;
+                const intervalosHora = 60 / intervaloMinutos;
+                
+                // Si no hay intervalos específicos o el intervalo es de 60 minutos, crear una sola fila por hora
+                if (intervaloMinutos >= 60) {
+                    const timeRow = document.createElement('tr');
+                    
+                    // Celda de hora
+                    const timeCell = document.createElement('td');
+                    timeCell.className = 'time-cell';
+                    
+                    const hourSpan = document.createElement('span');
+                    hourSpan.className = 'hour';
+                    hourSpan.textContent = `${h.toString().padStart(2, '0')}:00`;
+                    timeCell.appendChild(hourSpan);
+                    
+                    timeRow.appendChild(timeCell);
+                    
+                    // Generar slots para cada día
+                    for (let d = new Date(fechaInicio); d <= fechaFin; d.setDate(d.getDate() + 1)) {
+                        // Verificar si el día es domingo (0 en JavaScript)
+                        if (d.getDay() === 0) {
+                            continue; // Saltar los domingos
+                        }
+                        
+                        const slotCell = document.createElement('td');
+                        slotCell.className = 'slot-cell';
+                        
+                        const slot = document.createElement('div');
+                        const tieneCita = citas.some(c => c.fecha === d.toISOString().split('T')[0] && c.hora_inicio === `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                    const claseSlot = tieneCita ? 'ocupado' : 'disponible';
+                    slot.className = `slot ${claseSlot}`;
+                        slot.setAttribute('data-hora', `${h.toString().padStart(2, '0')}:00`);
+                        slot.setAttribute('data-dia', d.toISOString().split('T')[0]);
+                        
+                        // Verificar si es hora de descanso
+                        const horaDescansoInicio = calendarioData.inicioHoraDescanso || '';
+                        const horaDescansoFin = calendarioData.finHoraDescanso || '';
+                        const horaActual = `${h.toString().padStart(2, '0')}:00`;
+                        
+                        if (horaDescansoInicio && horaDescansoFin && 
+                            horaActual >= horaDescansoInicio && 
+                            horaActual < horaDescansoFin) {
+                            slot.className = 'slot descanso';
+                            slot.innerHTML = '<span class="slot-text">Descanso</span>';
+                        } else {
+                            slot.innerHTML = '<span class="slot-indicator"></span>';
+                            // Agregar atributo para identificar slots disponibles
+                            slot.setAttribute('data-disponible', 'true');
+                        }
+                        
+                        slotCell.appendChild(slot);
+                        timeRow.appendChild(slotCell);
+                    }
+                    
+                    tbody.appendChild(timeRow);
+                } else {
+                    // Crear múltiples filas para intervalos menores a una hora
+                    for (let m = 0; m < 60; m += intervaloMinutos) {
+                        // Si es la primera hora y los minutos son menores que los minutos iniciales, saltar
+                        if (h === horaInicioNum && m < minInicioNum) continue;
+                        
+                        // Si es la última hora y los minutos son mayores que los minutos finales, saltar
+                        if (h === horaFinNum - 1 && m >= minFinNum && minFinNum > 0) continue;
+                        
+                        const timeRow = document.createElement('tr');
+                        
+                        // Celda de hora
+                        const timeCell = document.createElement('td');
+                        timeCell.className = 'time-cell';
+                        
+                        const hourSpan = document.createElement('span');
+                        hourSpan.className = 'hour';
+                        hourSpan.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                        timeCell.appendChild(hourSpan);
+                        
+                        timeRow.appendChild(timeCell);
+                        
+                        // Generar slots para cada día
+                        for (let d = new Date(fechaInicio); d <= fechaFin; d.setDate(d.getDate() + 1)) {
+                            // Verificar si el día es domingo (0 en JavaScript)
+                            if (d.getDay() === 0) {
+                                continue; // Saltar los domingos
+                            }
+                            
+                            const slotCell = document.createElement('td');
+                            slotCell.className = 'slot-cell';
+                            
+                            const slot = document.createElement('div');
+                            const tieneCita = citas.some(c => c.fecha === d.toISOString().split('T')[0] && c.hora_inicio === `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                    const claseSlot = tieneCita ? 'ocupado' : 'disponible';
+                    slot.className = `slot ${claseSlot}`;
+                            slot.setAttribute('data-hora', `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                            slot.setAttribute('data-dia', d.toISOString().split('T')[0]);
+                            
+                            // Verificar si es hora de descanso
+                            const horaDescansoInicio = calendarioData.inicioHoraDescanso || '';
+                            const horaDescansoFin = calendarioData.finHoraDescanso || '';
+                            const horaActual = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                            
+                            if (horaDescansoInicio && horaDescansoFin && 
+                                horaActual >= horaDescansoInicio && 
+                                horaActual < horaDescansoFin) {
+                                slot.className = 'slot descanso';
+                                slot.innerHTML = '<span class="slot-text">Descanso</span>';
+                            } else {
+                                slot.innerHTML = '<span class="slot-indicator"></span>';
+                                // Agregar atributo para identificar slots disponibles
+                                slot.setAttribute('data-disponible', 'true');
+                            }
+                            
+                            slotCell.appendChild(slot);
+                            timeRow.appendChild(slotCell);
+                        }
+                        
+                        tbody.appendChild(timeRow);
+                    }
+                }
+            }
+            
+            table.appendChild(tbody);
+            calendarioGrid.appendChild(table);
+            
+            console.log("Calendario generado con éxito");
+            
+            // Actualizar contadores
+            const citasConfirmadas = citas.filter(c => c.estado === 'confirmada').length;
+            const citasReservadas = citas.filter(c => c.estado === 'reservada').length;
+            const totalCitas = citas.length;
+            
+            document.getElementById('totalCitas').textContent = totalCitas;
+            document.getElementById('citasConfirmadas').textContent = citasConfirmadas;
+            document.getElementById('citasReservadas').textContent = citasReservadas;
+            document.getElementById('slotsDisponibles').textContent = totalSlots - totalCitas;
+            
+            // Función para agregar eventos a los slots
+            function agregarEventosSlots() {
+                // Agregar evento click a todos los slots disponibles
+                document.querySelectorAll('.slot.disponible').forEach(slot => {
+                    slot.addEventListener('click', function() {
+                        // Verificar si el slot ya está ocupado
+                        if (this.classList.contains('ocupado') || this.classList.contains('ocupado-temp')) return;
+                        
+                        // Obtener y asignar datos correctamente
+                        const hora = this.getAttribute('data-hora');
+                        const dia = this.getAttribute('data-dia');
+                        
+                        // Mostrar modal de agendar cita o cita rápida según preferencia
+                        // Asignar valores a los campos ocultos del formulario de agendar
+                        document.getElementById('agendarHora').value = hora;
+                        document.getElementById('agendarDia').value = dia;
+                        
+                        // Mostrar el modal de agendar cita
+                        document.getElementById('agendarCitaModal').style.display = 'block';
+                    });
+                });
+                
+                // Agregar evento click a todas las celdas de la tabla (td)
+                document.querySelectorAll('.slot-cell').forEach(cell => {
+                    cell.addEventListener('click', function(e) {
+                        // Si el clic fue directamente en la celda y no en un slot hijo
+                        if (e.target === this) {
+                            const slot = this.querySelector('.slot');
+                            if (slot && !slot.classList.contains('ocupado') && !slot.classList.contains('ocupado-temp') && !slot.classList.contains('descanso')) {
+                                const hora = slot.getAttribute('data-hora');
+                                const dia = slot.getAttribute('data-dia');
+                                
+                                // Asignar valores a los campos ocultos del formulario de agendar
+                                document.getElementById('agendarHora').value = hora;
+                                document.getElementById('agendarDia').value = dia;
+                                
+                                // Mostrar el modal de agendar cita
+                                document.getElementById('agendarCitaModal').style.display = 'block';
+                            }
+                        }
+                    });
+                });
+                
+                // Cerrar modales al hacer clic en la X
+                document.querySelectorAll('.close-modal').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.closest('.modal').style.display = 'none';
+                    });
+                });
+            }
+            
+            // Llamar a la función para agregar eventos a los slots
+            agregarEventosSlots();
+        }
+        
+        // Generar calendario cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM cargado, generando calendario");
+            setTimeout(() => {
+                generarCalendario();
+                // Inicializar el filtro de exámenes después de generar el calendario
+                actualizarFiltroExamenes();
+            }, 500); // Pequeño retraso para asegurar que todo esté cargado
+        });
+        
+        // Función para volver al formulario
+        function volverAlFormulario() {
+            window.location.href = "/formulario";
+        }
+        
+        // Función para mostrar/ocultar el menú de exportación
+        function toggleExportMenu() {
+            document.getElementById("exportMenu").classList.toggle("show");
+        }
+        
+        // Función para exportar el calendario
+        function exportarCalendario(formato) {
+            console.log(`Exportando calendario en formato: ${formato}`);
+            // Implementar lógica de exportación según el formato
+            if (formato === 'pdf') {
+                // Lógica para exportar a PDF
+                alert("Exportando a PDF...");
+                // Aquí iría la lógica para generar el PDF
+            } else if (formato === 'excel') {
+                // Lógica para exportar a Excel
+                alert("Exportando a Excel...");
+                // Aquí iría la lógica para generar el Excel
+            }
+            
+            // Cerrar el menú desplegable
+            document.getElementById("exportMenu").classList.remove("show");
+        }
+        
+        // Función para filtrar por procedimiento
+        function filtrarPorProcedimiento() {
+            const procedimientoSeleccionado = document.getElementById('filtroProcedimiento').value;
+            console.log(`Filtrando por procedimiento: ${procedimientoSeleccionado}`);
+            
+            // Si se selecciona "todos", mostrar todos los slots
+            if (procedimientoSeleccionado === 'todos') {
+                document.querySelectorAll('.slot').forEach(slot => {
+                    slot.closest('.slot-cell').style.display = '';
+                });
+                return;
+            }
+            
+            // Filtrar slots según el procedimiento seleccionado
+            document.querySelectorAll('.slot').forEach(slot => {
+                const procedimientoSlot = slot.getAttribute('data-procedimiento');
+                
+                if (procedimientoSlot === procedimientoSeleccionado) {
+                    slot.closest('.slot-cell').style.display = '';
+                } else {
+                    slot.closest('.slot-cell').style.display = 'none';
+                }
+            });
+        }
+        
+        // Función para actualizar el filtro de exámenes
+        function actualizarFiltroExamenes() {
+            const selectFiltro = document.getElementById('filtroProcedimiento');
+            
+            // Limpiar opciones existentes excepto "Todos los Exámenes"
+            while (selectFiltro.options.length > 1) {
+                selectFiltro.remove(1);
+            }
+            
+            // Obtener procedimientos únicos
+            const procedimientos = [];
+            document.querySelectorAll('.slot[data-procedimiento]').forEach(slot => {
+                const proc = slot.getAttribute('data-procedimiento');
+                if (proc && !procedimientos.includes(proc)) {
+                    procedimientos.push(proc);
+                }
+            });
+            
+            // Agregar opciones al select
+            procedimientos.forEach(proc => {
+                const option = document.createElement('option');
+                option.value = proc;
+                option.textContent = proc;
+                selectFiltro.appendChild(option);
+            });
+            
+            // Si no hay procedimientos, agregar el procedimiento del calendario
+            if (procedimientos.length === 0 && calendarioData.procedimiento) {
+                const option = document.createElement('option');
+                option.value = calendarioData.procedimiento;
+                option.textContent = calendarioData.procedimiento;
+                selectFiltro.appendChild(option);
+            }
+        }
+        
+        // Manejar el envío del formulario de agendar cita
+        document.getElementById('formAgendarCita').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Recopilar datos del formulario
+            const formData = {
+                hora: document.getElementById('agendarHora').value,
+                dia: document.getElementById('agendarDia').value,
+                nombrePaciente: document.getElementById('nombrePaciente').value,
+                documentoPaciente: document.getElementById('documentoPaciente').value,
+                telefonoPaciente: document.getElementById('telefonoPaciente').value,
+                examen: document.getElementById('examenesPaciente').value
+            };
+            
+            console.log("Datos de la cita:", formData);
+            
+            // Aquí iría la lógica para enviar los datos al servidor
+            // Por ejemplo, usando fetch:
+            /*
+            fetch('/api/agendar-cita', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar el slot en la interfaz
+                    const slot = document.querySelector(`.slot[data-hora="${formData.hora}"][data-dia="${formData.dia}"]`);
+                    if (slot) {
+                        slot.classList.remove('disponible');
+                        slot.classList.add('ocupado');
+                        slot.innerHTML = `<span class="slot-text">${formData.nombrePaciente}</span>`;
+                        slot.setAttribute('data-procedimiento', formData.examen);
+                    }
+                    
+                    // Cerrar el modal
+                    document.getElementById('agendarCitaModal').style.display = 'none';
+                    
+                    // Actualizar contadores
+                    const slotsDisponibles = document.querySelectorAll('.slot.disponible').length;
+                    document.getElementById('slotsDisponibles').textContent = slotsDisponibles;
+                    
+                    const citasConfirmadas = document.querySelectorAll('.slot.ocupado').length;
+                    document.getElementById('citasConfirmadas').textContent = citasConfirmadas;
+                    
+                    // Actualizar filtro de exámenes
+                    actualizarFiltroExamenes();
+                    
+                    // Mostrar mensaje de éxito
+                    alert('Cita agendada con éxito');
+                } else {
+                    alert('Error al agendar la cita: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud');
+            });
+            */
+            
+            // Por ahora, simulamos una respuesta exitosa
+            const slot = document.querySelector(`.slot[data-hora="${formData.hora}"][data-dia="${formData.dia}"]`);
+            if (slot) {
+                slot.classList.remove('disponible');
+                slot.classList.add('ocupado');
+                slot.innerHTML = `<span class="slot-text">${formData.nombrePaciente}</span>`;
+                slot.setAttribute('data-procedimiento', formData.examen);
+            }
+            
+            // Cerrar el modal
+            document.getElementById('agendarCitaModal').style.display = 'none';
+            
+            // Actualizar contadores
+            const slotsDisponibles = document.querySelectorAll('.slot.disponible').length;
+            document.getElementById('slotsDisponibles').textContent = slotsDisponibles;
+            
+            const citasConfirmadas = document.querySelectorAll('.slot.ocupado').length;
+            document.getElementById('citasConfirmadas').textContent = citasConfirmadas;
+            
+            // Actualizar filtro de exámenes
+            actualizarFiltroExamenes();
+            
+            // Limpiar el formulario
+            this.reset();
+            
+            // Mostrar mensaje de éxito
+            alert('Cita agendada con éxito');
+        });
+    </script>
+</body>
+</html>

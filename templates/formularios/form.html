@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendario Savia Salud</title>
+  
+  <!-- LINK DE DISEÑOS -->
+ <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
+<link rel="stylesheet" href="../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
+
+</head>
+
+<body>
+  <div class="container-2">
+    <h1>Configuración de Calendario</h1>
+    <form id="calendarioForm" action="{{url_for('insercion_calendario.insertar_calendario')}}" method="post">
+      <div class="form-group">
+        <label for="nombreCalendario">Nombre del Calendario:</label>
+        <input type="text" id="nombreCalendario" name="nombreCalendario" required>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="municipio">Municipio:</label>
+            <select id="municipio" name="municipio" required>
+              <option value="">Seleccione un municipio</option>
+              <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
+              <option value="Medellín">Medellín</option>
+              <option value="Bello">Bello</option>
+              <option value="Itagüí">Itagüí</option>
+              <option value="Envigado">Envigado</option>
+              <option value="Sabaneta">Sabaneta</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="procedimiento">Procedimiento:</label>
+            <select id="procedimiento" name="procedimiento" required>
+              <option value="">Seleccione un procedimiento</option>
+              <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
+              <option value="Consulta General">Consulta General</option>
+              <option value="Odontología">Odontología</option>
+              <option value="Pediatría">Pediatría</option>
+              <option value="Ginecología">Ginecología</option>
+              <option value="Vacunación">Vacunación</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="fechaInicio">Fecha de Inicio:</label>
+            <input type="date" id="fechaInicio" name="fechaInicio" required>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="fechaFin">Fecha de Fin:</label>
+            <input type="date" id="fechaFin" name="fechaFin" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="horaInicio">Hora de Inicio:</label>
+            <input type="time" id="horaInicio" name="horaInicio" required>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="horaFin">Hora de Fin:</label>
+            <input type="time" id="horaFin" name="horaFin" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="espacioCitas">Espacio entre citas (minutos):</label>
+        <input type="number" id="espacioCitas" name="espacioCitas" min="5" max="120" step="5" value="30" required>
+      </div>
+      
+      <div class="form-group">
+        <label>¿Desea incluir tiempo fuera (descanso)?</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="tiempoFueraSi" name="tiempoFuera" value="si">
+            <label for="tiempoFueraSi">Sí</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="tiempoFueraNo" name="tiempoFuera" value="no" checked>
+            <label for="tiempoFueraNo">No</label>
+          </div>
+        </div>
+      </div>
+      
+      <div id="tiempoFueraOptions" class="hidden">
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="inicioHoraDescanso">Inicio de Descanso:</label>
+              <input type="time" id="inicioHoraDescanso" name="inicioHoraDescanso">
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="finHoraDescanso">Fin de Descanso:</label>
+              <input type="time" id="finHoraDescanso" name="finHoraDescanso">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <input type="hidden" name="form_type" value="calendario_form">
+            <button type="submit">Crear Calendario</button>
+    </form>
+  </div>
+
+
+</body>
+
+</html>

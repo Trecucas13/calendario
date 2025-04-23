@@ -1,0 +1,99 @@
+/* Estilos específicos para el formulario */
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.form-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos para inputs y selects */
+form input[type="text"],
+form input[type="date"],
+form input[type="time"],
+form input[type="number"],
+form select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+/* Estilos para labels */
+form label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  width: 100%;
+}
+
+/* Estilos para radio buttons */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Estilos para el botón de envío */
+form button[type="submit"] {
+  background: #007BFF;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 200px;
+}
+
+form button[type="submit"]:hover {
+  background: #0056b3;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Media queries para responsividad */
+@media screen and (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .form-col {
+    width: 100%;
+  }
+  
+  form button[type="submit"] {
+    width: 100%;
+    max-width: none;
+  }
+}

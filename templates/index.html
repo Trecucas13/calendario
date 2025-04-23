@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de calendarios</title>
+</head>
+<body>
+    
+
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios</h2>
+        <a class="btn btn-primary" href="{{url_for('formulario')}}">
+            <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Calendarios Activos</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Proceso</th>
+                            <th>Municipio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Datos dinámicos desde backend -->
+                        {% for calendario in calendarios %}
+                        <tr>
+                            <td>{{ calendario.nombre_calendario }}</td>
+                            <td>{{ calendario.procedimiento }}</td>
+                            <td>{{ calendario.municipio }}</td>
+                            <td>
+                                <form action="{{ url_for('formularioActualizar', id=calendario.id) }}" method="GET" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-warning">Editar</button>
+                                </form>
+                                
+                                <button class="btn btn-sm btn-danger">Eliminar</button>
+                            </td>
+                        </tr>
+                     
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div class="modal fade" id="modalCalendario">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Nuevo Calendario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/calendario/insertar" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="nombre" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Proceso</label>
+                            <select class="form-select" name="proceso" required>
+                                <option value="proceso1">Proceso 1</option>
+                                <option value="proceso2">Proceso 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Municipio</label>
+                            <select class="form-select" name="municipio" required>
+                                <option value="municipio1">Municipio 1</option>
+                                <option value="municipio2">Municipio 2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- ACTUALIZAR CALENDARIOS -->
+<div class="modal fade" id="ActualizarmodalCalendario">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Actualizar Calendario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" name="nombre_actualizar" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Proceso</label>
+                            <select class="form-select" name="proceso_actualizar" required>
+                                <option value="proceso1">Proceso 1</option>
+                                <option value="proceso2">Proceso 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Municipio</label>
+                            <select class="form-select" name="municipio_actualizar" required>
+                                <option value="municipio1">Municipio 1</option>
+                                <option value="municipio2">Municipio 2</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

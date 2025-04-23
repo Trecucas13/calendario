@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Citas{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="fas fa-calendar-day me-2"></i>Gestión de Citas</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCita">
+            <i class="fas fa-plus-circle me-2"></i>Nueva Cita
+        </button>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Citas Programadas</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cita in citas %}
+                        <tr>
+                            <td>{{ cita.paciente }}</td>
+                            <td>{{ cita.fecha }}</td>
+                            <td>{{ cita.hora }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if cita.activa else 'secondary' }}">
+                                    {{ 'Activa' if cita.activa else 'Completada' }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info">Detalles</button>
+                                <button class="btn btn-sm btn-danger">Cancelar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<div class="modal fade" id="modalCita">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Nueva Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/citas/crear" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Paciente</label>
+                            <input type="text" class="form-control" name="paciente" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" name="fecha" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Hora</label>
+                            <input type="time" class="form-control" name="hora" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

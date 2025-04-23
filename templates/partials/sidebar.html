@@ -1,0 +1,75 @@
+<!-- Sidebar para desktop (siempre visible en lg+) -->
+<div class="d-none d-lg-block bg-primary text-white" style="width: 280px; height: 100vh;">
+    <div class="p-4">
+      <h3 class="fw-bold mb-4">
+        <i class="fas fa-heartbeat me-2"></i>Savia Salud
+      </h3>
+      
+      <nav class="nav flex-column gap-2">
+
+        <a href="{{url_for('index')}}" class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+          <i class="fas fa-home fs-5 me-3"></i>
+          <span class="fs-6">Inicio</span>
+        </a>
+      {% if session["rol"] == 1  %}
+        <a href="{{url_for('vista_usuarios.tabla_usuarios')}}" 
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+        <i class="fas fa-users fs-5 me-3"></i>
+        <span class="fs-6">Gestión de Usuarios</span>
+     </a>
+     {% endif %}
+     <a href="{{url_for('tabla_calendarios.calendario')}}" 
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+        <i class="fas fa-calendar-day fs-5 me-3"></i>
+        <span class="fs-6">Citas Programadas / Calendario Citas</span>
+     </a>
+
+     <a href="{{url_for('formulario')}}" class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <i class="fas fa-add fs-5 me-3"></i>
+      <span class="fs-6">Agregar Calendario</span>
+    </a>
+    
+      </nav>
+    </div>
+  </div>
+  
+  <!-- Sidebar para mobile (offcanvas) -->
+  <div class="offcanvas offcanvas-start bg-primary text-white" data-bs-scroll="true" tabindex="-1" id="sidebar" 
+       data-bs-backdrop="false" style="width: 280px;">
+    <div class="offcanvas-header pb-0">
+      <h3 class="offcanvas-title fw-bold">
+        <i class="fas fa-heartbeat me-2"></i>Savia Salud
+      </h3>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    
+    <div class="offcanvas-body p-3">
+      <nav class="nav flex-column gap-2">
+         <a href="{{url_for('vista_usuarios.tabla_usuarios')}}" 
+         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+         <i class="fas fa-users fs-5 me-3"></i>
+         <span class="fs-6">Gestión de Usuarios</span>
+      </a>
+
+      <a href="{{url_for('tabla_calendarios.calendario')}}" 
+         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'calendarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+         <i class="fas fa-calendar-alt fs-5 me-3"></i>
+         <span class="fs-6">Calendarios</span>
+      </a>
+
+      <a href="/citas" 
+         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+         <i class="fas fa-calendar-day fs-5 me-3"></i>
+         <span class="fs-6">Citas Programadas</span>
+      </a>
+      </nav>
+    </div>
+  </div>
+  
+  <!-- Botón toggle solo para mobile -->
+  <button class="btn btn-primary d-lg-none position-fixed bottom-0 end-0 m-3 rounded-circle shadow" 
+          data-bs-toggle="offcanvas" 
+          data-bs-target="#sidebar"
+          style="width: 56px; height: 56px;">
+    <i class="fas fa-bars"></i>
+  </button>

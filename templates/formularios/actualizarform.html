@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+      <!-- LINK DE DISEÑOS -->
+    <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
+    <link rel="stylesheet" href="../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
+ 
+</head>
+
+<body>
+
+  <div class="container-2">
+    <h1>Actualizar calendario</h1>
+    <form id="ActualizarcalendarioForm" action="" method="post">
+        
+      <div class="form-group">
+        <label for="actualizarnombreCalendario">Nombre del Calendario:</label>
+        <input type="text" id="actualizarnombreCalendario" name="actualizarnombreCalendario" required>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarmunicipio">Municipio:</label>
+            <select id="actualizarmunicipio" name="actualizarmunicipio" required>
+              <option value="">Seleccione un municipio</option>
+              <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
+              <option value="Medellín">Medellín</option>
+              <option value="Bello">Bello</option>
+              <option value="Itagüí">Itagüí</option>
+              <option value="Envigado">Envigado</option>
+              <option value="Sabaneta">Sabaneta</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarprocedimiento">Procedimiento:</label>
+            <select id="actualizarprocedimiento" name="actualizarprocedimiento" required>
+              <option value="">Seleccione un procedimiento</option>
+              <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
+              <option value="Consulta General">Consulta General</option>
+              <option value="Odontología">Odontología</option>
+              <option value="Pediatría">Pediatría</option>
+              <option value="Ginecología">Ginecología</option>
+              <option value="Vacunación">Vacunación</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarfechaInicio">Fecha de Inicio:</label>
+            <input type="date" id="actualizarfechaInicio" name="actualizarfechaInicio" required>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarfechaFin">Fecha de Fin:</label>
+            <input type="date" id="actualizarfechaFin" name="actualizarfechaFin" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarhoraInicio">Hora de Inicio:</label>
+            <input type="time" id="actualizarhoraInicio" name="actualizarhoraInicio" required>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="actualizarhoraFin">Hora de Fin:</label>
+            <input type="time" id="actualizarhoraFin" name="actualizarhoraFin" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="actualizarespacioCitas">Espacio entre citas (minutos):</label>
+        <input type="number" id="actualizarespacioCitas" name="actualizarespacioCitas" min="5" max="120" step="5" value="30" required>
+      </div>
+      
+      <div class="form-group">
+        <label>¿Desea incluir tiempo fuera (descanso)?</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="actualizartiempoFueraSi" name="actualizartiempoFuera" value="si">
+            <label for="actualizartiempoFueraSi">Sí</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="actualizartiempoFueraNo" name="actualizartiempoFuera" value="no" checked>
+            <label for="actualizartiempoFueraNo">No</label>
+          </div>
+        </div>
+      </div>
+      
+      <div id="tiempoFueraOptions" class="hidden">
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="actualizarinicioHoraDescanso">Inicio de Descanso:</label>
+              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso">
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="actualizarfinHoraDescanso">Fin de Descanso:</label>
+              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <input type="hidden" name="form_type" value="actualizarcalendario_form">
+            <button type="submit">Actualizar</button>
+    </form>
+  </div>
+  
+  <script src="../../static/js/formulario_calendario.js"></script>
+
+</body>
+</html>

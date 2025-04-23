@@ -1,0 +1,175 @@
+/* Estilos para el calendario mensual */
+
+/* Navegación del mes */
+.mes-navegacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.nav-izquierda, .nav-derecha {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-nav {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-nav:hover {
+    background-color: #0d8bf2;
+}
+
+.btn-vista {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-vista:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-vista.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+.titulo-mes {
+    font-size: 1.5rem;
+    margin: 0;
+    color: #333;
+}
+
+/* Estructura del calendario mensual */
+.calendario-mensual {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Días de la semana */
+.dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.dias-semana div {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+}
+
+/* Días del mes */
+.dias-mes {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: minmax(100px, auto);
+}
+
+.dia {
+    border: 1px solid #eee;
+    padding: 5px;
+    min-height: 100px;
+    position: relative;
+}
+
+/* Estilos para días fuera del mes actual */
+.dia.otro-mes {
+    background-color: #f9f9f9;
+    color: #aaa;
+}
+
+/* Estilos para el día actual */
+.dia.hoy {
+    background-color: #e6f7ff;
+    border: 1px solid #2196F3;
+}
+
+/* Número del día */
+.numero-dia {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: right;
+}
+
+/* Indicador de citas */
+.indicador-citas {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+}
+
+/* Lista de citas en el día */
+.citas-dia {
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.cita-item {
+    background-color: #e1f5fe;
+    border-left: 3px solid #2196F3;
+    padding: 3px 5px;
+    margin-bottom: 3px;
+    border-radius: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.cita-item:hover {
+    background-color: #b3e5fc;
+}
+
+/* Estilos para días con citas */
+.dia.con-citas {
+    background-color: #f0f8ff;
+}
+
+/* Estilos para días seleccionados */
+.dia.seleccionado {
+    background-color: #e3f2fd;
+    border: 2px solid #1976D2;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .dias-mes {
+        grid-auto-rows: minmax(80px, auto);
+    }
+    
+    .numero-dia {
+        font-size: 1rem;
+    }
+    
+    .cita-item {
+        font-size: 0.7rem;
+    }
+}

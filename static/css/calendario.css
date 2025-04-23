@@ -1,0 +1,1041 @@
+/* Estilos específicos para el calendario - Define la apariencia y comportamiento del calendario principal */
+
+/* Estilos para los slots disponibles - Define el color verde para las citas disponibles */
+.disponible {
+    background-color: #359038 !important;
+    color: white !important;
+}
+
+/* Estilo para el tiempo de descanso - Define el color gris para los periodos de descanso */
+.descanso {
+    background-color: #9E9E9E !important;
+    color: white !important;
+}
+
+/* Estilos para el encabezado del calendario - Configura la apariencia del encabezado con título y controles */
+header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Estilo para el título principal en el encabezado */
+header h1 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.8rem;
+    width: 100%;
+    text-align: center;
+}
+
+/* Contenedor para los controles del encabezado */
+.header-controls {
+    display: flex;
+    width: 100%;
+}
+
+/* Controles ubicados a la izquierda del encabezado (fecha, botones) */
+.left-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Estilo para el selector de fecha en los controles */
+.left-controls input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+/* Estilo general para los botones en el encabezado */
+.header-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-right: 10px;
+}
+
+/* Efecto hover para los botones del encabezado */
+.header-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Estilo específico para el botón de volver */
+.volver-btn {
+    background-color: #607D8B;
+    color: white;
+}
+
+/* Estilo específico para el botón de exportar */
+.export-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* Estilos para el panel de información - Panel lateral con resumen de citas */
+.info-panel {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 250px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-self: start;
+    overflow: hidden;
+}
+
+/* Encabezado del panel de información */
+.info-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #f8f8f8;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Título del panel de información */
+.info-panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Botón para minimizar el panel de información */
+.minimize-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.3s;
+}
+
+/* Efecto hover para el botón de minimizar */
+.minimize-btn:hover {
+    color: #333;
+}
+
+/* Animación para el ícono del botón minimizar */
+.minimize-btn svg {
+    transition: transform 0.3s;
+}
+
+/* Contenido del panel de información */
+.info-panel-content {
+    padding: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+/* Estado minimizado del panel de información - oculta el contenido */
+.info-panel.minimized .info-panel-content {
+    max-height: 0;
+    padding: 0 15px;
+    overflow: hidden;
+}
+
+/* Rotación del ícono cuando el panel está minimizado */
+.info-panel.minimized .minimize-btn svg {
+    transform: rotate(180deg);
+}
+
+/* Estilos para el filtro de procedimientos - Permite filtrar citas por tipo */
+.filtro-container {
+    margin: 15px 0;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Etiqueta del filtro */
+.filtro-container label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* Selector desplegable del filtro */
+.filtro-container select {
+    padding: 8px 12px;
+    border: 1px solid #dddddda1;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+/* Estilos para la leyenda - Muestra el significado de los colores */
+.calendario-leyenda {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+/* Elementos individuales de la leyenda */
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Cuadros de color en la leyenda */
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+
+/* Colores para los diferentes estados de las citas */
+/* Color azul para citas ocupadas temporalmente */
+.ocupado-temp {
+    background-color: #3407ff;
+}
+
+/* Color rojo para citas ocupadas permanentemente */
+.ocupado {
+    background-color: #F44336;
+}
+
+/* Color gris para tiempos fuera o descansos */
+.tiempo-fuera {
+    background-color: #607D8B;
+}
+
+/* Media Queries para diseño responsivo - Adapta el diseño a diferentes tamaños de pantalla */
+        
+/* Pantallas grandes (escritorio) */
+@media screen and (min-width: 1200px) {
+    .container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .calendar table {
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    .info-panel {
+        width: 300px;
+    }
+}
+
+/* Pantallas medianas (tablets) */
+@media screen and (max-width: 1199px) and (min-width: 768px) {
+    .container {
+        width: 95%;
+        margin: 0 auto;
+    }
+    
+    .calendar {
+        overflow-x: auto;
+    }
+    
+    .calendar table {
+        min-width: 700px;
+    }
+    
+    .info-panel {
+        width: 250px;
+        right: 10px;
+        top: 10px;
+    }
+    
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    header h1 {
+        margin-bottom: 15px;
+    }
+    
+    header input, header button {
+        margin: 5px 0;
+    }
+}
+
+/* Media queries para responsividad del header */
+@media screen and (max-width: 768px) {
+    .left-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .left-controls input[type="date"],
+    .header-btn {
+        width: 100%;
+        margin-bottom: 8px;
+        margin-right: 0;
+    }
+}
+
+/* Pantallas pequeñas (móviles) - Ajustes para dispositivos móviles */
+@media screen and (max-width: 767px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    
+    header input, header button {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .calendar {
+        overflow-x: auto;
+    }
+    
+    .info-panel {
+        position: static;
+        width: 100%;
+        margin-bottom: 20px;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .calendario-leyenda {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+    .leyenda-item {
+        width: 48%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Pantallas muy pequeñas - Ajustes adicionales para móviles pequeños */
+@media screen and (max-width: 480px) {
+    header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .calendar table {
+        min-width: 500px;
+    }
+    
+    .leyenda-item {
+        width: 100%;
+    }
+    
+    .filtro-container {
+        flex-direction: column;
+    }
+    
+    .filtro-container label, .filtro-container select {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Orientación horizontal en dispositivos móviles - Ajustes para modo landscape */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+    .container {
+        padding: 5px;
+    }
+    
+    header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .info-panel {
+        padding: 10px;
+    }
+    
+    .calendario-leyenda {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .leyenda-item {
+        width: 33%;
+        margin-bottom: 5px;
+    }
+}
+
+/* Ajustes para impresión - Optimiza la vista para imprimir */
+@media print {
+    .volver-btn, .export-btn, .filtro-container {
+        display: none;
+    }
+    
+    .info-panel {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .calendar {
+        width: 100%;
+        overflow: visible;
+    }
+    
+    .calendar table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .calendar th, .calendar td {
+        border: 1px solid #000;
+    }
+    
+    body {
+        font-size: 12pt;
+    }
+    
+    h1, h2, h3, h4 {
+        page-break-after: avoid;
+    }
+    
+    table {
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
+/* Estilos para el modal de reserva de citas - Ventana emergente para reservar citas */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+/* Animación de entrada para el modal */
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* Encabezado del modal */
+.modal-header {
+    padding: 15px;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #e5e5e5;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Título del modal */
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+/* Botón para cerrar el modal */
+.close-modal {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+/* Efecto hover para el botón de cerrar */
+.close-modal:hover {
+    color: #333;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+    padding: 20px;
+}
+
+/* Grupos de campos en el formulario del modal */
+.modal-body .form-group {
+    margin-bottom: 15px;
+}
+
+/* Etiquetas en el formulario del modal */
+.modal-body label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Campos de entrada y áreas de texto en el modal */
+.modal-body input,
+.modal-body textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Contenedor para los botones de acción del formulario */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Botón para reservar cita */
+.btn-reservar {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Efecto hover para el botón de reservar */
+.btn-reservar:hover {
+    background-color: #45a049;
+    border-radius: 4px;
+}
+
+/* Botón para cancelar la reserva */
+.btn-cancelar {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Efecto hover para el botón de cancelar */
+.btn-cancelar:hover {
+    background-color: #d32f2f;
+}
+
+/* Estilo para slots ocupados - Citas ya reservadas */
+.ocupado {
+    background-color: #F44336 !important;
+    color: white !important;
+}
+
+/* Hacer que los slots disponibles sean clickeables - Permite interactuar con slots libres */
+.slot.disponible {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto hover para slots disponibles */
+.slot.disponible:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Estilos para el tooltip de información de cita - Muestra detalles al pasar el cursor */
+.tooltip {
+    position: absolute;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 200px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Contenido del tooltip */
+.tooltip-content {
+    text-align: center;
+}
+
+/* Nombre del paciente en el tooltip */
+.tooltip-nombre {
+    margin: 0;
+    font-weight: bold;
+}
+
+/* Estilos para slots ocupados temporalmente - Citas en proceso de reserva */
+.ocupado-temp {
+    background-color: #3407ff !important;
+    color: white !important;
+    cursor: pointer;
+    position: relative; /* Necesario para posicionar el indicador de tiempo */
+    overflow: hidden; /* Asegura que el temporizador se mantenga dentro del slot */
+}
+
+/* Indicador de tiempo para slots temporales - Muestra el tiempo restante */
+.timer-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    transform-origin: left;
+    animation: countdown 300s linear forwards; /* 5 minutos = 300 segundos */
+}
+
+/* Animación de cuenta regresiva para el indicador de tiempo */
+@keyframes countdown {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* Notificación para liberación de slot - Aviso cuando se libera un slot temporal */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    z-index: 1100;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Estado visible de la notificación */
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hacer que los slots ocupados sean clickeables para ver info - Permite ver detalles de citas */
+.slot.ocupado, .slot.ocupado-temp {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Modal de información de cita - Ventana para ver detalles de una cita */
+.info-cita-modal {
+    max-width: 400px;
+}
+
+/* Estilos para los puntos azules en el panel de información - Indicadores visuales */
+.info-item {
+    position: relative;
+    padding-left: 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+/* Punto indicador en los elementos de información */
+.info-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #2196F3;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Estilos para el header con resumen e información - Sección superior con estadísticas */
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Resumen de estadísticas en el encabezado */
+.header-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    background-color: #f0f8ff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 500px;
+}
+
+/* Elementos individuales del resumen */
+.summary-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-right: 15px;
+}
+
+/* Punto indicador en los elementos del resumen */
+.summary-item .info-dot {
+    margin-right: 5px;
+}
+
+/* Valor numérico en los elementos del resumen */
+.summary-item span:last-child {
+    font-weight: bold;
+    margin-left: 3px;
+}
+
+/* Encabezado de la sección de información del calendario */
+.calendario-info-header {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+
+/* Elementos de información en el encabezado del calendario */
+.calendario-info-header .info-item {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+/* Ajustes responsivos para el header - Adaptación a pantallas pequeñas */
+@media screen and (max-width: 768px) {
+    .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-summary {
+        margin-top: 10px;
+        width: 100%;
+        max-width: none;
+    }
+}
+
+/* Estilos para el calendario */
+.calendar {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.calendario-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.calendario-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.info-item {
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    margin-right: 5px;
+}
+
+.info-value {
+    font-weight: 700;
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+/* Estilos para la tabla del calendario */
+.calendario-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    margin-top: 10px;
+}
+
+.calendario-table th, .calendario-table td {
+    text-align: center;
+    padding: 0;
+}
+
+.header-cell {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.header-cell.date {
+    min-width: 100px;
+}
+
+.day-of-week {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.day-of-month {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #343a40;
+    margin: 5px 0;
+}
+
+.month {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.time-cell {
+    background-color: #f8f9fa;
+    border-right: 2px solid #dee2e6;
+    padding: 10px;
+    width: 80px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.slot-cell {
+    padding: 2px;
+}
+
+.slot {
+    height: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.slot.disponible {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+}
+
+.slot.disponible:hover {
+    background-color: #bbdefb;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.slot.ocupado {
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+}
+
+.slot.ocupado-temp {
+    background-color: #fff8e1;
+    border: 1px solid #ffe082;
+}
+
+.slot.descanso {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #9e9e9e;
+}
+
+.slot.tiempo-fuera {
+    background-color: #efebe9;
+    border: 1px solid #d7ccc8;
+    color: #8d6e63;
+}
+
+.slot-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #2196f3;
+    border-radius: 50%;
+    display: none;
+}
+
+.slot-text {
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+/* Estilos para la leyenda */
+.calendario-leyenda {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    margin: 20px 0;
+}
+
+.calendario-leyenda h3 {
+    margin-top: 0;
+    color: #343a40;
+    font-size: 1.2em;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.color-box.disponible {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+}
+
+.color-box.ocupado-temp {
+    background-color: #fff8e1;
+    border: 1px solid #ffe082;
+}
+
+.color-box.ocupado {
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+}
+
+.color-box.descanso {
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+}
+
+.color-box.tiempo-fuera {
+    background-color: #efebe9;
+    border: 1px solid #d7ccc8;
+}
+
+/* Estilos para los modales */
+.modal {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 15px 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #343a40;
+}
+
+.close-modal {
+    color: #6c757d;
+    font-size: 1.5em;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #343a40;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Estilos para el tooltip */
+.tooltip {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px 15px;
+    z-index: 1000;
+    max-width: 200px;
+    display: none;
+}
+
+.tooltip-content {
+    font-size: 0.9em;
+}
+
+.tooltip-nombre {
+    font-weight: 600;
+    color: #343a40;
+}

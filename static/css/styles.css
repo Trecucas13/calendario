@@ -1,0 +1,160 @@
+/* Estilos base para el cuerpo de la página - Define la fuente, márgenes y color de fondo */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #eef2f3;
+}
+
+/* Contenedor secundario con ancho limitado - Usado para páginas con contenido más estrecho */
+.container-2 {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos base para el contenedor principal - Define el ancho máximo y centrado */
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Estilos para el encabezado - Organiza los elementos del header con flexbox */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+/* Estilos para la tabla del calendario - Permite desplazamiento horizontal */
+.calendar {
+    overflow-x: auto;
+    margin-bottom: 30px;
+}
+
+/* Configuración básica de la tabla del calendario */
+.calendar table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* Estilos para celdas y encabezados de la tabla del calendario */
+.calendar th, .calendar td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Color de fondo para los encabezados de la tabla */
+.calendar th {
+    background-color: #f2f2f2;
+}
+
+/* Estilos para los slots de citas en el calendario */
+.slot {
+    height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Estilo para el título principal de la página */
+h1 {
+    margin: 0;
+    color: #333;
+}
+
+/* Estilo para los campos de entrada de fecha */
+input[type="date"] {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Clase alternativa para el contenedor del calendario */
+.calendario {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+/* Estilos generales para todas las tablas de la aplicación */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    background: white;
+}
+
+/* Estilo para los encabezados de tabla con fondo azul */
+thead {
+    background-color: #007BFF;
+    color: rgb(0, 0, 0);
+}
+
+/* Estilos generales para celdas y encabezados de tablas */
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+/* Efecto de rayas zebra para las filas de las tablas */
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Efecto hover para los slots de citas */
+.slot:hover {
+    transform: scale(1.05);
+}
+
+/* Estilos para todos los formularios de la aplicación */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Estilo para las etiquetas de los formularios */
+form label {
+    font-weight: bold;
+}
+
+/* Estilos para los campos select e input dentro de formularios */
+form select, form input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    
+} 
+
+/* Estilos para los botones dentro de formularios */
+form button {
+    background: #007BFF;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Efecto hover para los botones */
+form button:hover {
+    background: #0056b3;
+}
