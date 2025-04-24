@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2 import Template
 from database.config import db_conexion, mysql
 from models.vistas.calendario import tabla_calendarios
@@ -33,16 +33,33 @@ def login():
 @role_required([1, 2])
 def index():
     calendarios = datos_calendario()
-    if not calendarios:
-        flash("No hay calendarios registrados", "info")
-        return redirect(url_for('formulario'))
     return render_template("index.html", calendarios=calendarios)
+
+
+
+
+def datos_municipio():
+    conn = mysql.connection.cursor()
+    conn.execute("SELECT * FROM municipios")
+    municipios = conn.fetchall()
+    
+    conn.execute("SELECT * FROM procedimientos")
+    procedimientos = conn.fetchall()    
+    conn.close()
+
+
+    return {
+        "municipios": municipios, 
+        "procedimientos": procedimientos
+    }
 
 @app.route("/formulario")
 @login_required
 @role_required([1, 2])
 def formulario():
-    return render_template("formularios/form.html")
+    datos = datos_municipio()
+    print(datos)
+    return render_template("formularios/creacion_calendario.html", datos = datos)
 
 
 @app.route("/actualizarFormulario/<int:id>", methods=['GET', 'POST'])

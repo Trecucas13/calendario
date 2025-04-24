@@ -46,7 +46,7 @@
                             <td>{{ calendario.procedimiento }}</td>
                             <td>{{ calendario.municipio }}</td>
                             <td>
-                                <form action="{{ url_for('formularioActualizar', id=calendario.id) }}" method="GET" style="display: inline;">
+                                <form action="{{ url_for('formularioActualizar', id=calendario['id_calendario']) }}" method="GET" style="display: inline;">
                                     <button type="submit" class="btn btn-sm btn-warning">Editar</button>
                                 </form>
                                 

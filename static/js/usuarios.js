@@ -59,3 +59,18 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tooltips
+    const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        .map(tooltipEl => new bootstrap.Tooltip(tooltipEl))
+
+    // Eliminación con confirmación
+    const deleteModal = document.getElementById('confirmDeleteModal')
+    deleteModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget
+        const userId = button.getAttribute('data-user-id')
+        const form = document.getElementById('deleteForm')
+        form.action = `/eliminar_usuario/${userId}`
+    })
+})

@@ -15,7 +15,8 @@
 
   <div class="container-2">
     <h1>Actualizar calendario</h1>
-    <form id="ActualizarcalendarioForm" action="" method="post">
+    <form id="formularioActualizarCalendario" method="POST" action="/actualizar_calendario">
+      <input type="hidden" id="calendario_id" name="calendario_id">
         
       <div class="form-group">
         <label for="actualizarnombreCalendario">Nombre del Calendario:</label>
@@ -53,20 +54,20 @@
         </div>
       </div>
       
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="actualizarfechaInicio">Fecha de Inicio:</label>
-            <input type="date" id="actualizarfechaInicio" name="actualizarfechaInicio" required>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="actualizarfechaFin">Fecha de Fin:</label>
-            <input type="date" id="actualizarfechaFin" name="actualizarfechaFin" required>
-          </div>
-        </div>
-      </div>
+      <div class="form-group">
+        <label for="titulo">Título</label>
+        <input type="text" class="form-control" id="titulo" name="titulo" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="fecha_inicio">Fecha de inicio</label>
+        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="fecha_fin">Fecha de fin</label>
+        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+    </div>
       
       <div class="form-row">
         <div class="form-col">
@@ -119,8 +120,7 @@
         </div>
       </div>
       
-      <input type="hidden" name="form_type" value="actualizarcalendario_form">
-            <button type="submit">Actualizar</button>
+      <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>
   </div>
   
