@@ -11,7 +11,7 @@ tabla_calendarios = Blueprint('tabla_calendarios', __name__)
 
 def datos_id_calendario():
     try:
-        conn = mysql.connection.cursor()
+        conn = mysql.connection.cursor(dictionary=True)
         conn.execute("SELECT * FROM calendarios")
         datos = conn.fetchall()
         
@@ -20,41 +20,43 @@ def datos_id_calendario():
 
         # Formatear las fechas antes de devolver los datos
         for calendario in datos:
-            calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
-            calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
-
-        return datos, id_calendario
-    except Exception as e:
-        error = traceback.format_exc()
-        print(error)
-        return [], None
-
-
-def datos_calendario():
-    try:
-        conn = mysql.connection.cursor()
-        conn.execute("SELECT * FROM calendarios")
-        datos = conn.fetchall()
-
-        conn.close()
-
-        # Formatear las fechas antes de devolver los datos
-        for calendario in datos:
-            calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
-            calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
+            if 'fecha_inicio' in calendario and calendario['fecha_inicio']:
+                calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
+            if 'fecha_fin' in calendario and calendario['fecha_fin']:
+                calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
 
         return datos
     except Exception as e:
         error = traceback.format_exc()
         print(error)
-        return [], None
+        return []
 
 
+def datos_calendario():
+    try:
+        # Use dictionary cursor to get results as dictionaries
+        conn = mysql.connection.cursor(dictionary=True)
+        conn.execute("SELECT * FROM calendarios")
+        datos = conn.fetchall()
+        conn.close()
+
+        # Formatear las fechas antes de devolver los datos
+        for calendario in datos:
+            if 'fecha_inicio' in calendario and calendario['fecha_inicio']:
+                calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
+            if 'fecha_fin' in calendario and calendario['fecha_fin']:
+                calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
+
+        return datos
+    except Exception as e:
+        error = traceback.format_exc()
+        print(error)
+        return []
 
 
 def obtener_citas(id_calendario):
     try:
-        conn = mysql.connection.cursor()
+        conn = mysql.connection.cursor(dictionary=True)
         if id_calendario:
             conn.execute("SELECT * FROM citas WHERE id_calendario = %s", (id_calendario,))
         else:
@@ -71,8 +73,8 @@ def obtener_citas(id_calendario):
 @login_required
 @role_required([1, 2])
 def calendario():
-    # Obtener los datos del calendario y desempaquetar la tupla
-    datos, id_ultimo_calendario = datos_calendario()
+    # Obtener los datos del calendario (sin desempaquetar)
+    datos = datos_calendario()
     
     # Inicializar citas como una lista vacía
     citas = []
@@ -80,7 +82,7 @@ def calendario():
     # Verificar si hay datos de calendario
     if datos and len(datos) > 0:
         # Obtener citas del primer calendario
-        citas = obtener_citas(datos[0]['id'])  # Cambiar datos["id"] a datos[0]['id']
+        citas = obtener_citas(datos[0]['id'])
         print(citas)
     else:
         # Si no hay calendarios, obtener todas las citas
@@ -128,7 +130,7 @@ def crear_cita():
         return jsonify({
             'id': cita_id,
             'mensaje': 'Cita creada exitosamente',
-            'calendario_id': id_calendario,  # Corregido: era calendario_id pero debe ser id_calendario
+            'calendario_id': id_calendario,
             'fecha': fecha,
             'hora': hora
         })

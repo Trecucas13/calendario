@@ -9,6 +9,7 @@ from models.vistas.usuarios import vista_usuarios
 from models.eliminar.delete_usuarios import eliminar_usuarios
 from models.vistas.citas import citas_bp
 from auth.auth_login import auth
+
 from auth.decorators import *
 
 app = Flask(__name__)

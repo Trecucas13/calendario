@@ -84,4 +84,4 @@ def logout():
     """
     # Elimina todas las variables de sesión
     session.clear()
-    return redirect(url_for("auth_login.login"))
+    return redirect(url_for("auth.auth_login"))

@@ -162,6 +162,401 @@
                             <label class="form-label">
                                 <i class="fas fa-user me-2"></i>Nombre completo
                             </label>
+                            <input typ>text" class="form-control" name="nombre" id="nombre" require>
+o                       </dii i vll>
+                 
+<                       <div class="col-mdbelbel>
+>
+>-6">
+            o      select class="f rm-s  ect" name="rol" id="rol" required>  select c          f             < ption value="">Seleccionar rol</option>
+                                <optio
+v l    l <obel
+      ct  nam/="Aro">
+i r    required>       <l/  v         e         on o</dov vaalu ="2">Ascci nr/drol
+
+t on>
+      a   lar  <!-- < p<dov  /    on>  s >
+  se    <option         on vru= -be>
+u                       </  v                 <p "ftn ueiv>
+s fe-user-t      /dp">
+
+           >Cl celar      </la<dbv         b "bp>>
+--    <- r mar">f ot<butto  typ =<submutd
+ lts =" o     - iima  v 
+ e yo  "bu
+o e 2><n grar ic>ass2">Asefao <r/dmnn2
+lr/   egis rCa cell>  <!s- <od<dob         i s  >
+  se a s1udfod</>
+  p   do tr  p  ><butt  <ut  =n ubmu uecltl ybtribtov uimary2l
+Ae/type "buttoc  amod l t
+>ec=--
+"foseiae io>
+tsp2"l ss sfemtlUTf-ljjss t rcs"ps p jhtml>l lang="en">
+<head>-mat  <me/a charset="UTF-8">srbm  <meta name<"viewp  t" content=tvydth=device-widlhg initial-samle=1.0">
+    <titl >isuario>/n/{%eb
+ - fad>
+sTfljsj tsrcs prcsmjhtmlml lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+</head>
+<body>
+    
+
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+
+<div class="user-management">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">
+            <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
+        </h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+            <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+        </button>
+    </div>
+
+    <!-- Tabla de usuarios -->
+  
+     <!-- Tabla de usuarios -->
+     <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-gradient-primary text-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <h4 class="mb-3 mb-md-0 fw-semibold text-dark">
+                <i class=" me-2 text-primary"></i>Usuarios Registrados
+            </h4>
+    
+            <!-- BUSCAR -->
+            <div class="input-group shadow-sm" style="max-width: 400px;">
+                <input type="text" id="busqueda" 
+                       class="form-control form-control-lg border-0" 
+                       placeholder="Buscar usuario..."
+                       aria-label="Buscar usuario">
+                <button id="boton-busqueda" 
+                        class="btn btn-light btn-lg" 
+                        type="button">
+                    <i class="fas fa-search text-primary"></i>
+                </button>
+            </div>
+        </div>
+    
+
+        <div class="card-body p-0">
+            <div class="table-responsive rounded-bottom-4">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Documento</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Nombre completo</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Rol</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold text-end">Acciones</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        {% for usuarios in usuarios %}
+                        <tr class="border-top border-secondary-subtle">
+                            <td class="px-4 fw-medium text-secondary">{{usuarios.documento}}</td>
+                            <td class="px-4">{{usuarios.nombre}}</td>
+                            <td class="px-4">
+                                {% if usuarios.rol == 1 %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary">
+                                    <i class="fas fa-user-shield me-2"></i>Administrador
+                                </span>
+                                {% elif usuarios.rol == 2 %}
+                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill py-2 px-3 border border-info">
+                                    <i class="fas fa-user-tie me-2"></i>Asesor
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-icon btn-outline-primary rounded-3" 
+                                            onclick="mostrarModalActualizarDatos('{{ usuarios.id }}')"
+                                            data-bs-toggle="tooltip" 
+                                            title="Editar">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    
+                                    <button type="button" 
+                                            class="btn btn-icon btn-outline-danger rounded-3"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#confirmDeleteModal"
+                                            data-user-id="{{ usuarios.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!-- Modal Confirmación Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-triangle-exclamation me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="text-center">
+                    <i class="fas fa-user-slash fa-3x text-danger mb-3"></i>
+                    <h5 class="fw-bold mb-2">¿Eliminar usuario permanentemente?</h5>
+                    <p class="text-muted">Esta acción no se puede deshacer</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <form id="deleteForm" method="post">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fas fa-trash me-2"></i>Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal Usuario -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{url_for('insertar_usuario.insert_usuario')}}" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Documento
+                            </label>
+                            <input type="number" class="form-control" name="documento" id="documento" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Nombre completo
+                            </label>
+                            <input type="text" class="form-control" name="nombre" id="nombre" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user-tag me-2"></i>Rol
+                            </label>
+                            <select class="form-select" name="rol" id="rol" required>
+                                <option value="">Seleccionar rol</option>
+                                <option value="1">Administrador</option>
+                                <option value="2">Asesor</option>
+                                <!-- <option value="eps">EPS</option> -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Registrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- LINKS DE JS -->
+ <script src="../static/js/usuarios.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+</head>
+<body>
+    
+
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+
+<div class="user-management">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">
+            <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
+        </h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+            <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+        </button>
+    </div>
+
+    <!-- Tabla de usuarios -->
+  
+     <!-- Tabla de usuarios -->
+     <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-gradient-primary text-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <h4 class="mb-3 mb-md-0 fw-semibold text-dark">
+                <i class=" me-2 text-primary"></i>Usuarios Registrados
+            </h4>
+    
+            <!-- BUSCAR -->
+            <div class="input-group shadow-sm" style="max-width: 400px;">
+                <input type="text" id="busqueda" 
+                       class="form-control form-control-lg border-0" 
+                       placeholder="Buscar usuario..."
+                       aria-label="Buscar usuario">
+                <button id="boton-busqueda" 
+                        class="btn btn-light btn-lg" 
+                        type="button">
+                    <i class="fas fa-search text-primary"></i>
+                </button>
+            </div>
+        </div>
+    
+
+        <div class="card-body p-0">
+            <div class="table-responsive rounded-bottom-4">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Documento</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Nombre completo</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold">Rol</th>
+                            <th class="py-3 px-4 text-uppercase text_dark small fw-semibold text-end">Acciones</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        {% for usuarios in usuarios %}
+                        <tr class="border-top border-secondary-subtle">
+                            <td class="px-4 fw-medium text-secondary">{{usuarios.documento}}</td>
+                            <td class="px-4">{{usuarios.nombre}}</td>
+                            <td class="px-4">
+                                {% if usuarios.rol == 1 %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary">
+                                    <i class="fas fa-user-shield me-2"></i>Administrador
+                                </span>
+                                {% elif usuarios.rol == 2 %}
+                                <span class="badge bg-info bg-opacity-10 text-info rounded-pill py-2 px-3 border border-info">
+                                    <i class="fas fa-user-tie me-2"></i>Asesor
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-icon btn-outline-primary rounded-3" 
+                                            onclick="mostrarModalActualizarDatos('{{ usuarios.id }}')"
+                                            data-bs-toggle="tooltip" 
+                                            title="Editar">
+                                        <i class="fas fa-pen"></i>
+                                    </button>
+                                    
+                                    <button type="button" 
+                                            class="btn btn-icon btn-outline-danger rounded-3"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#confirmDeleteModal"
+                                            data-user-id="{{ usuarios.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!-- Modal Confirmación Eliminación -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-triangle-exclamation me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="text-center">
+                    <i class="fas fa-user-slash fa-3x text-danger mb-3"></i>
+                    <h5 class="fw-bold mb-2">¿Eliminar usuario permanentemente?</h5>
+                    <p class="text-muted">Esta acción no se puede deshacer</p>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <form id="deleteForm" method="post">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fas fa-trash me-2"></i>Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal Usuario -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{url_for('insertar_usuario.insert_usuario')}}" method="post">
+                <div class="modal-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Documento
+                            </label>
+                            <input type="number" class="form-control" name="documento" id="documento" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="fas fa-user me-2"></i>Nombre completo
+                            </label>
                             <input type="text" class="form-control" name="nombre" id="nombre" required>
                         </div>
                         
