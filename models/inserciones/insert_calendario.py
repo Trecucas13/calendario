@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database.config import mysql
 
 insercion_calendario = Blueprint('insercion_calendario', __name__)
@@ -17,20 +17,20 @@ def insertar_calendario():
         tiempo_fuera = request.form['tiempoFuera']
         inicio_descanso = request.form['inicioHoraDescanso']
         fin_descanso = request.form['finHoraDescanso']
-        
+        id_usuario = session.get('id')
 
         conn = mysql.connection.cursor()
         conn.execute("""
             INSERT INTO calendarios 
-            (nombre_calendario, id_municipio, id_procedimiento, fecha_inicio, fecha_fin, hora_inicio, 
+            (nombre_calendario, id_usuario, id_municipio, id_procedimiento, fecha_inicio, fecha_fin, hora_inicio, 
             hora_fin, espacio_citas, tiempo_fuera, inicio_hora_descanso, 
             fin_hora_descanso)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nombre, id_municipio, id_procedimiento, fecha_inicio, fecha_fin, hora_inicio, 
+            VALUES (%s ,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nombre, id_usuario, id_municipio, id_procedimiento, fecha_inicio, fecha_fin, hora_inicio, 
              hora_fin, espacio_citas, tiempo_fuera, inicio_descanso, fin_descanso))
         mysql.connection.commit()
 
-        id_calendario = conn.lastrowid
+        # id_calendario = conn.lastrowid
 
 
         # conn.execute("""
@@ -65,4 +65,5 @@ def insertar_calendario():
         
         conn.close()
         
+        flash("Calendario insertado correctamente", "success")
         return redirect(url_for('tabla_calendarios.calendario'))

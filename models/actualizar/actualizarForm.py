@@ -18,34 +18,35 @@ def update_calendario():
     """
     
     try:
-        nombre = request.form['nombreCalendario']
-        municipio = request.form['municipio']
+        id_calendario = request.form['id_calendario']
+        nombre_calendario = request.form['nombreCalendario']
+        id_municipio = request.form['id_municipio']
+        id_procedimiento = request.form['procedimiento']
         fecha_inicio = request.form['fechaInicio']
         fecha_fin = request.form['fechaFin']
-        procedimiento = request.form['procedimiento']
         hora_inicio = request.form['horaInicio']
         hora_fin = request.form['horaFin']
         espacio_citas = request.form['espacioCitas']
         tiempo_fuera = request.form['tiempoFuera']
-        inicio_descanso = request.form['inicioHoraDescanso']
-        fin_descanso = request.form['finHoraDescanso']
+        inicio_hora_descanso = request.form['inicioHoraDescanso']
+        fin_hora_descanso = request.form['finHoraDescanso']
     
         sql = """UPDATE calendarios SET 
                 nombre_calendario = %s,
-                municipio = %s,
-                procedimiento = %s,
+                id_municipio = %s,
+                id_procedimiento = %s,
                 fecha_inicio = %s,
                 fecha_fin = %s,
                 hora_inicio = %s,
                 hora_fin = %s,
-                espacio_citas = %s
-                tiempo_fuera = %s
-                inicio_hora_descanso = %s
+                espacio_citas = %s,
+                tiempo_fuera = %s,
+                inicio_hora_descanso = %s,
                 fin_hora_descanso = %s
-                WHERE id = %s"""
-        params = (nombre_calendario, municipio, procedimiento, 
+                WHERE id_calendario = %s"""
+        params = (nombre_calendario, id_municipio, id_procedimiento, 
                   fecha_inicio, fecha_fin, hora_inicio, hora_fin, espacio_citas, tiempo_fuera,
-                  inicio_hora_descanso, fin_hora_descanso, id)
+                  inicio_hora_descanso, fin_hora_descanso, id_calendario)
          
         # Ejecutar la consulta SQL
         cur = mysql.connection.cursor()

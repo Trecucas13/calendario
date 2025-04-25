@@ -7,9 +7,10 @@ from models.vistas.calendario import datos_calendario
 from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
 from models.eliminar.delete_usuarios import eliminar_usuarios
-from models.vistas.citas import citas_bp
-from auth.auth_login import auth
+# from models.vistas.citas import citas_bp
+from models.inserciones.insert_citas import insertar_citas
 
+from auth.auth_login import auth
 from auth.decorators import *
 
 app = Flask(__name__)
@@ -19,8 +20,9 @@ db_conexion(app)
 app.register_blueprint(tabla_calendarios)
 app.register_blueprint(insercion_calendario)
 app.register_blueprint(auth)
-app.register_blueprint(citas_bp)
+# app.register_blueprint(citas_bp)
 app.register_blueprint(insertar_usuario)
+app.register_blueprint(insertar_citas)
 app.register_blueprint(vista_usuarios)
 app.register_blueprint(eliminar_usuarios)
 
