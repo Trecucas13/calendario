@@ -4,6 +4,7 @@ from database.config import db_conexion, mysql
 from models.vistas.calendario import tabla_calendarios
 from models.inserciones.insert_calendario import insercion_calendario
 from models.vistas.calendario import datos_calendario
+from models.vistas.calendario import obtener_citas
 from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
 from models.eliminar.delete_usuarios import eliminar_usuarios
@@ -61,7 +62,7 @@ def datos_municipio():
 @role_required([1, 2])
 def formulario():
     datos = datos_municipio()
-    print(datos)
+    # print(datos)
     return render_template("formularios/creacion_calendario.html", datos = datos)
 
 
@@ -70,12 +71,14 @@ def formulario():
 @role_required([1, 2])
 def formularioActualizar(id):
     form_id = id
-    print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
+    # print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
     return render_template("formularios/actualizarform.html" , form_id=form_id)
 
-    # @app.route("/citas")
-    # def citas():
-    #     return render_template("citas.html")
+@app.route("/citas")
+def citas():
+    citas = obtener_citas(None)
+    # return render_template("citas.html", citas=citas)
+    return render_template("horario.html", citas=citas)
 
 
 

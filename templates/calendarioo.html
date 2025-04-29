@@ -221,21 +221,6 @@
           {% set fin_descanso_minutos = fin_descanso_parts[0]|int * 60 + fin_descanso_parts[1]|int %}
         {% endif %}
         
-        {# Obtener las citas existentes para este calendario #}
-        {% set id_calendario = cal['id_calendario'] %}
-        {% set citas_ocupadas = {} %}
-        
-        {# Verificar si hay citas en el contexto #}
-        {% if citas is defined and citas|length > 0 %}
-          {% for cita in citas %}
-            {% if cita['id_calendario'] == id_calendario %}
-              {# Crear una clave única para cada combinación de fecha y hora #}
-              {% set clave_cita = cita['fecha']|string + '_' + cita['hora']|string %}
-              {% set _ = citas_ocupadas.update({clave_cita: cita}) %}
-            {% endif %}
-          {% endfor %}
-        {% endif %}
-        
         {# Generar intervalos en minutos #}
         {% for minutos in range(inicio_minutos, fin_minutos, espacio_minutos) %}
           {% set horas = (minutos // 60)|int %}
@@ -249,7 +234,7 @@
           
           {% for dia in ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] %}
             {# Calcular la fecha real para este día de la semana #}
-            {% set fecha_actual = obtener_fecha_para_dia(dia) %}
+            {% set fecha_actual = obtener_fecha_para_dia(dia) if obtener_fecha_para_dia is defined else dia %}
             
             {# Verificar si hay una cita para esta fecha y hora #}
             {% set tiene_cita = false %}
@@ -262,11 +247,11 @@
             {% endif %}
             
             {% if tiene_cita %}
-              <div class="calendario-cell ocupado" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+              <div class="calendario-cell ocupado" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}">Ocupado</div>
             {% elif es_descanso %}
-              <div class="calendario-cell descanso" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+              <div class="calendario-cell descanso" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}">Descanso</div>
             {% else %}
-              <div class="calendario-cell disponible" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+              <div class="calendario-cell disponible" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}">Disponible</div>
             {% endif %}
           {% endfor %}
         {% endfor %}
