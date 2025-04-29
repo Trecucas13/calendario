@@ -1,28 +1,37 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2 import Template
 from database.config import db_conexion, mysql
-from models.vistas.calendario import tabla_calendarios
-from models.inserciones.insert_calendario import insercion_calendario
-from models.vistas.calendario import datos_calendario
-from models.inserciones.insert_usuario import insertar_usuario
-from models.vistas.usuarios import vista_usuarios
-from models.eliminar.delete_usuarios import eliminar_usuarios
-from models.vistas.citas import citas_bp
-from auth.auth_login import auth
 
+from models.vistas.calendario import tabla_calendarios
+from models.vistas.calendario import datos_calendario
+from models.vistas.usuarios import vista_usuarios
+from models.vistas.citas import citas_bp
+
+from models.inserciones.insert_calendario import insercion_calendario
+from models.inserciones.insert_usuario import insertar_usuario
+
+from models.actualizar.actualizarUsuario import actualizar_usuario
+from models.eliminar.eliminar_usuario import delete_usuarios
+
+
+from auth.auth_login import auth
 from auth.decorators import *
 
 app = Flask(__name__)
 db_conexion(app)
 
-
 app.register_blueprint(tabla_calendarios)
-app.register_blueprint(insercion_calendario)
-app.register_blueprint(auth)
-app.register_blueprint(citas_bp)
-app.register_blueprint(insertar_usuario)
 app.register_blueprint(vista_usuarios)
-app.register_blueprint(eliminar_usuarios)
+app.register_blueprint(citas_bp)
+
+app.register_blueprint(insercion_calendario)
+app.register_blueprint(insertar_usuario)
+
+app.register_blueprint(actualizar_usuario)
+
+app.register_blueprint(delete_usuarios)
+
+app.register_blueprint(auth)
 
 
 @app.route("/")
@@ -37,7 +46,13 @@ def index():
     return render_template("index.html", calendarios=calendarios)
 
 
-
+@app.route("/usuarios")
+@login_required
+@role_required([1])
+def usuarios():
+    usuarios = vista_usuarios()
+    return render_template("usuarios.html", usuarios=usuarios)
+    
 
 def datos_municipio():
     conn = mysql.connection.cursor()
