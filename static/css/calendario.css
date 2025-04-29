@@ -577,8 +577,8 @@ header h1 {
 
 /* Estilo para slots ocupados - Citas ya reservadas */
 .ocupado {
-    background-color: #F44336 !important;
-    color: white !important;
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
 }
 
 /* Hacer que los slots disponibles sean clickeables - Permite interactuar con slots libres */
@@ -968,7 +968,7 @@ header h1 {
 }
 
 .color-box.ocupado {
-    background-color: #ffebee;
+    background-color: #ffcccc;
     border: 1px solid #ffcdd2;
 }
 

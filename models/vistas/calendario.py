@@ -103,7 +103,7 @@ def obtener_citas(id_calendario):
 def calendario():
     # Obtener los datos del calendario (sin desempaquetar)
     calendarios = datos_calendario()
-    print(calendarios)
+    # print(calendarios)
     # Inicializar citas como una lista vacía
     citas = []
     
@@ -111,12 +111,12 @@ def calendario():
     if calendarios and len(calendarios) > 0:
         # Obtener citas del primer calendario
         citas = obtener_citas(calendarios[0]['id_calendario'])
-        print(citas)
+        # print(citas)
     else:
         # Si no hay calendarios, obtener todas las citas
         citas = obtener_citas(None)
         
-    return render_template("calendarioo.html", 
+    return render_template("calendario_base.html", 
                           calendarios=calendarios, 
                           citas=citas,
                           obtener_fecha_para_dia=obtener_fecha_para_dia)

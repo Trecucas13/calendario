@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario Base</title>
+  <!-- LINK DE DISEÑOS -->
+  <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
+  <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
+  <link rel="stylesheet" href="../static/css/calendario_recuadro.css">
+  <style>
+    .calendario-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .calendario-header {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .calendario-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .info-item {
+      background-color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .info-label {
+      font-weight: bold;
+      color: #555;
+      margin-right: 5px;
+    }
+    
+    .calendario-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    
+    .calendario-mes {
+      margin-bottom: 30px;
+    }
+    
+    .mes-titulo {
+      background-color: #0066cc;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+      margin-bottom: 10px;
+    }
+    
+    .dia-semana {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+    }
+    
+    .fecha-btn {
+      display: block;
+      height: 50px;
+      width: 100%;
+      padding: 15px 5px;
+      text-align: center;
+      background-color: rgb(176, 232, 176);
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: black;
+      /* margin: ; */
+      gap: 2px;
+    }
+    
+    .fecha-btn:hover {
+      background-color: #e9ecef;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .fecha-btn.activa {
+      background-color: #28a745;
+      color: white;
+      border-color: #28a745;
+    }
+    
+    .fecha-btn.inactiva {
+      background-color: #f8f9fa;
+      color: #adb5bd;
+      cursor: default;
+    }
+    
+    .fecha-btn.fuera-rango {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .fecha-numero {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    
+    .fecha-info {
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .calendario-grid {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+      }
+      
+      .fecha-btn {
+        padding: 10px 2px;
+      }
+      
+      .fecha-numero {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calendario-container">
+    <div class="calendario-header">
+      <h1>Calendario de Citas</h1>
+      
+      {% if calendarios and calendarios|length > 0 %}
+        <div class="calendario-info">
+          <div class="info-item">
+            <span class="info-label">Calendario:</span>
+            <span class="info-value">{{ calendarios[0]['nombre_calendario'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Periodo:</span>
+            <span class="info-value">{{ calendarios[0]['fecha_inicio'] }} - {{ calendarios[0]['fecha_fin'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Horario:</span>
+            <span class="info-value">{{ calendarios[0]['hora_inicio'] }} - {{ calendarios[0]['hora_fin'] }}</span>
+          </div>
+        </div>
+      {% else %}
+        <p>No hay calendarios disponibles</p>
+      {% endif %}
+    </div>
+    
+    <div id="calendario-contenedor">
+      <!-- El calendario se generará con JavaScript -->
+    </div>
+    
+    <!-- Tabla de horas vertical (oculta por defecto) -->
+    <div class="calendario-grid-horas" id="calendario-horas" style="display: none;">
+      {% if calendarios and calendarios|length > 0 %}
+        {% set cal = calendarios[0] %}
+        {% set hora_inicio_str = cal['hora_inicio']|default('08:00')|string %}
+        {% set hora_fin_str = cal['hora_fin']|default('17:00')|string %}
+        {% set espacio_minutos = cal['espacio_citas']|default(30)|int %}
+        
+        {# Convertir horas a minutos para cálculos #}
+        {% set hora_inicio_parts = hora_inicio_str.split(':') %}
+        {% set hora_fin_parts = hora_fin_str.split(':') %}
+        
+        {% set inicio_minutos = hora_inicio_parts[0]|int * 60 + hora_inicio_parts[1]|int %}
+        {% set fin_minutos = hora_fin_parts[0]|int * 60 + hora_fin_parts[1]|int %}
+        
+        {# Obtener horas de descanso si están configuradas #}
+        {% set tiene_descanso = cal['tiempo_fuera']|default('no') == 'si' %}
+        {% set inicio_descanso_minutos = 0 %}
+        {% set fin_descanso_minutos = 0 %}
+        
+        {% if tiene_descanso and cal['inicio_hora_descanso'] and cal['fin_hora_descanso'] %}
+          {% set inicio_descanso_str = cal['inicio_hora_descanso']|string %}
+          {% set fin_descanso_str = cal['fin_hora_descanso']|string %}
+          
+          {% set inicio_descanso_parts = inicio_descanso_str.split(':') %}
+          {% set fin_descanso_parts = fin_descanso_str.split(':') %}
+          
+          {% set inicio_descanso_minutos = inicio_descanso_parts[0]|int * 60 + inicio_descanso_parts[1]|int %}
+          {% set fin_descanso_minutos = fin_descanso_parts[0]|int * 60 + fin_descanso_parts[1]|int %}
+        {% endif %}
+        
+        <h3 class="horas-titulo">Horario disponible</h3>
+        
+        <div class="calendario-tabla-vertical">
+          {% for minutos in range(inicio_minutos, fin_minutos, espacio_minutos) %}
+            {% set horas = (minutos // 60)|int %}
+            {% set mins = (minutos % 60)|int %}
+            {% set hora_formateada = '%02d:%02d'|format(horas, mins) %}
+            
+            {# Verificar si esta hora está en el periodo de descanso #}
+            {% set es_descanso = tiene_descanso and minutos >= inicio_descanso_minutos and minutos < fin_descanso_minutos %}
+            
+            {# Verificar si hay una cita para esta hora #}
+            {% set tiene_cita = false %}
+            {% if citas is defined and citas|length > 0 %}
+              {% for cita in citas %}
+                {% if cita.hora|string == hora_formateada and cita.fecha == fecha_seleccionada %}
+                  {% set tiene_cita = true %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            
+            <div class="fila-hora">
+              <div class="hora-celda">{{ hora_formateada }}</div>
+              {% if tiene_cita %}
+                <div class="estado-celda ocupado" data-hora="{{ hora_formateada }}" style="background-color: #ff0000;">
+                  Ocupado ({{ fecha_seleccionada }})
+                </div>
+              {% elif es_descanso %}
+                <div class="estado-celda descanso" data-hora="{{ hora_formateada }}">Descanso</div>
+              {% else %}
+                <div class="estado-celda disponible" data-hora="{{ hora_formateada }}">Disponible</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        {# Valores predeterminados si no hay calendarios #}
+        {% set hora_inicio_str = '08:00' %}
+        {% set hora_fin_str = '17:00' %}
+        {% set espacio_minutos = 30 %}
+        {% set inicio_minutos = 8 * 60 %}
+        {% set fin_minutos = 17 * 60 %}
+        
+        <h3 class="horas-titulo">Horario disponible</h3>
+        
+        <div class="calendario-tabla-vertical">
+          {% for minutos in range(inicio_minutos, fin_minutos, espacio_minutos) %}
+            {% set horas = (minutos // 60)|int %}
+            {% set mins = (minutos % 60)|int %}
+            {% set hora_formateada = '%02d:%02d'|format(horas, mins) %}
+            
+            <div class="fila-hora">
+              <div class="hora-celda">{{ hora_formateada }}</div>
+              <div class="estado-celda disponible" data-hora="{{ hora_formateada }}">Disponible</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      
+      <div class="leyenda" style="margin-top: 20px; display: flex; gap: 20px; justify-content: center;">
+        <div style="display: flex; align-items: center;">
+          <div style="width: 20px; height: 20px; background-color: #e6ffe6; margin-right: 5px;"></div>
+          <span>Disponible</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <div style="width: 20px; height: 20px; background-color: #ffcccc; margin-right: 5px;"></div>
+          <span>Ocupado</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <div style="width: 20px; height: 20px; background-color: #99ccff; margin-right: 5px;"></div>
+          <span>Ocupado momentáneamente</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <div style="width: 20px; height: 20px; background-color: #e6e6ff; margin-right: 5px;"></div>
+          <span>Descanso</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal para reservar cita -->
+  <div id="modal-cita" class="modal">
+    <div class="modal-contenido">
+      <span class="cerrar-modal" id="cerrar-modal">&times;</span>
+      <h2>Reservar Cita</h2>
+       
+      <form action="{{ url_for('insertar_citas.insertar_cita') }}" method="post">          
+        <div class="form-group">
+          <p id="info-cita">Día: <span id="dia-cita"></span>, Hora: <span id="hora-cita"></span></p>
+          <!-- Campos ocultos para fecha y hora -->
+          <input type="hidden" id="fecha-cita" name="fecha_cita" value="">
+          <input type="hidden" id="hora-cita-input" name="hora_cita" value="">
+          <input type="hidden" id="id-calendario" name="id_calendario" value="{% if calendarios and calendarios|length > 0 %}{{ calendarios[0]['id_calendario'] }}{% endif %}">
+          
+          <label for="tipo-documento">Tipo de documento:</label>
+          <select id="tipo-documento" name="tipo_documento" required>
+            <option value="">Seleccione...</option>
+            <option value="CC">Cédula de Ciudadanía</option>
+            <option value="TI">Tarjeta de Identidad</option>
+            <option value="CE">Cédula de Extranjería</option>
+            <option value="PA">Pasaporte</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="numero-documento">Número de documento:</label>
+          <input type="text" id="numero-documento" name="documento" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="telefono">Teléfono de contacto:</label>
+          <input type="tel" id="telefono" name="telefono" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="direccion">Dirección:</label>
+          <input type="text" id="direccion" name="direccion" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="fecha-nacimiento">Fecha de nacimiento:</label>
+          <input type="date" id="fecha-nacimiento" name="fecha_nacimiento" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="examen">Examen a realizar:</label>
+          <input type="text" id="examen" name="examen" required>
+        </div>
+        
+        <div class="botones-modal">
+          <button type="submit" id="btn-cancelar" class="btn-cancelar">Cancelar</button>
+          <button type="submit" id="btn-reservar-temp" class="btn-reservar-temp">Reservar temporalmente</button>
+          <button type="submit" id="btn-reservar" class="btn-reservar">Reservar</button>
+        </div>
+      </form>
+      
+      <div id="contador-container" class="contador" style="display: none;">
+        <p>Esta cita se liberará en: <span id="contador">5:00</span></p>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    /* Estilos para la tabla de horas vertical */
+    .calendario-grid-horas {
+      margin-top: 30px;
+      overflow-y: auto; /* Permite desplazamiento vertical */
+      max-height: 500px; /* Altura máxima antes de mostrar scroll */
+      display: none; /* Oculto por defecto */
+    }
+    
+    .horas-titulo {
+      margin-bottom: 15px;
+      color: #0066cc;
+      text-align: center;
+    }
+
+    .calendario-tabla-vertical {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 400px; /* Ancho máximo de la tabla */
+      margin: 0 auto; /* Centrar la tabla */
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .fila-hora {
+      display: flex;
+      flex-direction: row;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .fila-hora:last-child {
+      border-bottom: none;
+    }
+
+    .hora-celda {
+      background-color: #0066cc;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      width: 100px;
+      border-right: 1px solid #0055aa;
+      box-sizing: border-box;
+    }
+
+    .estado-celda {
+      flex: 1;
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      text-align: center;
+    }
+    
+    .disponible {
+      background-color: #e6ffe6;
+    }
+
+    .ocupado {
+      background-color: #ffcccc;
+    }
+
+    .ocupado-temp {
+      background-color: #99ccff;
+    }
+
+    .descanso {
+      background-color: #e6e6ff;
+    }
+
+    .estado-celda:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .leyenda {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    /* Estilos para el modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Pasar datos manualmente para evitar problemas de serialización
+      {% if calendarios and calendarios|length > 0 %}
+        const calendario = {
+          id_calendario: "{{ calendarios[0]['id_calendario'] }}",
+          nombre_calendario: "{{ calendarios[0]['nombre_calendario'] }}",
+          fecha_inicio: "{{ calendarios[0]['fecha_inicio'] }}",
+          fecha_fin: "{{ calendarios[0]['fecha_fin'] }}",
+          hora_inicio: "{{ calendarios[0]['hora_inicio'] }}",
+          hora_fin: "{{ calendarios[0]['hora_fin'] }}"
+        };
+        
+        // Crear array de citas manualmente
+        const citas = [];
+        {% for cita in citas %}
+          citas.push({
+            id_cita: "{{ cita['id_cita'] }}",
+            fecha: "{{ cita['fecha'] }}",
+            hora: "{{ cita['hora'] }}",
+            id_calendario: "{{ cita['id_calendario'] }}"
+            // Agrega otros campos según sea necesario
+          });
+        {% endfor %}
+        
+        generarCalendario(calendario, citas);
+      {% else %}
+        document.getElementById('calendario-contenedor').innerHTML = '<p>No hay datos de calendario disponibles</p>';
+      {% endif %}
+    });
+    
+    function generarCalendario(calendario, citas) {
+      // Obtener fechas de inicio y fin
+      const fechaInicio = new Date(calendario.fecha_inicio);
+      const fechaFin = new Date(calendario.fecha_fin);
+      
+      // Calcular meses entre las fechas
+      const meses = [];
+      let fechaActual = new Date(fechaInicio);
+      
+      while (fechaActual <= fechaFin) {
+        meses.push(new Date(fechaActual));
+        // Avanzar al siguiente mes
+        fechaActual.setMonth(fechaActual.getMonth() + 1);
+      }
+      
+      const contenedor = document.getElementById('calendario-contenedor');
+      contenedor.innerHTML = '';
+      
+      // Generar calendario para cada mes
+      meses.forEach(mes => {
+        const mesElement = document.createElement('div');
+        mesElement.className = 'calendario-mes';
+        
+        // Título del mes
+        const titulo = document.createElement('div');
+        titulo.className = 'mes-titulo';
+        titulo.textContent = formatearMes(mes);
+        mesElement.appendChild(titulo);
+        
+        // Grid del calendario
+        const grid = document.createElement('div');
+        grid.className = 'calendario-grid';
+        
+        // Días de la semana
+        const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        diasSemana.forEach(dia => {
+          const diaElement = document.createElement('div');
+          diaElement.className = 'dia-semana';
+          diaElement.textContent = dia;
+          grid.appendChild(diaElement);
+        });
+        
+        // Obtener el primer día del mes y ajustar para que lunes sea 0
+        const primerDia = new Date(mes.getFullYear(), mes.getMonth(), 1);
+        let diaSemana = primerDia.getDay() - 1;
+        if (diaSemana < 0) diaSemana = 6; // Domingo
+        
+        // Espacios en blanco para el primer día
+        for (let i = 0; i < diaSemana; i++) {
+          const espacioBlanco = document.createElement('div');
+          grid.appendChild(espacioBlanco);
+        }
+        
+        // Días del mes
+        const ultimoDia = new Date(mes.getFullYear(), mes.getMonth() + 1, 0).getDate();
+        
+        for (let dia = 1; dia <= ultimoDia; dia++) {
+          const fechaActual = new Date(mes.getFullYear(), mes.getMonth(), dia);
+          const fechaStr = formatearFecha(fechaActual);
+          
+          // Verificar si está en el rango
+          const enRango = fechaActual >= fechaInicio && fechaActual <= fechaFin;
+          
+          // Verificar si hay citas para esta fecha
+          const tieneCitas = citas.some(cita => cita.fecha === fechaStr);
+          
+          // Crear botón de fecha
+          const boton = document.createElement('a');
+          boton.href = "javascript:void(0);"; // Cambiamos el href para manejar el evento con JS
+          boton.setAttribute('data-fecha', fechaStr);
+          boton.setAttribute('data-id-calendario', calendario.id_calendario);
+          
+          let claseBoton = 'fecha-btn';
+          if (!enRango) {
+            claseBoton += ' fuera-rango';
+          } else if (tieneCitas) {
+            claseBoton += ' activa';
+          }
+          boton.className = claseBoton;
+          
+          // Contenido del botón
+          const numeroElement = document.createElement('div');
+          numeroElement.className = 'fecha-numero';
+          numeroElement.textContent = dia;
+          boton.appendChild(numeroElement);
+          
+          if (tieneCitas) {
+            const infoElement = document.createElement('div');
+            infoElement.className = 'fecha-info';
+            infoElement.textContent = 'Citas disponibles';
+            boton.appendChild(infoElement);
+          }
+          
+          // Agregar evento click para mostrar la tabla de horas
+          if (enRango) {
+            boton.addEventListener('click', function(e) {
+              e.preventDefault();
+              
+              const fechaSeleccionada = this.getAttribute('data-fecha');
+              
+              // Mostrar la tabla de horas
+              const tablaHoras = document.getElementById('calendario-horas');
+              tablaHoras.style.display = 'block';
+              
+              // Actualizar la fecha seleccionada en el formulario
+              document.getElementById('fecha-cita').value = fechaSeleccionada;
+              
+              // Actualizar el texto del día en el modal
+              document.getElementById('dia-cita').textContent = `${dia}/${mes.getMonth() + 1}/${mes.getFullYear()}`;
+              
+              // Filtrar citas para esta fecha
+              const citasFecha = citas.filter(cita => cita.fecha === fechaSeleccionada);
+              
+              // Marcar las horas ocupadas
+              document.querySelectorAll('.estado-celda').forEach(celda => {
+                const hora = celda.getAttribute('data-hora');
+                const ocupada = citasFecha.some(cita => cita.hora === hora);
+                
+                if (ocupada) {
+                  celda.className = 'estado-celda ocupado';
+                  celda.textContent = 'Ocupado';
+                } else if (celda.classList.contains('descanso')) {
+                  // Mantener las celdas de descanso
+                } else {
+                  celda.className = 'estado-celda disponible';
+                  celda.textContent = 'Disponible';
+                }
+              });
+              
+              // Desplazar la página hasta la tabla de horas
+              tablaHoras.scrollIntoView({ behavior: 'smooth' });
+            });
+          }
+          
+          grid.appendChild(boton);
+        }
+        
+        mesElement.appendChild(grid);
+        contenedor.appendChild(mesElement);
+      });
+    }
+    
+    function formatearMes(fecha) {
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+    }
+    
+    function formatearFecha(fecha) {
+      const año = fecha.getFullYear();
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      return `${año}-${mes}-${dia}`;
+    }
+  </script>
+
+  <script>
+     document.addEventListener('DOMContentLoaded', function() {
+      // Agregar evento click a todas las celdas disponibles
+      const celdasDisponibles = document.querySelectorAll('.estado-celda.disponible');
+      celdasDisponibles.forEach(celda => {
+        celda.addEventListener('click', function() {
+          if (this.classList.contains('disponible')) {
+            // Obtener la hora de la celda
+            const hora = this.getAttribute('data-hora');
+            
+            // Obtener la fecha del input oculto (ya establecida al hacer clic en la fecha)
+            const fechaSeleccionada = document.getElementById('fecha-cita').value;
+            
+            // Verificar que haya una fecha seleccionada
+            if (!fechaSeleccionada) {
+              alert('Por favor, selecciona primero una fecha del calendario');
+              return;
+            }
+            
+            // Actualizar los campos del modal
+            document.getElementById('hora-cita').textContent = hora;
+            document.getElementById('hora-cita-input').value = hora;
+            
+            // Mostrar el modal
+            const modal = document.getElementById('modal-cita');
+            modal.style.display = 'block';
+          }
+        });
+      });
+      
+      // Cerrar el modal
+      const cerrarModal = document.getElementById('cerrar-modal');
+      if (cerrarModal) {
+        cerrarModal.addEventListener('click', function() {
+          const modal = document.getElementById('modal-cita');
+          modal.style.display = 'none';
+        });
+      }
+      
+      // Cerrar el modal al hacer clic en Cancelar
+      const btnCancelar = document.getElementById('btn-cancelar');
+      if (btnCancelar) {
+        btnCancelar.addEventListener('click', function(e) {
+          e.preventDefault();
+          const modal = document.getElementById('modal-cita');
+          modal.style.display = 'none';
+        });
+      }
+      
+      // Cerrar el modal al hacer clic fuera del contenido
+      window.addEventListener('click', function(event) {
+        const modal = document.getElementById('modal-cita');
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+    
+    function formatearMes(fecha) {
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return `${meses[fecha.getMonth()]} ${fecha.getFullYear()}`;
+    }
+    
+    function formatearFecha(fecha) {
+      const year = fecha.getFullYear();
+      const month = String(fecha.getMonth() + 1).padStart(2, '0');
+      const day = String(fecha.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+  </script>
+</body>
+</html>

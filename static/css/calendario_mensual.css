@@ -173,3 +173,13 @@
         font-size: 0.7rem;
     }
 }
+
+.ocupado {
+    background-color: #ffcccc;
+}
+
+.ocupado:hover {
+    background-color: #ffb3b3;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
