@@ -5,7 +5,7 @@ from database.config import db_conexion, mysql
 from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import datos_calendario
 from models.vistas.usuarios import vista_usuarios
-from models.vistas.citas import citas_bp
+# from models.vistas.citas import citas_bp
 
 from models.inserciones.insert_calendario import insercion_calendario
 from models.inserciones.insert_usuario import insertar_usuario
@@ -22,7 +22,7 @@ db_conexion(app)
 
 app.register_blueprint(tabla_calendarios)
 app.register_blueprint(vista_usuarios)
-app.register_blueprint(citas_bp)
+# app.register_blueprint(citas_bp)
 
 app.register_blueprint(insercion_calendario)
 app.register_blueprint(insertar_usuario)

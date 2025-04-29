@@ -9,139 +9,576 @@
   <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
   <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
   <link rel="stylesheet" href="../static/css/calendario_recuadro.css"> <!-- LINK DE ESTILO PARA EL RECUADRO-->
+  <style>
+    /* Estilos adicionales para el nuevo diseño del calendario */
+    .calendario-grid {
+      display: grid;
+      grid-template-columns: 100px repeat(6, 1fr); /* Reducido a 6 columnas (sin domingo) */
+      gap: 2px;
+      margin-top: 20px;
+    }
+    
+    .calendario-header-cell {
+      background-color: #0066cc;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+    }
+    
+    .hora-cell {
+      background-color: #f0f0f0;
+      text-align: right;
+      padding: 10px;
+      font-weight: bold;
+      border-right: 2px solid #ddd;
+    }
+    
+    .calendario-cell {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      padding: 10px;
+      min-height: 40px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .disponible {
+      background-color: #e6ffe6;
+    }
+    
+    .ocupado {
+      background-color: #ffcccc;
+    }
+    
+    .ocupado-temp {
+      background-color: #99ccff;
+    }
+    
+    .descanso {
+      background-color: #e6e6ff;
+    }
+    
+    .calendario-cell:hover {
+      background-color: #f5f5f5;
+    }
+    
+    /* Estilos para el modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-contenido {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 60%;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .cerrar-modal {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .cerrar-modal:hover {
+      color: black;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .botones-modal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    
+    .botones-modal button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .btn-reservar {
+      background-color: #0066cc;
+      color: white;
+    }
+    
+    .btn-reservar-temp {
+      background-color: #3399ff;
+      color: white;
+    }
+    
+    .contador {
+      font-weight: bold;
+      color: #0066cc;
+      text-align: center;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
     <div class="calendario-header">
       <h1 id="calendario-titulo">Calendario de Citas</h1>
-      <div class="calendario-info">
-        <div class="info-item">
-          <span class="info-label">Municipio:</span>
-          <span class="info-value" id="municipio-valor">Medellín</span>
+      
+      {% if calendarios and calendarios|length > 0 %}
+        <!-- <h2>ID Calendario: {{ calendarios[0]['id_calendario'] }}</h2> -->
+        
+        <div class="calendario-info">
+          <div class="info-item">
+            <span class="info-label">Municipio:</span>
+            <span class="info-value" id="municipio-valor">{{ calendarios[0]['id_municipio'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Procedimiento:</span>
+            <span class="info-value" id="procedimiento-valor">{{ calendarios[0]['id_procedimiento'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Periodo:</span>
+            <span class="info-value" id="periodo-valor">{{ calendarios[0]['fecha_inicio'] }} - {{ calendarios[0]['fecha_fin'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Horario:</span>
+            <span class="info-value" id="horario-valor">{{ calendarios[0]['hora_inicio'] }} - {{ calendarios[0]['hora_fin'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Duración de cita:</span>
+            <span class="info-value" id="duracion-valor">{{ calendarios[0]['espacio_citas'] }} minutos</span>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="info-label">Procedimiento:</span>
-          <span class="info-value" id="procedimiento-valor">Hemoglobina</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Periodo:</span>
-          <span class="info-value" id="periodo-valor">20/07/2023 - 24/07/2023</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Horario:</span>
-          <span class="info-value" id="horario-valor">08:00 AM - 05:00 PM</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Duración de cita:</span>
-          <span class="info-value" id="duracion-valor">15 minutos</span>
-        </div>
-      </div>
+      {% else %}
+        <p>No hay calendarios disponibles</p>
+      {% endif %}
     </div>
     
     <div class="calendario-grid" id="calendario-contenido">
+      <!-- Encabezado con los días (sin domingo) -->
+      <div class="calendario-header-cell"></div> <!-- Celda vacía para la esquina superior izquierda -->
+      <div class="calendario-header-cell">Lunes</div>
+      <div class="calendario-header-cell">Martes</div>
+      <div class="calendario-header-cell">Miércoles</div>
+      <div class="calendario-header-cell">Jueves</div>
+      <div class="calendario-header-cell">Viernes</div>
+      <div class="calendario-header-cell">Sábado</div>
+      
+      <!-- Generación dinámica de filas de horas con celdas para cada día -->
+      {% if calendarios and calendarios|length > 0 %}
+        {% set cal = calendarios[0] %}
+        {% set hora_inicio_str = cal['hora_inicio']|string %}
+        {% set hora_fin_str = cal['hora_fin']|string %}
+        {% set espacio_minutos = cal['espacio_citas']|int %}
+        
+        {# Convertir horas a minutos para cálculos #}
+        {% set hora_inicio_parts = hora_inicio_str.split(':') %}
+        {% set hora_fin_parts = hora_fin_str.split(':') %}
+        
+        {% set inicio_minutos = hora_inicio_parts[0]|int * 60 + hora_inicio_parts[1]|int %}
+        {% set fin_minutos = hora_fin_parts[0]|int * 60 + hora_fin_parts[1]|int %}
+        
+        {# Obtener horas de descanso si están configuradas #}
+        {% set tiene_descanso = cal['tiempo_fuera'] == 'si' %}
+        {% set inicio_descanso_minutos = 0 %}
+        {% set fin_descanso_minutos = 0 %}
+        
+        {% if tiene_descanso and cal['inicio_hora_descanso'] and cal['fin_hora_descanso'] %}
+          {% set inicio_descanso_str = cal['inicio_hora_descanso']|string %}
+          {% set fin_descanso_str = cal['fin_hora_descanso']|string %}
+          
+          {% set inicio_descanso_parts = inicio_descanso_str.split(':') %}
+          {% set fin_descanso_parts = fin_descanso_str.split(':') %}
+          
+          {% set inicio_descanso_minutos = inicio_descanso_parts[0]|int * 60 + inicio_descanso_parts[1]|int %}
+          {% set fin_descanso_minutos = fin_descanso_parts[0]|int * 60 + fin_descanso_parts[1]|int %}
+        {% endif %}
+        
+        {# Obtener las citas existentes para este calendario #}
+        {% set id_calendario = cal['id_calendario'] %}
+        {% set citas_ocupadas = {} %}
+        
+        {# Verificar si hay citas en el contexto #}
+        {% if citas is defined and citas|length > 0 %}
+          {% for cita in citas %}
+            {% if cita['id_calendario'] == id_calendario %}
+              {# Crear una clave única para cada combinación de fecha y hora #}
+              {% set clave_cita = cita['fecha']|string + '_' + cita['hora']|string %}
+              {% set _ = citas_ocupadas.update({clave_cita: cita}) %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        
+        {# Generar intervalos en minutos #}
+        {% for minutos in range(inicio_minutos, fin_minutos, espacio_minutos) %}
+          {% set horas = (minutos // 60)|int %}
+          {% set mins = (minutos % 60)|int %}
+          {% set hora_formateada = '%02d:%02d'|format(horas, mins) %}
+          
+          {# Verificar si esta hora está en el periodo de descanso #}
+          {% set es_descanso = tiene_descanso and minutos >= inicio_descanso_minutos and minutos < fin_descanso_minutos %}
+          
+          <div class="hora-cell">{{ hora_formateada }}</div>
+          
+          {% for dia in ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'] %}
+            {# Calcular la fecha real para este día de la semana #}
+            {% set fecha_actual = obtener_fecha_para_dia(dia) %}
+            
+            {# Verificar si hay una cita para esta fecha y hora #}
+            {% set tiene_cita = false %}
+            {% if citas is defined and citas|length > 0 %}
+              {% for cita in citas %}
+                {% if cita.fecha|string == fecha_actual and cita.hora|string == hora_formateada %}
+                  {% set tiene_cita = true %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            
+            {% if tiene_cita %}
+              <div class="calendario-cell ocupado" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+            {% elif es_descanso %}
+              <div class="calendario-cell descanso" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+            {% else %}
+              <div class="calendario-cell disponible" data-hora="{{ hora_formateada }}" data-dia="{{ dia }}" data-fecha="{{ fecha_actual }}"></div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      {% else %}
+        <!-- Mostrar un mensaje o un calendario vacío si no hay datos -->
+        <div class="hora-cell">No hay datos</div>
+        <div class="calendario-cell" colspan="6">No hay calendarios disponibles</div>
+      {% endif %}
+    </div>
+    
+    <div class="leyenda" style="margin-top: 20px; display: flex; gap: 20px; justify-content: center;">
+      <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; background-color: #e6ffe6; margin-right: 5px;"></div>
+        <span>Disponible</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; background-color: #ffcccc; margin-right: 5px;"></div>
+        <span>Ocupado</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; background-color: #99ccff; margin-right: 5px;"></div>
+        <span>Ocupado momentáneamente</span>
+      </div>
+      <div style="display: flex; align-items: center;">
+        <div style="width: 20px; height: 20px; background-color: #e6e6ff; margin-right: 5px;"></div>
+        <span>Descanso</span>
+      </div>
+    </div>
 
-    <script src="../static/js/calendario.js"></script>
-
-</div>
-</body>
-</html>
-
-    <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendario Savia Salud</title>
-  
-  <!-- LINK DE DISEÑOS -->
-  <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
-  <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
-  <link rel="stylesheet" href="../static/css/calendario_recuadro.css"> <!-- LINK DE ESTILO PARA EL RECUADRO-->
-</head>
-
-<body>
-  <div class="container">
-    <div class="calendario-header">
-      <h1 id="calendario-titulo">Calendario de Citas</h1>
-      <div class="calendario-info">
-        <div class="info-item">
-          <span class="info-label">Municipio:</span>
-          <span class="info-value" id="municipio-valor">Medellín</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Procedimiento:</span>
-          <span class="info-value" id="procedimiento-valor">Hemoglobina</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Periodo:</span>
-          <span class="info-value" id="periodo-valor">20/07/2023 - 24/07/2023</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Horario:</span>
-          <span class="info-value" id="horario-valor">08:00 AM - 05:00 PM</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Duración de cita:</span>
-          <span class="info-value" id="duracion-valor">15 minutos</span>
+    <!-- Modal para reservar cita -->
+    <div id="modal-cita" class="modal">
+      <div class="modal-contenido">
+        <span class="cerrar-modal" id="cerrar-modal">&times;</span>
+        <h2>Reservar Cita</h2>
+         
+        <form action="{{ url_for('insertar_citas.insertar_cita') }}" method="post">          
+          <div class="form-group">
+            <p id="info-cita">Día: <span id="dia-cita"></span>, Hora: <span id="hora-cita"></span></p>
+            <!-- Campos ocultos para fecha y hora -->
+            <input type="hidden" id="fecha-cita" name="fecha_cita" value="">
+            <input type="hidden" id="hora-cita-input" name="hora_cita" value="">
+            <input type="hidden" id="id-calendario" name="id_calendario" value="{% if calendarios and calendarios|length > 0 %}{{ calendarios[0]['id_calendario'] }}{% endif %}">
+            
+            <label for="tipo-documento">Tipo de documento:</label>
+            <select id="tipo-documento" name="tipo_documento" required>
+              <option value="">Seleccione...</option>
+              <option value="CC">Cédula de Ciudadanía</option>
+              <option value="TI">Tarjeta de Identidad</option>
+              <option value="CE">Cédula de Extranjería</option>
+              <option value="PA">Pasaporte</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="numero-documento">Número de documento:</label>
+            <input type="text" id="numero-documento" name="documento" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="telefono">Teléfono de contacto:</label>
+            <input type="tel" id="telefono" name="telefono" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" name="direccion" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="fecha-nacimiento">Fecha de nacimiento:</label>
+            <input type="date" id="fecha-nacimiento" name="fecha_nacimiento" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="examen">Examen a realizar:</label>
+            <input type="text" id="examen" name="examen" required>
+          </div>
+          
+          <div class="botones-modal">
+            <button type="submit" id="btn-cancelar" class="btn-cancelar">Cancelar</button>
+            <button type="submit" id="btn-reservar-temp" class="btn-reservar-temp">Reservar temporalmente</button>
+            <button type="submit" id="btn-reservar" class="btn-reservar">Reservar</button>
+          </div>
+        </form>
+        
+        <div id="contador-container" class="contador" style="display: none;">
+          <p>Esta cita se liberará en: <span id="contador">5:00</span></p>
         </div>
       </div>
     </div>
-    
-    <div class="calendario-grid" id="calendario-contenido">
 
     <script src="../static/js/calendario.js"></script>
-
-</div>
-</body>
-</html>
-
-    <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendario Savia Salud</title>
-  
-  <!-- LINK DE DISEÑOS -->
-  <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
-  <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
-  <link rel="stylesheet" href="../static/css/calendario_recuadro.css"> <!-- LINK DE ESTILO PARA EL RECUADRO-->
-</head>
-
-<body>
-  <div class="container">
-    <div class="calendario-header">
-      <h1 id="calendario-titulo">Calendario de Citas</h1>
-      <div class="calendario-info">
-        <div class="info-item">
-          <span class="info-label">Municipio:</span>
-          <span class="info-value" id="municipio-valor">Medellín</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Procedimiento:</span>
-          <span class="info-value" id="procedimiento-valor">Hemoglobina</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Periodo:</span>
-          <span class="info-value" id="periodo-valor">20/07/2023 - 24/07/2023</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Horario:</span>
-          <span class="info-value" id="horario-valor">08:00 AM - 05:00 PM</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Duración de cita:</span>
-          <span class="info-value" id="duracion-valor">15 minutos</span>
-        </div>
-      </div>
-    </div>
     
-    <div class="calendario-grid" id="calendario-contenido">
-
-    <script src="../static/js/calendario.js"></script>
-
-</div>
+    <!-- Script para el manejo del modal y reservas -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('modal-cita');
+        const cerrarModal = document.getElementById('cerrar-modal');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const btnReservar = document.getElementById('btn-reservar');
+        const btnReservarTemp = document.getElementById('btn-reservar-temp');
+        const diaSpan = document.getElementById('dia-cita');
+        const horaSpan = document.getElementById('hora-cita');
+        const fechaCitaInput = document.getElementById('fecha-cita');
+        const horaCitaInput = document.getElementById('hora-cita-input');
+        const contadorContainer = document.getElementById('contador-container');
+        const contadorSpan = document.getElementById('contador');
+        
+        let celdaActual = null;
+        let temporizadores = {};
+        
+        // Función para convertir día de la semana a fecha
+        function obtenerFecha(diaSemana) {
+          // Obtener la fecha actual
+          const hoy = new Date();
+          
+          // Mapear nombres de días a números (0 = domingo, 1 = lunes, etc.)
+          const diasSemana = {
+            'lunes': 1,
+            'martes': 2,
+            'miercoles': 3,
+            'jueves': 4,
+            'viernes': 5,
+            'sabado': 6,
+            'domingo': 0
+          };
+          
+          // Obtener el número del día actual
+          const diaActual = hoy.getDay(); // 0-6
+          
+          // Calcular la diferencia de días
+          let diferencia = diasSemana[diaSemana.toLowerCase()] - diaActual;
+          
+          // Si la diferencia es negativa, sumamos 7 para obtener el próximo día de la semana
+          if (diferencia < 0) {
+            diferencia += 7;
+          }
+          
+          // Crear nueva fecha sumando la diferencia
+          const fecha = new Date(hoy);
+          fecha.setDate(hoy.getDate() + diferencia);
+          
+          // Formatear fecha como YYYY-MM-DD para el input
+          return fecha.toISOString().split('T')[0];
+        }
+        
+        // Agregar evento click a todas las celdas disponibles
+        const celdasDisponibles = document.querySelectorAll('.calendario-cell.disponible');
+        celdasDisponibles.forEach(celda => {
+          celda.addEventListener('click', function() {
+            if (this.classList.contains('disponible')) {
+              celdaActual = this;
+              const dia = this.getAttribute('data-dia');
+              const hora = this.getAttribute('data-hora');
+              
+              // Mostrar día y hora en el modal
+              diaSpan.textContent = dia.charAt(0).toUpperCase() + dia.slice(1);
+              horaSpan.textContent = hora;
+              
+              // Asignar valores a los campos ocultos
+              fechaCitaInput.value = obtenerFecha(dia);
+              horaCitaInput.value = hora;
+              
+              // Mostrar el modal
+              modal.style.display = 'block';
+              
+              // Ocultar el contador si estaba visible
+              contadorContainer.style.display = 'none';
+            }
+          });
+        });
+        
+        // Cerrar el modal
+        cerrarModal.addEventListener('click', function() {
+          modal.style.display = 'none';
+        });
+        
+        btnCancelar.addEventListener('click', function() {
+          modal.style.display = 'none';
+        });
+        
+        // Reservar permanentemente
+        btnReservar.addEventListener('click', function() {
+          if (validarFormulario()) {
+            if (celdaActual) {
+              // Eliminar cualquier temporizador existente para esta celda
+              const celdaId = `${celdaActual.getAttribute('data-dia')}-${celdaActual.getAttribute('data-hora')}`;
+              if (temporizadores[celdaId]) {
+                clearInterval(temporizadores[celdaId]);
+                delete temporizadores[celdaId];
+              }
+              
+              // Cambiar estado a ocupado
+              celdaActual.classList.remove('disponible', 'ocupado-temp');
+              celdaActual.classList.add('ocupado');
+              
+              // Guardar datos del formulario (aquí podrías enviarlos al servidor)
+              guardarDatosCita(celdaActual, 'ocupado');
+              
+              // Cerrar el modal
+              modal.style.display = 'none';
+            }
+          }
+        });
+        
+        // Reservar temporalmente (5 minutos)
+        btnReservarTemp.addEventListener('click', function() {
+          if (validarFormulario()) {
+            if (celdaActual) {
+              // Cambiar estado a ocupado temporalmente
+              celdaActual.classList.remove('disponible', 'ocupado');
+              celdaActual.classList.add('ocupado-temp');
+              
+              // Guardar datos del formulario
+              guardarDatosCita(celdaActual, 'ocupado-temp');
+              
+              // Iniciar contador de 5 minutos
+              const celdaId = `${celdaActual.getAttribute('data-dia')}-${celdaActual.getAttribute('data-hora')}`;
+              let tiempoRestante = 5 * 60; // 5 minutos en segundos
+              
+              // Mostrar el contador
+              contadorContainer.style.display = 'block';
+              actualizarContador(tiempoRestante);
+              
+              // Crear temporizador
+              temporizadores[celdaId] = setInterval(function() {
+                tiempoRestante--;
+                actualizarContador(tiempoRestante);
+                
+                if (tiempoRestante <= 0) {
+                  // Tiempo agotado, liberar la celda
+                  clearInterval(temporizadores[celdaId]);
+                  delete temporizadores[celdaId];
+                  
+                  celdaActual.classList.remove('ocupado-temp');
+                  celdaActual.classList.add('disponible');
+                  
+                  // Cerrar el modal si sigue abierto
+                  modal.style.display = 'none';
+                }
+              }, 1000);
+            }
+          }
+        });
+        
+        // Función para validar el formulario
+        function validarFormulario() {
+          const tipoDocumento = document.getElementById('tipo-documento').value;
+          const numeroDocumento = document.getElementById('numero-documento').value;
+          const telefono = document.getElementById('telefono').value;
+          const direccion = document.getElementById('direccion').value;
+          const fechaNacimiento = document.getElementById('fecha-nacimiento').value;
+          const examen = document.getElementById('examen').value;
+          
+          if (!tipoDocumento || !numeroDocumento || !telefono || !direccion || !fechaNacimiento || !examen) {
+            alert('Por favor complete todos los campos del formulario');
+            return false;
+          }
+          
+          return true;
+        }
+        
+        // Función para guardar los datos de la cita
+        function guardarDatosCita(celda, estado) {
+          const tipoDocumento = document.getElementById('tipo-documento').value;
+          const numeroDocumento = document.getElementById('numero-documento').value;
+          const telefono = document.getElementById('telefono').value;
+          const direccion = document.getElementById('direccion').value;
+          const fechaNacimiento = document.getElementById('fecha-nacimiento').value;
+          const examen = document.getElementById('examen').value;
+          
+          // Guardar datos en atributos data- de la celda (o podrías enviarlos al servidor)
+          celda.setAttribute('data-tipo-documento', tipoDocumento);
+          celda.setAttribute('data-numero-documento', numeroDocumento);
+          celda.setAttribute('data-telefono', telefono);
+          celda.setAttribute('data-direccion', direccion);
+          celda.setAttribute('data-fecha-nacimiento', fechaNacimiento);
+          celda.setAttribute('data-examen', examen);
+          celda.setAttribute('data-estado', estado);
+          
+          // Aquí podrías agregar código para enviar los datos al servidor
+          console.log('Cita reservada:', {
+            dia: celda.getAttribute('data-dia'),
+            hora: horaCita,
+            fecha: fechaCita,
+            tipoDocumento,
+            numeroDocumento,
+            telefono,
+            direccion,
+            fechaNacimiento,
+            examen,
+            estado,
+            id_calendario: document.getElementById('id-calendario').value
+          });
+        }
+        
+        // Función para actualizar el contador
+        function actualizarContador(segundos) {
+          const minutos = Math.floor(segundos / 60);
+          const segs = segundos % 60;
+          contadorSpan.textContent = `${minutos}:${segs < 10 ? '0' : ''}${segs}`;
+        }
+        
+        // Cerrar el modal si se hace clic fuera de él
+        window.addEventListener('click', function(event) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      });
+    </script>
+  </div>
 </body>
 </html>
 

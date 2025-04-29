@@ -50,6 +50,7 @@ def auth_login():
         if user:
             # Establece las variables de sesión con la información del usuario
             session["logueado"] = True
+            session["id"] = user["id"]
             session["documento"] = user["documento"]
             session["rol"] = user["rol"]
 
