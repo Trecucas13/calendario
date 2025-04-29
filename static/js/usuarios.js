@@ -1,76 +1,195 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar el estado de la navbar
-    initNavbarState();
-  
-    // Obtener el input de búsqueda
-    const searchInput = document.getElementById("busqueda");
-  
-    // Obtener la tabla
-    const tabla = document.querySelector("table");
-  
-    /**
-     * Elimina las tildes de un texto
-     * @param {string} texto - Texto del que se eliminarán las tildes
-     * @returns {string} - Texto sin tildes
-     */
-    function eliminarTildes(texto) {
-      return texto.normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
-    }
-  
-    /**
-     * Busca texto en todas las celdas de la tabla y muestra/oculta filas según coincidencias
-     * @param {string} textoBusqueda - Texto a buscar en la tabla
-     */
-    function buscarEnTabla(textoBusqueda) {
-      // Eliminar tildes del texto de búsqueda
-      const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
-  
-      // Obtener todas las filas del tbody, excluyendo el encabezado
-      const filas = tabla.querySelectorAll("tbody tr");
-  
-      filas.forEach((fila) => {
-        // Flag para determinar si se muestra la fila
-        let mostrarFila = false;
-  
-        // Obtener todas las celdas de la fila
-        const celdas = fila.querySelectorAll("td");
-  
-        // Recorrer todas las celdas
-        celdas.forEach((celda) => {
-          // Eliminar tildes del texto de la celda
-          const textoCeldaSinTildes = eliminarTildes(celda.textContent);
-  
-          if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
-            mostrarFila = true;
-          }
-        });
-  
-        // Mostrar u ocultar fila según resultado
-        fila.style.display = mostrarFila ? "" : "none";
-      });
-    }
-  
-    // Configurar evento de búsqueda en tiempo real
-    if (searchInput) {
-      searchInput.addEventListener("input", function () {
-        buscarEnTabla(this.value);
-      });
-    }
-  });
+// Función para mostrar el modal de actualización de datos
+function mostrarModalActualizarDatos(id) {
+  // Obtener el modal
+  const modal = document.getElementById("modalActualizarDatos");
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Tooltips
-    const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        .map(tooltipEl => new bootstrap.Tooltip(tooltipEl))
+  // Establecer el ID en el campo oculto
+  document.getElementById("id").value = id;
 
-    // Eliminación con confirmación
-    const deleteModal = document.getElementById('confirmDeleteModal')
-    deleteModal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget
-        const userId = button.getAttribute('data-user-id')
-        const form = document.getElementById('deleteForm')
-        form.action = `/eliminar_usuario/${userId}`
+  // Obtener los datos del usuario mediante AJAX
+  fetch(`/obtener_usuario/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      // Llenar los campos del formulario con los datos del usuario
+      document.getElementById("actualizarDocumento").value = data.documento;
+      document.getElementById("actualizarNombre").value = data.nombre;
+      document.getElementById("actualizarRol").value = data.rol;
+
+      // Mostrar el modal
+      modal.style.display = "block";
     })
-})
+    .catch((error) => {
+      console.error("Error al obtener datos del usuario:", error);
+      alert("Error al obtener datos del usuario");
+    });
+}
+
+// Función para cerrar el modal
+function cerrarModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = "none";
+}
+
+// Función para eliminar un usuario
+// Function to handle user deletion
+
+
+// Configurar listener único al cargar la página
+// Agregar event listeners cuando el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function() {
+  // Configurar los botones de eliminación
+  const deleteButtons = document.querySelectorAll('[data-bs-target="#confirmDeleteModal"]');
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const userId = this.getAttribute('data-user-id-delete');
+      eliminar_usuario(userId);
+    });
+  });
+});
+
+// Cerrar modales cuando se hace clic fuera de ellos
+window.onclick = function (event) {
+  const modales = document.getElementsByClassName("modal");
+  for (let i = 0; i < modales.length; i++) {
+    if (event.target == modales[i]) {
+      cerrarModal(modales[i].id);
+    }
+  }
+};
+
+// Función para realizar la búsqueda en la tabla
+function buscarUsuarios() {
+  try {
+    const searchText = document
+      .getElementById("busqueda")
+      .value.toLowerCase()
+      .trim();
+    const table = document.getElementById("tablaUsuarios");
+
+    if (!table) {
+      console.error("No se encontró la tabla de usuarios");
+      return;
+    }
+
+    const tbody = table.querySelector("tbody");
+    if (!tbody) {
+      console.error("No se encontró el tbody en la tabla");
+      return;
+    }
+
+    const rows = tbody.querySelectorAll("tr");
+
+    rows.forEach((row) => {
+      const cells = row.querySelectorAll("td");
+      let shouldShow = searchText === "" ? true : false;
+
+      cells.forEach((cell) => {
+        const content = cell.textContent || cell.innerText;
+        if (content.toLowerCase().indexOf(searchText) > -1) {
+          shouldShow = true;
+        }
+      });
+
+      row.style.display = shouldShow ? "" : "none";
+    });
+  } catch (error) {
+    console.error("Error en la búsqueda:", error);
+  }
+}
+
+// Inicializar eventos de búsqueda
+document.addEventListener("DOMContentLoaded", function () {
+  try {
+    // Configurar el campo de búsqueda
+    const campoBusqueda = document.getElementById("busqueda");
+    if (campoBusqueda) {
+      ["input", "keyup", "change"].forEach((evento) => {
+        campoBusqueda.addEventListener(evento, buscarUsuarios);
+      });
+    }
+
+    // Configurar el botón de búsqueda
+    const botonBusqueda = document.getElementById("boton-busqueda");
+    if (botonBusqueda) {
+      botonBusqueda.addEventListener("click", buscarUsuarios);
+    }
+
+    // Ejecutar una búsqueda inicial
+    buscarUsuarios();
+    
+    // Configurar el modal de eliminación
+    const deleteModal = document.getElementById('confirmDeleteModal');
+    if (deleteModal) {
+      deleteModal.addEventListener('show.bs.modal', function(event) {
+        // Este evento se dispara automáticamente por Bootstrap
+        // y puede servir como respaldo si el onclick falla
+        const button = event.relatedTarget;
+        if (button) {
+          const userId = button.getAttribute('data-user-id-delete');
+          if (userId) {
+            console.log('ID capturado desde evento modal:', userId);
+            const idField = document.getElementById('deleteUserId');
+            if (idField) {
+              idField.value = userId;
+              
+              // Opcional: mostrar el ID en el cuerpo del modal
+              const userIdDisplay = document.getElementById('userIdDisplay');
+              if (userIdDisplay) {
+                userIdDisplay.textContent = '(ID: ' + userId + ')';
+              }
+            }
+          } else {
+            console.warn('No se encontró data-user-id-delete en el botón');
+          }
+        } else {
+          console.warn('No se pudo obtener el botón que activó el modal');
+        }
+      });
+    }
+    
+    // Asegurarse de que el formulario de eliminación tenga el ID correcto al enviar
+    const deleteForm = document.getElementById('deleteUserForm');
+    if (deleteForm) {
+      deleteForm.addEventListener('submit', function(event) {
+        const idField = document.getElementById('deleteUserId');
+        if (!idField || !idField.value) {
+          event.preventDefault();
+          console.error('No hay ID de usuario para eliminar');
+          alert('Error: No se pudo identificar el usuario a eliminar');
+        } else {
+          console.log('Enviando formulario para eliminar usuario ID:', idField.value);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error al inicializar eventos:", error);
+  }
+});
+
+// Agregar un evento para cuando el modal se muestre
+document.addEventListener('DOMContentLoaded', function() {
+  const deleteModal = document.getElementById('confirmDeleteModal');
+  if (deleteModal) {
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+      // Obtener el botón que activó el modal
+      const button = event.relatedTarget;
+      
+      // Extraer el ID del usuario del atributo data
+      const userId = button.getAttribute('data-user-id-delete');
+      
+      // Actualizar el campo oculto con el ID
+      const idField = document.getElementById('deleteUserId');
+      if (idField && userId) {
+        idField.value = userId;
+        
+        // Opcional: mostrar el ID en el cuerpo del modal para verificación
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        if (userIdDisplay) {
+          userIdDisplay.textContent = '(ID: ' + userId + ')';
+        }
+        
+        console.log('ID asignado desde evento modal:', userId);
+      }
+    });
+  }
+});

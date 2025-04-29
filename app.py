@@ -4,9 +4,12 @@ from database.config import db_conexion, mysql
 from models.vistas.calendario import tabla_calendarios
 from models.inserciones.insert_calendario import insercion_calendario
 from models.vistas.calendario import datos_calendario
+from models.vistas.calendario import obtener_citas
 from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
-from models.eliminar.delete_usuarios import eliminar_usuarios
+from models.eliminar.eliminar_usuario import delete_usuarios
+from models.actualizar.actualizarUsuario import actualizar_usuario
+
 # from models.vistas.citas import citas_bp
 from models.inserciones.insert_citas import insertar_citas
 
@@ -24,12 +27,13 @@ app.register_blueprint(auth)
 app.register_blueprint(insertar_usuario)
 app.register_blueprint(insertar_citas)
 app.register_blueprint(vista_usuarios)
-app.register_blueprint(eliminar_usuarios)
-
+app.register_blueprint(delete_usuarios)
+app.register_blueprint(actualizar_usuario)
 
 @app.route("/")
 def login():
     return render_template("login.html")
+
 
 @app.route("/index")
 @login_required
@@ -39,46 +43,42 @@ def index():
     return render_template("index.html", calendarios=calendarios)
 
 
-
-
 def datos_municipio():
     conn = mysql.connection.cursor()
     conn.execute("SELECT * FROM municipios")
     municipios = conn.fetchall()
-    
+
     conn.execute("SELECT * FROM procedimientos")
-    procedimientos = conn.fetchall()    
+    procedimientos = conn.fetchall()
     conn.close()
 
+    return {"municipios": municipios, "procedimientos": procedimientos}
 
-    return {
-        "municipios": municipios, 
-        "procedimientos": procedimientos
-    }
 
 @app.route("/formulario")
 @login_required
 @role_required([1, 2])
 def formulario():
     datos = datos_municipio()
-    print(datos)
-    return render_template("formularios/creacion_calendario.html", datos = datos)
+    # print(datos)
+    return render_template("formularios/creacion_calendario.html", datos=datos)
 
 
-@app.route("/actualizarFormulario/<int:id>", methods=['GET', 'POST'])
+@app.route("/actualizarFormulario/<int:id>", methods=["GET", "POST"])
 @login_required
 @role_required([1, 2])
 def formularioActualizar(id):
     form_id = id
-    print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
-    return render_template("formularios/actualizarform.html" , form_id=form_id)
+    # print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
+    return render_template("formularios/actualizarform.html", form_id=form_id)
 
-    # @app.route("/citas")
-    # def citas():
-    #     return render_template("citas.html")
 
+@app.route("/citas")
+def citas():
+    citas = obtener_citas(None)
+    # return render_template("citas.html", citas=citas)
+    return render_template("horario.html", citas=citas)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
-
+    app.run(debug=True, host="0.0.0.0")
