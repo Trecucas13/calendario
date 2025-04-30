@@ -59,22 +59,27 @@
                     <tbody>
                         {% for usuarios in usuarios %}
                         <tr class="border-top border-secondary-subtle" data-user-id="{{ usuarios.id }}">
-                            <td class="px-4 fw-medium text-secondary">{{ usuarios.documento }}</td>
-                            <td class="px-4">{{ usuarios.nombre }}</td>
+                            <td class="px-4 fw-medium text-secondary" id="documento" value="{{usuarios.documento}}">{{ usuarios.documento }}</td>
+                            <td class="px-4" id="nombre">{{ usuarios.nombre }}</td>
                             <td class="px-4">
                                 {% if usuarios.rol == 1 %}
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary" style="width: 200px;">
-                                    <i class="fas fa-user-shield me-2"></i>Administrador
+                                    <i class="fas fa-user-shield me-2"></i>
+                                    <span hidden id="rol">{{ usuarios.rol }}</span>
+                                    Administrador
                                 </span>
                                 {% elif usuarios.rol == 2 %}
                                 <span class="badge bg-info bg-opacity-10 text-info rounded-pill py-2 px-3 border border-info" style="width: 200px;">
-                                    <i class="fas fa-user-tie me-2"></i>Asesor
+                                    <i class="fas fa-user-tie me-2"></i>
+                                    <span hidden id="rol">{{ usuarios.rol }}</span>
+                                    Asesor
                                 </span>
                                 {% endif %}
                             </td>
                             <td class="px-4 text-end">
                                 <div class="d-flex gap-2 justify-content-end">
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#ActualizaruserModal" data-user-id="{{ usuarios.id }}">
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#ActualizaruserModal" data-user-id="{{ usuarios.id }}"
+                                    onclick="mostrarModalActualizarDatos('{{usuarios.id}}', '{{usuarios.documento}}', '{{usuarios.nombre}}', '{{usuarios.rol}}')">
                                         <i class="fas fa-edit"></i> 
                                     </button>
                                     
@@ -215,14 +220,14 @@
                             <label class="form-label">
                                 <i class="fas fa-id-card me-2"></i>Documento
                             </label>
-                            <input type="number" class="form-control" name="documento" id="actualizardocumento" required>
+                            <input type="number" class="form-control" name="documento" id="actualizarDocumento" required>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">
                                 <i class="fas fa-user me-2"></i>Nombre completo
                             </label>
-                            <input type="text" class="form-control" name="nombre" id="actualizarnombre" required>
+                            <input type="text" class="form-control" name="nombre" id="actualizarNombre" required>
                         </div>
                         
                         <div class="col-md-12">
@@ -250,6 +255,28 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Función para mostrar el modal de actualización de datos
+        function mostrarModalActualizarDatos(userID, documento, nombre, rol) {
+            // Obtener el modal
+            const modal = document.getElementById("modalActualizarDatos");
+            // Establecer los valores en los campos del formulario
+            document.getElementById("actualizarDocumento").value = documento;
+            document.getElementById("actualizarNombre").value = nombre;
+            document.getElementById("actualizarRol").value = rol;
+
+            // const documento = document.getElementById("documento").value;
+            // const nombre = document.getElementById("nombre");
+            // const rol = document.getElementById("rol");
+
+            console.log(documento);
+            document.getElementById("actualizarId").value = userID;
+            // Mostrar el modal
+            modal.style.display = "block";
+
+        }
+</script>
 {% endblock %}
 
 {% block scripts %}
