@@ -34,7 +34,6 @@ def insertar_cita():
             mysql.connection.commit()
 
             id_paciente = conn.lastrowid
-            
 
             conn.execute("""
                 INSERT INTO citas (
@@ -45,18 +44,15 @@ def insertar_cita():
                 hora)
                 VALUES (%s, %s, %s, %s, %s)""",
                 (id_paciente, usuario_actual, id_calendario, fecha, hora))
-                
-                
-        
+
             # flash("Cita insertada correctamente", "success")
             mysql.connection.commit()
             conn.close()
 
             flash("Cita insertada correctamente", "success")
-            return redirect(url_for('tabla_calendarios.calendario'))
+            return redirect(f'/calendario/{id_calendario}')
 
     except Exception as e:
         traceback.print_exc()
         flash("Error al insertar la cita: " + str(e), "error")
-        return redirect(url_for('tabla_calendarios.calendario'))
-        
+        return redirect(f'/calendario/{id_calendario}')

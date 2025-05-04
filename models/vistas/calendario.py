@@ -32,18 +32,13 @@ def datos_calendario():
             if 'fecha_fin' in calendario and calendario['fecha_fin']:
                 calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
 
+        # return redirect(url_for("index"))
         return datos
     except Exception as e:
         error = traceback.format_exc()
         print(error)
         return []
 
-@calendarios_creados.route("/calendarios_creados")
-@login_required
-@role_required([1, 2])
-def calendarios_totales():
-    calendarios = datos_calendario()
-    return render_template("calendarios_creados.html", calendarios=calendarios)
 
 def generar_semanas(fecha_inicio, fecha_fin):
     # Convertir strings a objetos date
@@ -81,6 +76,7 @@ def generar_semanas(fecha_inicio, fecha_fin):
             "hoy": fecha == datetime.now().date(),
             "dentro_rango": dentro_rango
         })
+        # print(semana_actual)
         
         if fecha.weekday() == 6:  # Domingo
             semanas.append(semana_actual)
@@ -99,8 +95,11 @@ def calendario(id_calendario):
         conn = mysql.connection.cursor()
         conn.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id_calendario,))
         calendario = conn.fetchone()
-        conn.close()
 
+        conn.execute("SELECT * FROM citas WHERE id_calendario = %s", (id_calendario,))
+        citas = conn.fetchall()
+        # print(citas)
+        conn.close()  
         
         
         inicio_hora = calendario['hora_inicio']
@@ -127,7 +126,7 @@ def calendario(id_calendario):
         return render_template("calendario.html", 
                             calendario=calendario, 
                             horarios = horarios,
-                            # citas=citas,
+                            citas=citas,
                             semanas=semanas,
                             meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
                                   'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],

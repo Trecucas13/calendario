@@ -15,8 +15,13 @@ def insertar_calendario():
         hora_fin = request.form['horaFin']
         espacio_citas = request.form['espacioCitas']
         tiempo_fuera = request.form['tiempoFuera']
-        inicio_descanso = request.form['inicioHoraDescanso']
-        fin_descanso = request.form['finHoraDescanso']
+        
+        if tiempo_fuera == "no":
+            inicio_descanso = None
+            fin_descanso = None
+        else:
+            inicio_descanso = request.form['inicioHoraDescanso']
+            fin_descanso = request.form['finHoraDescanso']
         id_usuario = session.get('id')
 
         conn = mysql.connection.cursor()
@@ -66,4 +71,4 @@ def insertar_calendario():
         conn.close()
         
         flash("Calendario insertado correctamente", "success")
-        return redirect('calendarios_creados')
+        return redirect('/index')
