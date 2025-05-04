@@ -1,10 +1,13 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2 import Template
 from database.config import db_conexion, mysql
+
 from models.vistas.calendario import tabla_calendarios
+from models.vistas.calendario import calendarios_creados
+
 from models.inserciones.insert_calendario import insercion_calendario
 from models.vistas.calendario import datos_calendario
-from models.vistas.calendario import obtener_citas
+# from models.vistas.calendario import obtener_citas
 from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
 from models.eliminar.eliminar_usuario import delete_usuarios
@@ -21,6 +24,7 @@ db_conexion(app)
 
 
 app.register_blueprint(tabla_calendarios)
+app.register_blueprint(calendarios_creados)
 app.register_blueprint(insercion_calendario)
 app.register_blueprint(auth)
 # app.register_blueprint(citas_bp)
@@ -64,7 +68,7 @@ def formulario():
     return render_template("formularios/creacion_calendario.html", datos=datos)
 
 
-@app.route("/actualizarFormulario/<int:id>", methods=["GET", "POST"])
+@app.route("/actualizarCalendario/<int:id>", methods=["GET", "POST"])
 @login_required
 @role_required([1, 2])
 def formularioActualizar(id):

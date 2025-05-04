@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Citas</title>
+    <!-- LINK DE DISEÑOS -->
+    <link rel="stylesheet" href="../static/css/styles.css"> <!-- LINK DE ESTILO GLOBAL-->
+    <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
+    <link rel="stylesheet" href="../static/css/calendario_recuadro.css">
+    <style>
+        .calendario-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .calendario-header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendario-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            background-color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            margin-right: 5px;
+        }
+
+        .calendario-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendario-mes {
+            margin-bottom: 30px;
+        }
+
+        .mes-titulo {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 10px;
+        }
+
+        .dia-semana {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .fecha-btn {
+            display: block;
+            height: 50px;
+            width: 100%;
+            padding: 15px 5px;
+            text-align: center;
+            background-color: rgb(176, 232, 176);
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: black;
+            gap: 2px;
+        }
+
+        .fecha-btn:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .fecha-btn.activa {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .fecha-btn.inactiva {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            cursor: default;
+        }
+
+        .fecha-btn.fuera-rango {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .fecha-numero {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .fecha-info {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .calendario-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+
+            .fecha-btn {
+                padding: 10px 2px;
+            }
+
+            .fecha-numero {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calendario-container">
+        <div class="calendario-header">
+            <h1>Calendario de Citas</h1>
+
+            {% if calendarios and calendarios|length > 0 %}
+            <div class="calendario-info">
+                <div class="info-item">
+                    <span class="info-label">Calendario:</span>
+                    <span class="info-value">{{ calendarios[0]['nombre_calendario'] }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Periodo:</span>
+                    <span class="info-value">{{ calendarios[0]['fecha_inicio'] }} - {{ calendarios[0]['fecha_fin']
+                        }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Horario:</span>
+                    <span class="info-value">{{ calendarios[0]['hora_inicio'] }} - {{ calendarios[0]['hora_fin']
+                        }}</span>
+                </div>
+            </div>
+            {% else %}
+            <p>No hay calendarios disponibles</p>
+            {% endif %}
+        </div>
+        <div class="container mt-4">
+            <div class="calendar">
+                <!-- Cabecera con mes/año -->
+                <div class="text-center mb-3">
+                    <h2>
+                        {{ meses[calendario.fecha_inicio.month - 1] }}
+                        {{ calendario.fecha_inicio.year }} -
+                        {{ meses[calendario.fecha_fin.month - 1] }}
+                        {{ calendario.fecha_fin.year }}
+                    </h2>
+                </div>
+
+                <!-- Calendario -->
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            {% for dia in dias_semana %}
+                            <th style="width: 14.28%">{{ dia }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for semana in semanas %}
+                        <tr>
+                            {% for dia in semana %}
+                            <td class="{% if dia.hoy %}table-warning{% endif %} {% if not dia.dentro_rango %}text-muted bg-light{% endif %} text-center py-3">
+                                <div class="dia-numero"><button {% if not dia.dentro_rango %}disabled style="opacity: 0.5;"{% endif %}>{{ dia.dia }}</button></div>
+                                <!-- Aquí puedes agregar eventos/citas -->
+                                {% if citas and dia.dentro_rango %}
+                                {% for cita in citas %}
+                                {% if cita.fecha == dia.fecha_completa %}
+                                <div class="evento small text-white bg-primary p-1 mt-1 rounded">
+                                    {{ cita.hora }} - {{ cita.cliente }}
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div style="display: none;">
+        <table>
+            <tr>
+                <th>Hora</th>
+                <th>Estado</th>
+            </tr>
+            {% for hora in horarios %}
+            <tr>
+                <td>{{ hora }}</td>
+                <td>
+                    <button style="background-color: #28a745; width: 100%;">Disponible</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+    </div>
+
+
+
+</body>
+
+</html>

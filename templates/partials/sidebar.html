@@ -7,30 +7,31 @@
 
     <nav class="nav flex-column gap-2">
 
-      <a href="{{url_for('index')}}"
+      <a href="/index"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-home fs-5 me-3"></i>
         <span class="fs-6">Inicio</span>
       </a>
       {% if session["rol"] == 1 %}
-      <a href="{{url_for('vista_usuarios.tabla_usuarios')}}"
+      <a href="/usuarios"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-users fs-5 me-3"></i>
         <span class="fs-6">Gestión de Usuarios</span>
       </a>
       {% endif %}
-      <a href="{{url_for('tabla_calendarios.calendario')}}"
+
+      <a href="/calendarios_creados"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-calendar-day fs-5 me-3"></i>
-        <span class="fs-6">Citas Programadas / Calendario Citas</span>
+        <span class="fs-6">Calendarios creados</span>
       </a>
 
-      <a href="{{url_for('formulario')}}"
+      <a href="/formulario"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-add fs-5 me-3"></i>
         <span class="fs-6">Agregar Calendario</span>
       </a>
-      <a href="{{url_for('auth.logout')}}"
+      <a href="/logout"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-sign-out-alt fs-5 me-3"></i>
         <i class="fas fa-add fs-5 me-3"></i>
@@ -59,11 +60,11 @@
         <span class="fs-6">Gestión de Usuarios</span>
       </a>
 
-      <a href="{{url_for('tabla_calendarios.calendario')}}"
+      <!-- <a href="/calendarios_creados"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'calendarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-calendar-alt fs-5 me-3"></i>
         <span class="fs-6">Calendarios</span>
-      </a>
+      </a> -->
 
       <a href="/citas"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">

@@ -66,4 +66,4 @@ def insertar_calendario():
         conn.close()
         
         flash("Calendario insertado correctamente", "success")
-        return redirect(url_for('tabla_calendarios.calendario'))
+        return redirect('calendarios_creados')

@@ -2,46 +2,26 @@ from flask import Flask, render_template, Blueprint, flash, redirect, url_for, r
 from database.config import mysql
 import traceback
 from datetime import datetime, timedelta
+from calendar import monthrange
 from flask import Flask, Blueprint, render_template, jsonify
 from auth.decorators import *
 from flask_mysqldb import MySQLdb, cursors
 
+
 app = Flask(__name__)
 
 tabla_calendarios = Blueprint('tabla_calendarios', __name__)
-
-def datos_id_calendario():
-    try:
-        conn = mysql.connection.cursor()
-        conn.execute("SELECT * FROM calendarios")
-        datos = conn.fetchall()
-        
-        id_calendario = conn.lastrowid
-        conn.close()
-
-        # Formatear las fechas antes de devolver los datos
-        for calendario in datos:
-            if 'fecha_inicio' in calendario and calendario['fecha_inicio']:
-                calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
-            if 'fecha_fin' in calendario and calendario['fecha_fin']:
-                calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
-
-        return datos
-    except Exception as e:
-        error = traceback.format_exc()
-        print(error)
-        return []
-
-
-
-
+calendarios_creados = Blueprint('calendarios_creados', __name__)
 
 def datos_calendario():
     try:
         # Use DictCursor instead of dictionary=True
         id_usuario = session.get('id')
         conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        conn.execute("SELECT * FROM calendarios WHERE id_usuario = %s", (id_usuario,))
+        conn.execute("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio FROM calendarios c
+                        JOIN procedimientos p ON c.id_procedimiento = p.id_procedimiento
+                        JOIN municipios m ON c.id_municipio = m.id_municipio
+                        WHERE id_usuario = %s""", (id_usuario,))
         datos = conn.fetchall()
         conn.close()
 
@@ -58,132 +38,102 @@ def datos_calendario():
         print(error)
         return []
 
-
-def obtener_citas(id_calendario):
-    try:
-        conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        
-        # Si se proporciona un ID de calendario, filtrar por ese calendario
-        if id_calendario:
-            conn.execute("""
-                SELECT c.fecha, c.hora, p.tipo_documento, p.numero_documento, 
-                       p.telefono, p.direccion, p.fecha_nacimiento, p.examen_realizar
-                FROM citas c
-                JOIN pacientes p ON c.id_paciente = p.id
-                WHERE c.id_calendario = %s
-                ORDER BY c.fecha, c.hora""", 
-                (id_calendario,))
-        else:
-            # Si no se proporciona ID, obtener todas las citas
-            conn.execute("""
-                SELECT c.fecha, c.hora, c.id_calendario, p.tipo_documento, p.numero_documento, 
-                       p.telefono, p.direccion, p.fecha_nacimiento, p.examen_realizar
-                FROM citas c
-                JOIN pacientes p ON c.id_paciente = p.id
-                ORDER BY c.fecha, c.hora""")
-                
-        citas = conn.fetchall()
-        
-        # Formatear las fechas para que sean compatibles con JavaScript
-        for cita in citas:
-            if 'fecha' in cita and cita['fecha']:
-                cita['fecha'] = cita['fecha'].strftime('%Y-%m-%d')
-                
-        conn.close()
-        return citas
-    except Exception as e:
-        print(f"Error al obtener citas: {str(e)}")
-        return []
-
-
-
-@tabla_calendarios.route("/calendario")
+@calendarios_creados.route("/calendarios_creados")
 @login_required
 @role_required([1, 2])
-def calendario():
-    # Obtener los datos del calendario (sin desempaquetar)
+def calendarios_totales():
     calendarios = datos_calendario()
-    # print(calendarios)
-    # Inicializar citas como una lista vacía
-    citas = []
+    return render_template("calendarios_creados.html", calendarios=calendarios)
+
+def generar_semanas(fecha_inicio, fecha_fin):
+    # Convertir strings a objetos date
+    inicio = fecha_inicio
+    fin = fecha_fin
     
-    # Verificar si hay datos de calendario
-    if calendarios and len(calendarios) > 0:
-        # Obtener citas del primer calendario
-        citas = obtener_citas(calendarios[0]['id_calendario'])
-        # print(citas)
-    else:
-        # Si no hay calendarios, obtener todas las citas
-        citas = obtener_citas(None)
-        
-    return render_template("calendario_base.html", 
-                          calendarios=calendarios, 
-                          citas=citas,
-                          obtener_fecha_para_dia=obtener_fecha_para_dia)
+    if inicio > fin:
+        raise ValueError("La fecha de inicio no puede ser mayor a la fecha final")
 
-# @tabla_calendarios.route("/api/citas/<int:calendario_id>")
-# def api_citas(calendario_id):
-#     citas = obtener_citas(calendario_id)
-#     return jsonify(citas)
-
-# @tabla_calendarios.route("/api/citas/crear", methods=['POST'])
-# def crear_cita():
-#     try:
-#         # Obtener datos del JSON enviado
-#         data = request.get_json()
+    # Encontrar el lunes anterior o igual a la fecha de inicio
+    dias_hasta_lunes = inicio.weekday()  # 0 es lunes, 1 es martes, etc.
+    lunes_inicio = inicio - timedelta(days=dias_hasta_lunes)
+    
+    # Encontrar el domingo posterior o igual a la fecha de fin
+    dias_hasta_domingo = 6 - fin.weekday()  # 6 - weekday para llegar al domingo
+    domingo_fin = fin + timedelta(days=dias_hasta_domingo)
+    
+    # Generar todas las fechas en el rango ampliado
+    delta = domingo_fin - lunes_inicio
+    todas_fechas = [lunes_inicio + timedelta(days=i) for i in range(delta.days + 1)]
+    
+    # Organizar en semanas
+    semanas = []
+    semana_actual = []
+    
+    for fecha in todas_fechas:
+        # Determinar si la fecha está dentro del rango original
+        dentro_rango = inicio <= fecha <= fin
         
-#         # Validar datos requeridos
-#         if not all(key in data for key in ['id_calendario', 'fecha', 'hora']):
-#             return jsonify({'error': 'Faltan datos requeridos'}), 400
-            
-#         # Preparar datos para inserción
-#         id_calendario = data['id_calendario']
-#         fecha = data['fecha']
-#         hora = data['hora']
-#         estado = data.get('estado', 'confirmada')
+        semana_actual.append({
+            "dia": fecha.day,
+            "mes": fecha.month,
+            "año": fecha.year,
+            "fecha_completa": fecha.strftime('%Y-%m-%d'),
+            "hoy": fecha == datetime.now().date(),
+            "dentro_rango": dentro_rango
+        })
         
-#         # Datos adicionales del paciente si están disponibles
-#         paciente = data.get('paciente', '')
-#         documento = data.get('documento', '')
-#         telefono = data.get('telefono', '')
-#         examen = data.get('examen', '')
+        if fecha.weekday() == 6:  # Domingo
+            semanas.append(semana_actual)
+            semana_actual = []
+    
+    if semana_actual:  # Añadir la última semana incompleta
+        semanas.append(semana_actual)
+    
+    return semanas
+
+@tabla_calendarios.route("/calendario/<int:id_calendario>", methods=["GET", "POST"])
+@login_required
+@role_required([1, 2])
+def calendario(id_calendario):
+    try:
+        conn = mysql.connection.cursor()
+        conn.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id_calendario,))
+        calendario = conn.fetchone()
+        conn.close()
+
         
-#         # Insertar en la base de datos
-#         conn = mysql.connection.cursor()
-#         query = "INSERT INTO citas (id_calendario, fecha, hora, estado, paciente, documento, telefono, examen) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-#         conn.execute(query, (id_calendario, fecha, hora, estado, paciente, documento, telefono, examen))
-#         mysql.connection.commit()
         
-#         # Obtener el ID de la cita insertada
-#         cita_id = conn.lastrowid
-#         conn.close()
+        inicio_hora = calendario['hora_inicio']
+        fin_hora = calendario['hora_fin']
+        intervalo = timedelta(minutes = calendario['espacio_citas'])
+    
         
-#         return jsonify({
-#             'id': cita_id,
-#             'mensaje': 'Cita creada exitosamente',
-#             'calendario_id': id_calendario,
-#             'fecha': fecha,
-#             'hora': hora
-#         })
-#     except Exception as e:
-#         error = traceback.format_exc()
-#         print(error)
-#         return jsonify({'error': str(e)}), 500
-
-# Asegúrate de registrar el blueprint
-app.register_blueprint(tabla_calendarios)
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-
-def obtener_fecha_para_dia(dia_semana):
-    hoy = datetime.now()
-    dias = {
-        'lunes': 0, 'martes': 1, 'miercoles': 2,
-        'jueves': 3, 'viernes': 4, 'sabado': 5
-    }
-    diferencia = dias[dia_semana] - hoy.weekday()
-    if diferencia < 0:
-        diferencia += 7
-    return (hoy + timedelta(days=diferencia)).strftime('%Y-%m-%d')
+        horarios = []
+        hora_actual = inicio_hora
+    
+        while hora_actual <= fin_hora:
+            horarios.append(hora_actual)
+            hora_actual += intervalo
+        
+        
+        
+        # citas = obtener_citas(id_calendario)
+        # horario = horario_tabla()
+        semanas = generar_semanas(
+            calendario['fecha_inicio'], 
+            calendario['fecha_fin']
+        )
+        
+        return render_template("calendario.html", 
+                            calendario=calendario, 
+                            horarios = horarios,
+                            # citas=citas,
+                            semanas=semanas,
+                            meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                            dias_semana=['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom'])
+    except Exception as e:
+        error = traceback.format_exc()
+        print(error)
+        flash("Error al cargar el calendario", "error")
+        return redirect(url_for("index"))
