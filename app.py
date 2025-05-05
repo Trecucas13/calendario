@@ -11,6 +11,7 @@ from models.vistas.calendario import datos_calendario
 from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
 from models.eliminar.eliminar_usuario import delete_usuarios
+from models.eliminar.eliminar_calendario import delete_calendario
 from models.actualizar.actualizarUsuario import actualizar_usuario
 
 # from models.vistas.citas import citas_bp
@@ -32,6 +33,7 @@ app.register_blueprint(insertar_usuario)
 app.register_blueprint(insertar_citas)
 app.register_blueprint(vista_usuarios)
 app.register_blueprint(delete_usuarios)
+app.register_blueprint(delete_calendario)
 app.register_blueprint(actualizar_usuario)
 
 @app.route("/")

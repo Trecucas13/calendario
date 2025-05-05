@@ -16,12 +16,12 @@ calendarios_creados = Blueprint('calendarios_creados', __name__)
 def datos_calendario():
     try:
         # Use DictCursor instead of dictionary=True
-        id_usuario = session.get('id')
+        # id_usuario = session.get('id')
         conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         conn.execute("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio FROM calendarios c
                         JOIN procedimientos p ON c.id_procedimiento = p.id_procedimiento
                         JOIN municipios m ON c.id_municipio = m.id_municipio
-                        WHERE id_usuario = %s""", (id_usuario,))
+                        """)
         datos = conn.fetchall()
         conn.close()
 

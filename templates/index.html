@@ -51,13 +51,19 @@
                                     <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
 
                                     <button type="button" class="btn btn-sm btn-primary" onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">Ir</button>
-
+                                    {% if session['rol'] == 1 %}
                                     <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
                                         style="display: inline;">
                                         <button type="submit" class="btn btn-sm btn-warning">Editar</button>
                                     </form>
+                                    
+                                    <form action="/eliminar_calendario" method="POST"
+                                        style="display: inline;">
+                                        <input type="hidden" name="id" value="{{calendario.id_calendario}}">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                    {% endif %}
 
-                                    <button class="btn btn-sm btn-danger">Eliminar</button>
                                 </td>
                             </tr>
 

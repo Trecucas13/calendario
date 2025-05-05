@@ -17,6 +17,11 @@
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-users fs-5 me-3"></i>
         <span class="fs-6">Gestión de Usuarios</span>
+        <a href="/formulario"
+          class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+          <i class="fas fa-add fs-5 me-3"></i>
+          <span class="fs-6">Agregar Calendario</span>
+        </a>
       </a>
       {% endif %}
 
@@ -26,11 +31,7 @@
         <span class="fs-6">Calendarios creados</span>
       </a> -->
 
-      <a href="/formulario"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
-        <i class="fas fa-add fs-5 me-3"></i>
-        <span class="fs-6">Agregar Calendario</span>
-      </a>
+
       <a href="/logout"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-sign-out-alt fs-5 me-3"></i>
