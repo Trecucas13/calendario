@@ -1,93 +1,63 @@
-    /* Estilos para la tabla de horas vertical */
-    .calendario-grid-horas {
-      margin-top: 30px;
-      overflow-y: auto; /* Permite desplazamiento vertical */
-      max-height: 500px; /* Altura máxima antes de mostrar scroll */
-      display: none; /* Oculto por defecto */
-    }
-    
-    .horas-titulo {
-      margin-bottom: 15px;
-      color: #0066cc;
-      text-align: center;
-    }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #eef2f3;
+}
+/* Estilos para el modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
 
-    .calendario-tabla-vertical {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      max-width: 400px; /* Ancho máximo de la tabla */
-      margin: 0 auto; /* Centrar la tabla */
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      overflow: hidden;
-    }
+  & .modal-contenido {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    overflow: auto;
+    justify-content: center;
+    align-items: center;;
+  }
+}
 
-    .fila-hora {
-      display: flex;
-      flex-direction: row;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .fila-hora:last-child {
-      border-bottom: none;
-    }
+.modal-horario {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
 
-    .hora-celda {
-      background-color: #0066cc;
-      color: white;
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      width: 100px;
-      border-right: 1px solid #0055aa;
-      box-sizing: border-box;
-    }
+  & .horario-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    width: 100%;
+    height: 80%;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    overflow: auto;
 
-    .estado-celda {
-      flex: 1;
-      padding: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      text-align: center;
-    }
-    
-    .disponible {
-      background-color: #e6ffe6;
-    }
-
-    .ocupado {
-      background-color: #ffcccc;
-    }
-
-    .ocupado-temp {
-      background-color: #99ccff;
-    }
-
-    .descanso {
-      background-color: #e6e6ff;
-    }
-
-    .estado-celda:hover {
-      background-color: #f5f5f5;
-    }
-    
-    .leyenda {
-      margin-top: 20px;
-      display: flex;
-      gap: 20px;
+    & > h2 {
       justify-content: center;
-      flex-wrap: wrap;
+      text-align: center;
     }
-    
-    /* Estilos para el modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
+  }
+}

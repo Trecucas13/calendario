@@ -6,139 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario de Citas</title>
     <!-- LINK DE DISEÑOS -->
-    <link rel="stylesheet" href="../static/css/styles.css"> <!-- LINK DE ESTILO GLOBAL-->
+    <!-- <link rel="stylesheet" href="../static/css/styles.css"> -->
     <link rel="stylesheet" href="../static/css/calendario.css"> <!-- LINK DE ESTILO PARA EL CALENDARIO-->
-    <link rel="stylesheet" href="../static/css/calendario_recuadro.css">
+    <!-- <link rel="stylesheet" href="../static/css/calendario_recuadro.css"> -->
     <link rel="stylesheet" href="../static/css/modal.css">
-    <style>
-        .calendario-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
 
-        .calendario-header {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .calendario-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .info-item {
-            background-color: #fff;
-            padding: 8px 12px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #555;
-            margin-right: 5px;
-        }
-
-        .calendario-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-        }
-
-        .calendario-mes {
-            margin-bottom: 30px;
-        }
-
-        .mes-titulo {
-            background-color: #0066cc;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 8px 8px 0 0;
-            margin-bottom: 10px;
-        }
-
-        .dia-semana {
-            text-align: center;
-            font-weight: bold;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-        }
-
-        .fecha-btn {
-            display: block;
-            height: 50px;
-            width: 100%;
-            padding: 15px 5px;
-            text-align: center;
-            background-color: rgb(176, 232, 176);
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: black;
-            gap: 2px;
-        }
-
-        .fecha-btn:hover {
-            background-color: #e9ecef;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .fecha-btn.activa {
-            background-color: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-
-        .fecha-btn.inactiva {
-            background-color: #f8f9fa;
-            color: #adb5bd;
-            cursor: default;
-        }
-
-        .fecha-btn.fuera-rango {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .fecha-numero {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .fecha-info {
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .calendario-grid {
-                grid-template-columns: repeat(7, 1fr);
-                gap: 5px;
-            }
-
-            .fecha-btn {
-                padding: 10px 2px;
-            }
-
-            .fecha-numero {
-                font-size: 1rem;
-            }
-        }
-    </style>
 </head>
 
 <body>
+
+    {% extends "base.html" %}
+
+
+    {% block content %}
+
+
     <div class="calendario-container">
         <div class="calendario-header">
             <h1>Calendario de Citas</h1>
@@ -192,29 +74,29 @@
                             <td
                                 class="{% if dia.hoy %}table-warning{% endif %} {% if not dia.dentro_rango %}text-muted bg-light{% endif %} text-center py-3">
                                 <div class="dia-numero">
-                                    <button {% if not dia.dentro_rango %} disabled style="opacity: 0.5;" {% endif %} id="dia-btn"
-                                        onclick="abrirHorario('{{dia.fecha_completa}}')">{{ dia.dia }}
+                                    <button {% if not dia.dentro_rango %} disabled style="opacity: 0.5;" {% endif %}
+                                        id="dia-btn" onclick="abrirHorario('{{dia.fecha_completa}}')">{{ dia.dia }}
                                     </button>
                                 </div>
                                 <!-- Aquí puedes agregar eventos/citas -->
                                 {% if dia.dentro_rango %}
-                                    <!-- Debug: Mostrar información de depuración -->
-                                    <div style="display: none;">
-                                        Fecha día: {{ dia.fecha_completa }}
-                                        {% if citas %}
-                                            Total citas: {{ citas|length }}
-                                        {% else %}
-                                            No hay citas disponibles
-                                        {% endif %}
-                                    </div>
-                                    
-                                    {% for cita in citas %}
-                                        {% if cita.fecha|string == dia.fecha_completa|string %}
-                                            <div class="evento small text-white bg-primary p-1 mt-1 rounded">
-                                                {{ cita.hora }}
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
+                                <!-- Debug: Mostrar información de depuración -->
+                                <div style="display: none;">
+                                    Fecha día: {{ dia.fecha_completa }}
+                                    {% if citas %}
+                                    Total citas: {{ citas|length }}
+                                    {% else %}
+                                    No hay citas disponibles
+                                    {% endif %}
+                                </div>
+
+                                {% for cita in citas %}
+                                {% if cita.fecha|string == dia.fecha_completa|string %}
+                                <div class="evento small text-white bg-primary p-1 mt-1 rounded">
+                                    {{ cita.hora }}
+                                </div>
+                                {% endif %}
+                                {% endfor %}
                                 {% endif %}
                             </td>
                             {% endfor %}
@@ -225,9 +107,11 @@
             </div>
         </div>
     </div>
+
+
     <script>
         function abrirHorario(fecha) {
-            document.getElementById('horario').style.display = 'block';
+            document.getElementById('modalHorario').style.display = 'flex';
 
             //Tabla Horarios
             document.getElementById('fecha').innerText = "Fecha: " + fecha;
@@ -237,117 +121,117 @@
 
             //Asignar la fecha en el input oculto en el Modal de citas
             document.getElementById('fecha-cita').value = fecha;
-            
+
             // Actualizar estados de las horas
             actualizarEstadosHoras(fecha);
         }
-        
+
         function actualizarEstadosHoras(fecha) {
             // Obtener todas las citas
             const citas = [
                 {% for cita in citas %}
-                {
-                    fecha: "{{ cita.fecha }}",
-                    hora: "{{ cita.hora }}"
-                },
-                {% endfor %}
+        {
+            fecha: "{{ cita.fecha }}",
+                hora: "{{ cita.hora }}"
+        },
+        {% endfor %}
             ];
-            
-            // Obtener información del calendario actual
-            const horaInicioDescanso = "{{ calendario.inicio_hora_descanso }}";
-            const horaFinDescanso = "{{ calendario.fin_hora_descanso }}";
-            
-            // Obtener todas las filas de horas
-            const filas = document.querySelectorAll('#horario table tr');
-            
-            // Empezar desde la segunda fila (saltando el encabezado)
-            for (let i = 1; i < filas.length; i++) {
-                const hora = filas[i].querySelector('td:first-child').innerText;
-                const boton = filas[i].querySelector('button');
-                
-                // Verificar si la hora está en período de descanso
-                const esHoraDescanso = esHorarioDescanso(hora, horaInicioDescanso, horaFinDescanso);
-                
-                // Verificar si la hora está ocupada por una cita
-                let ocupado = false;
-                for (const cita of citas) {
-                    if (cita.fecha === fecha && cita.hora === hora) {
-                        ocupado = true;
-                        break;
-                    }
-                }
-                
-                // Actualizar el estado del botón
-                if (esHoraDescanso) {
-                    boton.innerText = "Descanso";
-                    boton.style.backgroundColor = "#FFA500"; // Naranja para descanso
-                    boton.disabled = true;
-                } else if (ocupado) {
-                    boton.innerText = "Ocupado";
-                    boton.style.backgroundColor = "#e41515";
-                    boton.disabled = true;
-                } else {
-                    boton.innerText = "Disponible";
-                    boton.style.backgroundColor = "#008000";
-                    boton.disabled = false;
+
+        // Obtener información del calendario actual
+        const horaInicioDescanso = "{{ calendario.inicio_hora_descanso }}";
+        const horaFinDescanso = "{{ calendario.fin_hora_descanso }}";
+
+        // Obtener todas las filas de horas
+        const filas = document.querySelectorAll('#horario table tr');
+
+        // Empezar desde la segunda fila (saltando el encabezado)
+        for (let i = 1; i < filas.length; i++) {
+            const hora = filas[i].querySelector('td:first-child').innerText;
+            const boton = filas[i].querySelector('button');
+
+            // Verificar si la hora está en período de descanso
+            const esHoraDescanso = esHorarioDescanso(hora, horaInicioDescanso, horaFinDescanso);
+
+            // Verificar si la hora está ocupada por una cita
+            let ocupado = false;
+            for (const cita of citas) {
+                if (cita.fecha === fecha && cita.hora === hora) {
+                    ocupado = true;
+                    break;
                 }
             }
+
+            // Actualizar el estado del botón
+            if (esHoraDescanso) {
+                boton.innerText = "Descanso";
+                boton.style.backgroundColor = "#FFA500"; // Naranja para descanso
+                boton.disabled = true;
+            } else if (ocupado) {
+                boton.innerText = "Ocupado";
+                boton.style.backgroundColor = "#e41515";
+                boton.disabled = true;
+            } else {
+                boton.innerText = "Disponible";
+                boton.style.backgroundColor = "#008000";
+                boton.disabled = false;
+            }
         }
-        
+        }
+
         // Función para verificar si una hora está dentro del período de descanso
         function esHorarioDescanso(hora, inicioDescanso, finDescanso) {
             // Si no hay horario de descanso configurado, retornar falso
             if (!inicioDescanso || !finDescanso) {
                 return false;
             }
-            
+
             // Convertir las horas a minutos para facilitar la comparación
             const horaMinutos = convertirAMinutos(hora);
             const inicioDescansoMinutos = convertirAMinutos(inicioDescanso);
             const finDescansoMinutos = convertirAMinutos(finDescanso);
-            
+
             // Verificar si la hora está dentro del rango de descanso
             return horaMinutos >= inicioDescansoMinutos && horaMinutos < finDescansoMinutos;
         }
-        
+
         // Función para convertir una hora en formato "HH:MM:SS" o "HH:MM" a minutos
         function convertirAMinutos(horaStr) {
             if (!horaStr) return 0;
-            
+
             const partes = horaStr.split(':');
             const horas = parseInt(partes[0], 10) || 0;
             const minutos = parseInt(partes[1], 10) || 0;
-            
+
             return horas * 60 + minutos;
         }
     </script>
 
-
-
-
-    <div id="horario" style="display: none;">
-        <h2>Horario</h2>
-        <h2 id="fecha"></h2>
-        <table>
-            <tr>
-                <th>Hora</th>
-                <th>Estado</th>
-            </tr>
-            {% for hora in horarios %}
-            <tr>
-                <td>{{ hora }}</td>
-                <td>
-                    <button style="background-color: #008000; width: 100%;" 
+    <!-- Horario -->
+    <div class="modal-horario" id="modalHorario">
+        <div id="horario" class="horario-container">
+            <span class="cerrar-modal" id="cerrar-modal" onclick="cerrarModal()">&times;</span>
+            <h2>Horario</h2>
+            <h2 id="fecha"></h2>
+            <table>
+                <tr>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                </tr>
+                {% for hora in horarios %}
+                <tr>
+                    <td>{{ hora }}</td>
+                    <td>
+                        <button style="background-color: #008000; width: 100%;"
                             onclick="abrirModal('{{ hora }}')">Disponible</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
-
     <script>
         function abrirModal(hora) {
-            document.getElementById('modal-cita').style.display = 'block';
+            document.getElementById('modal-cita').style.display = 'flex';
 
             document.getElementById('hora-cita').innerText = hora; // Asigna el valor de la hora al elemento
 
@@ -356,13 +240,9 @@
 
         function cerrarModal() {
             document.getElementById('modal-cita').style.display = 'none';
+            document.getElementById('modalHorario').style.display = 'none';
         }
     </script>
-
-
-
-
-
 
     <!-- Modal para reservar cita -->
     <div id="modal-cita" class="modal" style="display: none;">
@@ -428,7 +308,7 @@
             </div>
         </div>
     </div>
-
+    {% endblock %}
 </body>
 
 </html>
