@@ -19,9 +19,7 @@
             <div class="selection-area">
                 <div class="selection-group">
                     <label>Calendario</label>
-                    <select>
                         <option>{{ calendario.nombre_calendario }}</option>
-                    </select>
                 </div>
 
                 <div class="selection-group">
@@ -40,7 +38,7 @@
             </div>
             {% else %}
             <p>No hay calendarios disponibles</p>
-            {% endif %}
+            {% endif %} 
 
             <!-- Calendario y horarios -->
             <div class="calendar-section">
@@ -66,8 +64,8 @@
                         <div class="days">
                             {% for semana in semanas %}
                             {% for dia in semana %}
-                            <div class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas %}available-day{% endif %}"
-                                onclick="abrirHorario('{{dia.fecha_completa}}')">
+                            <div class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas %}available-day{% endif %} {% if not dia.dentro_rango %}disabled{% endif %}"
+                                {% if dia.dentro_rango %}onclick="abrirHorario('{{dia.fecha_completa}}')"{% endif %}>
                                 {{ dia.dia }}
                             </div>
                             {% endfor %}
@@ -97,7 +95,7 @@
                             <div class="time-cell">{{ hora }}</div>
                             <div class="location-cell">Estado</div>
                             <div class="action-cell">
-                                <button class="assign-btn" onclick="abrirModal('{{ hora }}')">ASIGNAR CITA</button>
+                                <button class="assign-btn" onclick="abrirModal('{{ hora }}') ">Asignar cita</button>
                             </div>
                         </div>
                         {% endfor %}
@@ -116,6 +114,7 @@
                 style="float: right; cursor: pointer; font-size: 24px;">&times;</span>
             <h2>Horario</h2>
             <h2 id="fecha"></h2>
+            <input type="hidden" id="fecha_valor" value>
             <div id="horario-content">
                 <!-- El contenido del horario se cargará dinámicamente -->
             </div>
@@ -137,12 +136,12 @@
                     value="{% if calendario and calendario|length > 0 %}{{ calendario.id_calendario }}{% endif %}">
 
                 <div class="form-group">
-                    <label for="">Nombre: </label>
+                    <label for="nombre">Nombre: </label>
                     <input type="text" name="nombre" id="nombre" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="">Apellido: </label>
+                    <label for="apellido">Apellido: </label>
                     <input type="text" name="apellido" id="apellido" required>
                 </div>
 
@@ -180,15 +179,23 @@
 
                 <div class="form-group">
                     <label for="examen">Examen a realizar:</label>
-                    <input type="text" id="examen" name="examen" required>
+                    <select id="examen" name="examen" required>
+                        <option value="">Seleccione...</option>
+                        {% for procedimiento in procedimientos %}
+                        <option value="{{ procedimiento.id_procedimiento }}">{{ procedimiento.nombre }}</option>
+                        {% endfor %}
+
+                    </select>
                 </div>
 
                 <div class="botones-modal" style="display: flex; justify-content: space-between; margin-top: 20px;">
                     <button type="button" id="btn-cancelar" class="btn-cancelar" onclick="cerrarModal()"
                         style="background-color: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;">Cancelar</button>
-                    <button type="submit" id="btn-reservar-temp" class="btn-reservar-temp"
+                    
+                        <button type="submit" id="btn-reservar-temp" class="btn-reservar-temp"
                         style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;">Reservar
                         temporalmente</button>
+
                     <button type="submit" id="btn-reservar" class="btn-reservar"
                         style="background-color: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;">Reservar</button>
                 </div>
@@ -201,32 +208,91 @@
         </div>
     </div>
 
+    <style>
+        /* Estilo para el día seleccionado */
+        .days div.selected {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: 2px solid #2E7D32;
+        }
+    </style>
+
     <script>
+
+        // Función para cargar la primera fecha disponible al iniciar la página
+        window.onload = function() {
+            // Buscar el primer día disponible en el calendario
+            const primerDiaDisponible = document.querySelector('.days div.available-day');
+            
+            if (primerDiaDisponible) {
+                // Obtener la fecha completa del atributo onclick
+                const onclickAttr = primerDiaDisponible.getAttribute('onclick');
+                // Extraer la fecha entre comillas simples
+                const fechaMatch = onclickAttr.match(/'([^']+)'/);
+                
+                if (fechaMatch && fechaMatch[1]) {
+                    // Llamar a abrirHorario con la primera fecha disponible
+                    abrirHorario(fechaMatch[1]);
+                }
+            } else {
+                // Si no hay días disponibles, buscar cualquier día dentro del rango
+                const primerDia = document.querySelector('.days div[onclick]');
+                if (primerDia) {
+                    const onclickAttr = primerDia.getAttribute('onclick');
+                    const fechaMatch = onclickAttr.match(/'([^']+)'/);
+                    
+                    if (fechaMatch && fechaMatch[1]) {
+                        abrirHorario(fechaMatch[1]);
+                    }
+                }
+            }
+        };
+
         function abrirHorario(fecha) {
-
-            // console.log(fecha);
-            document.getElementById('modalHorario').style.display = 'flex';
-
-            //Tabla Horarios
-            document.getElementById('fecha').innerText = "Fecha: " + fecha;
-
-            //Modal citas Texto fecha
-            document.getElementById('dia-cita').innerText = fecha;
-
-            //Asignar la fecha en el input oculto en el Modal de citas
+            // Verificar si el día está deshabilitado
+            const diaSeleccionado = document.querySelector(`.days div[onclick="abrirHorario('${fecha}')"]`);
+            if (!diaSeleccionado || diaSeleccionado.classList.contains('disabled')) {
+                return; // No hacer nada si el día está deshabilitado
+            }
+            
+            // Eliminar la clase 'selected' de cualquier día previamente seleccionado
+            const diasSeleccionados = document.querySelectorAll('.days div.selected');
+            diasSeleccionados.forEach(dia => {
+                dia.classList.remove('selected');
+            });
+            
+            // Añadir la clase 'selected' al día que se ha hecho clic
+            diaSeleccionado.classList.add('selected');
+            
+            // Actualizar el texto de la fecha en la sección de horarios
+            const fechaDisplay = document.createElement('h3');
+            fechaDisplay.innerText = "Fecha: " + fecha;
+            
+            // Limpiar cualquier título de fecha anterior y añadir el nuevo
+            const scheduleContainer = document.querySelector('.schedule-container');
+            const fechaAnterior = scheduleContainer.querySelector('h3');
+            if (fechaAnterior) {
+                fechaAnterior.remove();
+            }
+            scheduleContainer.insertBefore(fechaDisplay, scheduleContainer.firstChild);
+            
+            // Guardar la fecha para usarla al abrir el modal de citas
+            document.getElementById('fecha_valor').value = fecha;
             document.getElementById('fecha-cita').value = fecha;
-
+            
             // Actualizar estados de las horas
             actualizarEstadosHoras(fecha);
         }
 
         function actualizarEstadosHoras(fecha) {
             // Obtener todas las citas
+
             const citas = [
                 {% for cita in citas %}
         {
             fecha: "{{ cita.fecha }}",
-                hora: "{{ cita.hora }}"
+            hora: "{{ cita.hora }}"
         },
         {% endfor %}
             ];
@@ -260,17 +326,17 @@
             if (esHoraDescanso) {
                 estadoCell.innerText = "Descanso";
                 boton.innerText = "No disponible";
-                boton.style.backgroundColor = "#FFA500";
+                boton.style.backgroundColor = "#9E9E9E";
                 boton.disabled = true;
             } else if (ocupado) {
                 estadoCell.innerText = "Ocupado";
                 boton.innerText = "No disponible";
-                boton.style.backgroundColor = "#e41515";
+                boton.style.backgroundColor = "#F44336";
                 boton.disabled = true;
             } else {
                 estadoCell.innerText = "Disponible";
-                boton.innerText = "ASIGNAR CITA";
-                boton.style.backgroundColor = "#0275d8";
+                boton.innerText = "Asignar cita";
+                boton.style.backgroundColor = "#4CAF50";
                 boton.disabled = false;
             }
         });
@@ -307,6 +373,7 @@
             document.getElementById('modal-cita').style.display = 'flex';
             document.getElementById('hora-cita').innerText = hora;
             document.getElementById('hora-cita-input').value = hora;
+            document.getElementById('fecha-cita').value = document.getElementById('fecha_valor').value;
         }
 
         function cerrarModal() {

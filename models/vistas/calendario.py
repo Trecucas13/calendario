@@ -40,6 +40,25 @@ def datos_calendario():
         return []
 
 
+def obtener_procedimientos():
+    try:
+        conn = mysql.connection.cursor()
+        conn.execute("SELECT * FROM procedimientos")
+        procedimientos = conn.fetchall()
+        conn.close()
+        return procedimientos
+    except Exception as e:
+        error = traceback.format_exc()
+        print(error)
+        return []
+
+
+
+
+
+
+
+
 def generar_semanas(fecha_inicio, fecha_fin):
     # Convertir strings a objetos date
     inicio = fecha_inicio
@@ -128,6 +147,7 @@ def calendario(id_calendario):
                             horarios = horarios,
                             citas=citas,
                             semanas=semanas,
+                            procedimientos = obtener_procedimientos(),
                             meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
                                   'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                             dias_semana=['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom'])

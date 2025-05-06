@@ -208,7 +208,7 @@ body {
 }
 
 .assign-btn {
-    background-color: #0275d8;
+    background-color: #4CAF50;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -217,5 +217,5 @@ body {
 }
 
 .assign-btn:hover {
-    background-color: #025aa5;
+    background-color: #4CAF50;
 }

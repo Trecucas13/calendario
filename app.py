@@ -4,18 +4,20 @@ from database.config import db_conexion, mysql
 
 from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import calendarios_creados
-
-from models.inserciones.insert_calendario import insercion_calendario
 from models.vistas.calendario import datos_calendario
-# from models.vistas.calendario import obtener_citas
-from models.inserciones.insert_usuario import insertar_usuario
 from models.vistas.usuarios import vista_usuarios
+
+from models.inserciones.insert_citas import insertar_citas
+from models.inserciones.insert_calendario import insercion_calendario
+from models.inserciones.insert_usuario import insertar_usuario
+
+# from models.vistas.calendario import obtener_citas
 from models.eliminar.eliminar_usuario import delete_usuarios
 from models.eliminar.eliminar_calendario import delete_calendario
+
 from models.actualizar.actualizarUsuario import actualizar_usuario
 
 # from models.vistas.citas import citas_bp
-from models.inserciones.insert_citas import insertar_citas
 
 from auth.auth_login import auth
 from auth.decorators import *
@@ -32,6 +34,7 @@ app.register_blueprint(auth)
 app.register_blueprint(insertar_usuario)
 app.register_blueprint(insertar_citas)
 app.register_blueprint(vista_usuarios)
+
 app.register_blueprint(delete_usuarios)
 app.register_blueprint(delete_calendario)
 app.register_blueprint(actualizar_usuario)
@@ -60,6 +63,12 @@ def datos_municipio():
 
     return {"municipios": municipios, "procedimientos": procedimientos}
 
+def obtener_pacientes():
+    conn = mysql.connection.cursor()
+    conn.execute("SELECT * FROM pacientes")
+    pacientes = conn.fetchall()
+
+    return{"pacientes": pacientes}
 
 @app.route("/formulario")
 @login_required
@@ -79,11 +88,12 @@ def formularioActualizar(id):
     return render_template("formularios/actualizarform.html", form_id=form_id)
 
 
-@app.route("/citas")
-def citas():
-    citas = obtener_citas(None)
-    # return render_template("citas.html", citas=citas)
-    return render_template("horario.html", citas=citas)
+
+
+@app.route("/pacientes")
+def pacientes():
+    pacientes = obtener_pacientes()
+    return render_template("pacientes.html", pacientes=pacientes)
 
 
 if __name__ == "__main__":

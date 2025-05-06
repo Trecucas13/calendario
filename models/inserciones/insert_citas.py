@@ -11,6 +11,8 @@ def insertar_cita():
     try:
         if request.method == "POST":
             id_calendario = request.form["id_calendario"]
+            nombre = request.form["nombre"]
+            apellido = request.form["apellido"]
             fecha = request.form["fecha_cita"]
             hora = request.form["hora_cita"]
             tipo_documento = request.form["tipo_documento"]
@@ -22,32 +24,62 @@ def insertar_cita():
             usuario_actual = session.get('id')
 
             conn = mysql.connection.cursor()
-            conn.execute("""INSERT INTO pacientes (
-            tipo_documento, 
-            numero_documento, 
-            telefono, 
-            direccion, 
-            fecha_nacimiento, 
-            examen_realizar) 
-            VALUES (%s, %s, %s, %s, %s, %s)""", 
-            (tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento, examen))
-            mysql.connection.commit()
 
-            id_paciente = conn.lastrowid
+            conn.execute("SELECT * FROM pacientes WHERE numero_documento = %s", (numero_documento,))
+            paciente_existente = conn.fetchone()
 
-            conn.execute("""
-                INSERT INTO citas (
-                id_paciente, 
-                id_usuario,
-                id_calendario, 
-                fecha, 
-                hora)
-                VALUES (%s, %s, %s, %s, %s)""",
-                (id_paciente, usuario_actual, id_calendario, fecha, hora))
+            if paciente_existente:
+                id_paciente = paciente_existente["id"]
 
-            # flash("Cita insertada correctamente", "success")
-            mysql.connection.commit()
-            conn.close()
+                conn.execute("""
+                    INSERT INTO citas (
+                    id_paciente,
+                    id_usuario,
+                    id_calendario,
+                    id_procedimiento,
+                    fecha,
+                    hora,
+                    )
+                    VALUES (%s, %s, %s, %s, %s)""",
+                    (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
+                mysql.connection.commit()
+                conn.close()
+
+                flash("Cita insertada correctamente", "success")
+                return redirect(f'/calendario/{id_calendario}')
+
+
+            # Si el paciente no existe, insertarlo en la tabla pacientes y luego insertar la cita
+            else:    
+                conn.execute("""INSERT INTO pacientes (
+                nombre,
+                apellido,
+                tipo_documento, 
+                numero_documento, 
+                telefono, 
+                direccion, 
+                fecha_nacimiento) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
+                (nombre, apellido, tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento))
+                mysql.connection.commit()
+
+                id_paciente = conn.lastrowid
+
+                conn.execute("""
+                    INSERT INTO citas (
+                    id_paciente, 
+                    id_usuario,
+                    id_calendario,
+                    id_procedimiento,
+                    fecha, 
+                    hora
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
+
+                # flash("Cita insertada correctamente", "success")
+                mysql.connection.commit()
+                conn.close()
 
             flash("Cita insertada correctamente", "success")
             return redirect(f'/calendario/{id_calendario}')
