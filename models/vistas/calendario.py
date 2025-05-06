@@ -123,7 +123,7 @@ def calendario(id_calendario):
             calendario['fecha_fin']
         )
         
-        return render_template("calendario.html", 
+        return render_template("calendario2.html", 
                             calendario=calendario, 
                             horarios = horarios,
                             citas=citas,
