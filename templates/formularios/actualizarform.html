@@ -125,19 +125,21 @@
       </div>
 
       <!-- Campos ocultos para almacenar los valores de inicio y fin de descanso -->
-       {% if calendario.tiempo_fuera =='si' %}
+      {% if calendario.tiempo_fuera =='si' %}
       <div id="tiempoFueraOptions" class="">
         <div class="form-row">
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarinicioHoraDescanso">Inicio de Descanso:</label>
-              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso" value="{{calendario.inicio_hora_descanso}}">
+              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso"
+                value="{{calendario.inicio_hora_descanso}}">
             </div>
           </div>
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarfinHoraDescanso">Fin de Descanso:</label>
-              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso" value="{{calendario.fin_hora_descanso}}">
+              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso"
+                value="{{calendario.fin_hora_descanso}}">
             </div>
           </div>
         </div>

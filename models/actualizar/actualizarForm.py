@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
+from auth.decorators import * 
 from database.config import mysql
+import traceback
 
 actualizar_calendario = Blueprint("actualizar_calendario", __name__)
 
@@ -16,7 +18,7 @@ def update_calendario():
     Returns:
         Response: Redirección a la página de listado de calendario
     """
-    
+
     try:
         id_calendario = request.form['id_calendario']
         nombre_calendario = request.form['nombreCalendario']
@@ -30,7 +32,7 @@ def update_calendario():
         tiempo_fuera = request.form['tiempoFuera']
         inicio_hora_descanso = request.form['inicioHoraDescanso']
         fin_hora_descanso = request.form['finHoraDescanso']
-    
+
         sql = """UPDATE calendarios SET 
                 nombre_calendario = %s,
                 id_municipio = %s,
@@ -47,26 +49,32 @@ def update_calendario():
         params = (nombre_calendario, id_municipio, id_procedimiento, 
                   fecha_inicio, fecha_fin, hora_inicio, hora_fin, espacio_citas, tiempo_fuera,
                   inicio_hora_descanso, fin_hora_descanso, id_calendario)
-         
+
         # Ejecutar la consulta SQL
         cur = mysql.connection.cursor()
         cur.execute(sql, params)
         mysql.connection.commit()
-        
+
         # Mostrar mensaje de éxito
         flash("Calendario actualizado exitosamente", "success")
-    
+
     except ValueError as e:
         # Capturar errores de tipo de datos
+        error = traceback.format_exc()
+        print(f"Error en tipos de datos: {str(e)}")
+        print(f"Detalles del error: {error}")
         flash(f"Error en tipos de datos: {str(e)}", "error")
         mysql.connection.rollback()  # Revertir cambios en caso de error
     except Exception as e:
+        error = traceback.format_exc()
+        print(f"Error en tipos de datos: {str(e)}")
+        print(f"Detalles del error: {error}")
         # Capturar cualquier otro error
         flash(f"Error al actualizar: {str(e)}", "error")
         mysql.connection.rollback()  # Revertir cambios en caso de error
     finally:
         # Cerrar el cursor si fue creado
         cur.close() if 'cur' in locals() else None
-    
+
     # Redireccionar a la página de listado de clientes
     return redirect(url_for("index"))

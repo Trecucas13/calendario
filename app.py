@@ -16,7 +16,7 @@ from models.eliminar.eliminar_usuario import delete_usuarios
 from models.eliminar.eliminar_calendario import delete_calendario
 
 from models.actualizar.actualizarUsuario import actualizar_usuario
-
+from models.actualizar.actualizarForm import actualizar_calendario
 # from models.vistas.citas import citas_bp
 
 from auth.auth_login import auth
@@ -38,6 +38,7 @@ app.register_blueprint(vista_usuarios)
 app.register_blueprint(delete_usuarios)
 app.register_blueprint(delete_calendario)
 app.register_blueprint(actualizar_usuario)
+app.register_blueprint(actualizar_calendario)
 
 @app.route("/")
 def login():
