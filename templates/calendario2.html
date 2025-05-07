@@ -19,7 +19,7 @@
             <div class="selection-area">
                 <div class="selection-group">
                     <label>Calendario</label>
-                        <option>{{ calendario.nombre_calendario }}</option>
+                    <option>{{ calendario.nombre_calendario }}</option>
                 </div>
 
                 <div class="selection-group">
@@ -38,7 +38,7 @@
             </div>
             {% else %}
             <p>No hay calendarios disponibles</p>
-            {% endif %} 
+            {% endif %}
 
             <!-- Calendario y horarios -->
             <div class="calendar-section">
@@ -65,7 +65,7 @@
                             {% for semana in semanas %}
                             {% for dia in semana %}
                             <div class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas %}available-day{% endif %} {% if not dia.dentro_rango %}disabled{% endif %}"
-                                {% if dia.dentro_rango %}onclick="abrirHorario('{{dia.fecha_completa}}')"{% endif %}>
+                                {% if dia.dentro_rango %}onclick="abrirHorario('{{dia.fecha_completa}}')" {% endif %}>
                                 {{ dia.dia }}
                             </div>
                             {% endfor %}
@@ -191,9 +191,10 @@
                 <div class="botones-modal" style="display: flex; justify-content: space-between; margin-top: 20px;">
                     <button type="button" id="btn-cancelar" class="btn-cancelar" onclick="cerrarModal()"
                         style="background-color: #f44336; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;">Cancelar</button>
-                    
-                        <button type="submit" id="btn-reservar-temp" class="btn-reservar-temp"
-                        style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;">Reservar
+
+                    <button type="button" id="boton-reserva-temp" class="btn-reservar-temp"
+                        style="background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer;"
+                        onclick="iniciarContador()">Reservar
                         temporalmente</button>
 
                     <button type="submit" id="btn-reservar" class="btn-reservar"
@@ -218,19 +219,20 @@
         }
     </style>
 
+
     <script>
 
         // Función para cargar la primera fecha disponible al iniciar la página
-        window.onload = function() {
+        window.onload = function () {
             // Buscar el primer día disponible en el calendario
             const primerDiaDisponible = document.querySelector('.days div.available-day');
-            
+
             if (primerDiaDisponible) {
                 // Obtener la fecha completa del atributo onclick
                 const onclickAttr = primerDiaDisponible.getAttribute('onclick');
                 // Extraer la fecha entre comillas simples
                 const fechaMatch = onclickAttr.match(/'([^']+)'/);
-                
+
                 if (fechaMatch && fechaMatch[1]) {
                     // Llamar a abrirHorario con la primera fecha disponible
                     abrirHorario(fechaMatch[1]);
@@ -241,7 +243,7 @@
                 if (primerDia) {
                     const onclickAttr = primerDia.getAttribute('onclick');
                     const fechaMatch = onclickAttr.match(/'([^']+)'/);
-                    
+
                     if (fechaMatch && fechaMatch[1]) {
                         abrirHorario(fechaMatch[1]);
                     }
@@ -255,20 +257,20 @@
             if (!diaSeleccionado || diaSeleccionado.classList.contains('disabled')) {
                 return; // No hacer nada si el día está deshabilitado
             }
-            
+
             // Eliminar la clase 'selected' de cualquier día previamente seleccionado
             const diasSeleccionados = document.querySelectorAll('.days div.selected');
             diasSeleccionados.forEach(dia => {
                 dia.classList.remove('selected');
             });
-            
+
             // Añadir la clase 'selected' al día que se ha hecho clic
             diaSeleccionado.classList.add('selected');
-            
+
             // Actualizar el texto de la fecha en la sección de horarios
             const fechaDisplay = document.createElement('h3');
             fechaDisplay.innerText = "Fecha: " + fecha;
-            
+
             // Limpiar cualquier título de fecha anterior y añadir el nuevo
             const scheduleContainer = document.querySelector('.schedule-container');
             const fechaAnterior = scheduleContainer.querySelector('h3');
@@ -276,11 +278,11 @@
                 fechaAnterior.remove();
             }
             scheduleContainer.insertBefore(fechaDisplay, scheduleContainer.firstChild);
-            
+
             // Guardar la fecha para usarla al abrir el modal de citas
             document.getElementById('fecha_valor').value = fecha;
             document.getElementById('fecha-cita').value = fecha;
-            
+
             // Actualizar estados de las horas
             actualizarEstadosHoras(fecha);
         }
@@ -292,7 +294,7 @@
                 {% for cita in citas %}
         {
             fecha: "{{ cita.fecha }}",
-            hora: "{{ cita.hora }}"
+                hora: "{{ cita.hora }}"
         },
         {% endfor %}
             ];
@@ -332,6 +334,11 @@
                 estadoCell.innerText = "Ocupado";
                 boton.innerText = "No disponible";
                 boton.style.backgroundColor = "#F44336";
+                boton.disabled = true;
+            } else if (document.getElementById('boton-reserva-temp').clicked) {
+                estadoCell.innerText = "Reservado temporalmente";
+                boton.innerText = "No disponible";
+                boton.style.backgroundColor = "#FF9800";
                 boton.disabled = true;
             } else {
                 estadoCell.innerText = "Disponible";
@@ -373,6 +380,7 @@
             document.getElementById('modal-cita').style.display = 'flex';
             document.getElementById('hora-cita').innerText = hora;
             document.getElementById('hora-cita-input').value = hora;
+            document.getElementById('dia-cita').innerText = document.getElementById('fecha_valor').value;
             document.getElementById('fecha-cita').value = document.getElementById('fecha_valor').value;
         }
 
@@ -380,10 +388,138 @@
             document.getElementById('modal-cita').style.display = 'none';
             document.getElementById('modalHorario').style.display = 'none';
         }
+
+
+        //Timer reserva temporal
+        function iniciarContador() {
+            // Validar que todos los campos requeridos estén completos
+            const formulario = document.querySelector('.formulario');
+            if (!formulario.checkValidity()) {
+                alert("Por favor, complete todos los campos requeridos antes de reservar temporalmente.");
+                return;
+            }
+            
+            // Guardar los datos del formulario
+            const datosFormulario = {
+                id: document.getElementById('id-calendario').value,
+                fecha_cita: document.getElementById('fecha-cita').value,
+                hora_cita: document.getElementById('hora-cita-input').value,
+                tipo_documento: document.getElementById('tipo-documento').value,
+                documento: document.getElementById('numero-documento').value,
+                telefono: document.getElementById('telefono').value,
+                direccion: document.getElementById('direccion').value,
+                fecha_nacimiento: document.getElementById('fecha-nacimiento').value,
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                examen: document.getElementById('examen').value
+            };
+            
+            // Ocultar el modal de cita
+            document.getElementById('modal-cita').style.display = 'none';
+            
+            // Cambiar el color del botón de la hora seleccionada a azul
+            const filas = document.querySelectorAll('.schedule-row');
+            filas.forEach(fila => {
+                const hora = fila.querySelector('.time-cell').innerText;
+                const boton = fila.querySelector('.assign-btn');
+                const estadoCell = fila.querySelector('.location-cell');
+                
+                if (hora === datosFormulario.hora_cita) {
+                    estadoCell.innerText = "Reservado temporalmente";
+                    boton.innerText = "Reservado temporalmente";
+                    boton.style.backgroundColor = "#2196F3"; // Azul
+                    boton.disabled = true;
+                }
+            });
+            
+            // Mostrar el contador
+            const contadorContainer = document.createElement('div');
+            contadorContainer.className = 'contador-flotante';
+            contadorContainer.innerHTML = `
+                <p>Reserva temporal: <span id="contador-tiempo">5:00</span></p>
+            `;
+            document.body.appendChild(contadorContainer);
+            
+            // Configurar el estilo del contador flotante
+            const estiloContador = document.createElement('style');
+            estiloContador.textContent = `
+                .contador-flotante {
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background-color: #2196F3;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                    font-weight: bold;
+                }
+            `;
+            document.head.appendChild(estiloContador);
+            
+            // Iniciar el contador de 5 minutos
+            let contador = 5 * 60; // 5 minutos en segundos
+            const intervalo = setInterval(function() {
+                const minutos = Math.floor(contador / 60);
+                const segundos = contador % 60;
+                
+                // Actualizar el texto del contador
+                document.getElementById('contador-tiempo').textContent = 
+                    `${minutos}:${segundos < 10 ? '0' + segundos : segundos}`;
+                
+                contador--;
+                
+                // Cuando el contador llega a cero
+                if (contador < 0) {
+                    clearInterval(intervalo);
+                    
+                    // Eliminar el contador flotante
+                    contadorContainer.remove();
+                    
+                    // Restaurar el estado del botón
+                    filas.forEach(fila => {
+                        const hora = fila.querySelector('.time-cell').innerText;
+                        if (hora === datosFormulario.hora_cita) {
+                            const estadoCell = fila.querySelector('.location-cell');
+                            const boton = fila.querySelector('.assign-btn');
+                            
+                            estadoCell.innerText = "Disponible";
+                            boton.innerText = "Asignar cita";
+                            boton.style.backgroundColor = "#4CAF50";
+                            boton.disabled = false;
+                        }
+                    });
+                    
+                    // Mostrar nuevamente el modal con los datos guardados
+                    document.getElementById('modal-cita').style.display = 'flex';
+                    
+                    // Rellenar los campos con los datos guardados
+                    document.getElementById('id-calendario').value = datosFormulario.id;
+                    document.getElementById('fecha-cita').value = datosFormulario.fecha_cita;
+                    document.getElementById('hora-cita-input').value = datosFormulario.hora_cita;
+                    document.getElementById('tipo-documento').value = datosFormulario.tipo_documento;
+                    document.getElementById('numero-documento').value = datosFormulario.documento;
+                    document.getElementById('telefono').value = datosFormulario.telefono;
+                    document.getElementById('direccion').value = datosFormulario.direccion;
+                    document.getElementById('fecha-nacimiento').value = datosFormulario.fecha_nacimiento;
+                    document.getElementById('nombre').value = datosFormulario.nombre;
+                    document.getElementById('apellido').value = datosFormulario.apellido;
+                    document.getElementById('examen').value = datosFormulario.examen;
+                    
+                    // Actualizar el texto informativo
+                    document.getElementById('dia-cita').innerText = datosFormulario.fecha_cita;
+                    document.getElementById('hora-cita').innerText = datosFormulario.hora_cita;
+                    
+                    // Mostrar mensaje de tiempo expirado
+                    alert("El tiempo de reserva temporal ha expirado. Por favor, complete su reserva.");
+                }
+            }, 1000);
+        }
     </script>
     <button type="button" class="btn-crear" onclick="window.location='/index'">
         <i class="fas fa-times me-2"></i>Volver
-      </button>
+    </button>
 </body>
 
 </html>
