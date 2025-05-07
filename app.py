@@ -83,9 +83,19 @@ def formulario():
 @login_required
 @role_required([1, 2])
 def formularioActualizar(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id,))
+    calendario = cursor.fetchone()
+    
+    cursor.execute("SELECT * FROM municipios")
+    municipios = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM procedimientos")
+    procedimientos = cursor.fetchall()
+    cursor.close()
     form_id = id
     # print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
-    return render_template("formularios/actualizarform.html", form_id=form_id)
+    return render_template("formularios/actualizarform.html", form_id=form_id, calendario = calendario, municipios=municipios, procedimientos=procedimientos)
 
 
 

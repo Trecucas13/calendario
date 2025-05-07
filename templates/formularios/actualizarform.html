@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
 
-      <!-- LINK DE DISEÑOS -->
-    <link rel="stylesheet" href="../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
-    <link rel="stylesheet" href="../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
- 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <!-- LINK DE DISEÑOS -->
+  <link rel="stylesheet" href="../static/css/styles.css"> <!-- LINK DE ESTILO GLOBAL-->
+  <link rel="stylesheet" href="../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
+
 </head>
 
 <body>
@@ -16,13 +17,14 @@
   <div class="container-2">
     <h1>Actualizar calendario</h1>
     <form id="formularioActualizarCalendario" method="POST" action="/actualizar_calendario">
-      <input type="hidden" id="calendario_id" name="calendario_id">
-        
+      <input type="hidden" id="calendario_id" name="calendario_id" value="{{calendario.id_calendario}}">
+
       <div class="form-group">
         <label for="actualizarnombreCalendario">Nombre del Calendario:</label>
-        <input type="text" id="actualizarnombreCalendario" name="actualizarnombreCalendario" required>
+        <input type="text" id="actualizarnombreCalendario" name="actualizarnombreCalendario" required
+          value="{{calendario.nombre_calendario}}">
       </div>
-      
+
       <div class="form-row">
         <div class="form-col">
           <div class="form-group">
@@ -30,11 +32,13 @@
             <select id="actualizarmunicipio" name="actualizarmunicipio" required>
               <option value="">Seleccione un municipio</option>
               <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
-              <option value="Medellín">Medellín</option>
-              <option value="Bello">Bello</option>
-              <option value="Itagüí">Itagüí</option>
-              <option value="Envigado">Envigado</option>
-              <option value="Sabaneta">Sabaneta</option>
+              {% for municipio in municipios %}
+              {% if calendario.id_municipio == municipio.id_municipio %}
+              <option value="{{ municipio.id_municipio }}" selected>{{ municipio.nombre }}</option>
+              {% else %}
+              <option value="{{ municipio.id_municipio }}">{{ municipio.nombre }}</option>
+              {% endif %}
+              {% endfor %}
             </select>
           </div>
         </div>
@@ -44,54 +48,70 @@
             <select id="actualizarprocedimiento" name="actualizarprocedimiento" required>
               <option value="">Seleccione un procedimiento</option>
               <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
-              <option value="Consulta General">Consulta General</option>
-              <option value="Odontología">Odontología</option>
-              <option value="Pediatría">Pediatría</option>
-              <option value="Ginecología">Ginecología</option>
-              <option value="Vacunación">Vacunación</option>
+              {% for procedimiento in procedimientos %}
+              {% if calendario.id_procedimiento == procedimiento.id_procedimiento %}
+              <option value="{{ procedimiento.id_procedimiento }}" selected>{{ procedimiento.nombre }}</option>
+              {% else %}
+              <option value="{{ procedimiento.id_procedimiento }}">{{ procedimiento.nombre }}</option>
+              {% endif %}
+              {% endfor %}
             </select>
           </div>
         </div>
       </div>
-      
-      <div class="form-group">
+
+      <!-- <div class="form-group">
         <label for="titulo">Título</label>
         <input type="text" class="form-control" id="titulo" name="titulo" required>
-    </div>
-    
-    <div class="form-group">
+    </div> -->
+
+      <div class="form-group">
         <label for="fecha_inicio">Fecha de inicio</label>
-        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
-    </div>
-    
-    <div class="form-group">
+        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required
+          value="{{calendario.fecha_inicio}}">
+      </div>
+
+      <div class="form-group">
         <label for="fecha_fin">Fecha de fin</label>
-        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
-    </div>
-      
+        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required
+          value="{{calendario.fecha_fin}}">
+      </div>
+
       <div class="form-row">
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarhoraInicio">Hora de Inicio:</label>
-            <input type="time" id="actualizarhoraInicio" name="actualizarhoraInicio" required>
+            <input type="time" id="actualizarhoraInicio" name="actualizarhoraInicio" required
+              value="{{calendario.hora_inicio}}">
           </div>
         </div>
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarhoraFin">Hora de Fin:</label>
-            <input type="time" id="actualizarhoraFin" name="actualizarhoraFin" required>
+            <input type="time" id="actualizarhoraFin" name="actualizarhoraFin" required value="{{calendario.hora_fin}}">
           </div>
         </div>
       </div>
-      
+
       <div class="form-group">
         <label for="actualizarespacioCitas">Espacio entre citas (minutos):</label>
-        <input type="number" id="actualizarespacioCitas" name="actualizarespacioCitas" min="5" max="120" step="5" value="30" required>
+        <input type="number" id="actualizarespacioCitas" name="actualizarespacioCitas" min="5" max="120" step="5"
+          value="{{calendario.espacio_citas}}" required>
       </div>
-      
+
       <div class="form-group">
         <label>¿Desea incluir tiempo fuera (descanso)?</label>
         <div class="radio-group">
+          {% if calendario.tiempo_fuera == 'si' %}
+          <div class="radio-option">
+            <input type="radio" id="actualizartiempoFueraSi" name="actualizartiempoFuera" value="si" checked>
+            <label for="actualizartiempoFueraSi">Sí</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="actualizartiempoFueraNo" name="actualizartiempoFuera" value="no">
+            <label for="actualizartiempoFueraNo">No</label>
+          </div>
+          {% else %}
           <div class="radio-option">
             <input type="radio" id="actualizartiempoFueraSi" name="actualizartiempoFuera" value="si">
             <label for="actualizartiempoFueraSi">Sí</label>
@@ -100,9 +120,29 @@
             <input type="radio" id="actualizartiempoFueraNo" name="actualizartiempoFuera" value="no" checked>
             <label for="actualizartiempoFueraNo">No</label>
           </div>
+          {% endif %}
         </div>
       </div>
-      
+
+      <!-- Campos ocultos para almacenar los valores de inicio y fin de descanso -->
+       {% if calendario.tiempo_fuera =='si' %}
+      <div id="tiempoFueraOptions" class="">
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="actualizarinicioHoraDescanso">Inicio de Descanso:</label>
+              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso" value="{{calendario.inicio_hora_descanso}}">
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="actualizarfinHoraDescanso">Fin de Descanso:</label>
+              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso" value="{{calendario.fin_hora_descanso}}">
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
       <div id="tiempoFueraOptions" class="hidden">
         <div class="form-row">
           <div class="form-col">
@@ -119,12 +159,13 @@
           </div>
         </div>
       </div>
-      
+      {% endif %}
       <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>
   </div>
-  
+
   <script src="../../static/js/formulario_calendario.js"></script>
 
 </body>
+
 </html>
