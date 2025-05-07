@@ -30,12 +30,8 @@ function cerrarModal(modalId) {
   modal.style.display = "none";
 }
 
-// Función para eliminar un usuario
-// Function to handle user deletion
 
 
-// Configurar listener único al cargar la página
-// Agregar event listeners cuando el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
   // Configurar los botones de eliminación
   const deleteButtons = document.querySelectorAll('[data-bs-target="#confirmDeleteModal"]');

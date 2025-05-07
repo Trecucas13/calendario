@@ -23,7 +23,16 @@
             <a class="btn btn-primary" href="/formulario">
                 <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
             </a>
+
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModalProcedimiento">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
+            </button>
+
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModalMunicipio">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
+            </button>
         </div>
+
 
         <div class="card shadow">
             <div class="card-header bg-light">
@@ -76,6 +85,80 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL AGREGAR MUNICIPIO -->
+    <div class="modal fade" id="userModalMunicipio" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="userModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/insertar-municipio" method="post">
+                    <div class="modal-body">
+                        <div class="row g-3">
+            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-2"></i>Nombre del municipio
+                                </label>
+                                <input type="text" class="form-control" name="nombre" required>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+     <!-- MODAL AGREGAR PROCEDIMIENTO -->
+    <div class="modal fade" id="userModalProcedimiento" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="userModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>Nuevo  Procedimiento
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/insertar-procedimiento" method="post">
+                    <div class="modal-body">
+                        <div class="row g-3">
+            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-user me-2"></i>Nombre del procedimiento
+                                </label>
+                                <input type="text" class="form-control" name="nombre" required>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {% endblock %}
 
     {% block modals %}
@@ -120,49 +203,6 @@
         </div>
     </div>
     {% endblock %}
-
-
-    <!-- ACTUALIZAR CALENDARIOS -->
-    <!-- <div class="modal fade" id="ActualizarmodalCalendario">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Actualizar Calendario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="" method="post">
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre</label>
-                                <input type="text" class="form-control" name="nombre_actualizar" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Proceso</label>
-                                <select class="form-select" name="proceso_actualizar" required>
-                                    <option value="proceso1">Proceso 1</option>
-                                    <option value="proceso2">Proceso 2</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Municipio</label>
-                                <select class="form-select" name="municipio_actualizar" required>
-                                    <option value="municipio1">Municipio 1</option>
-                                    <option value="municipio2">Municipio 2</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Actualizar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div> -->
-
-
 </body>
 
 </html>

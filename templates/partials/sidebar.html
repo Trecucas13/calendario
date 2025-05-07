@@ -1,31 +1,34 @@
 <!-- Sidebar para desktop (siempre visible en lg+) -->
-<div class="d-none d-lg-block bg-primary text-white" style="width: 280px; height: 100vh;">
+<div class="d-none d-lg-block bg-primary text-white" style="width: 280px; height: 100vh; flex-shrink: 0; overflow-x: hidden;">
   <div class="p-4">
     <h3 class="fw-bold mb-4">
       <i class="fas fa-heartbeat me-2"></i>Savia Salud
     </h3>
 
     <nav class="nav flex-column gap-2">
-
       <a href="/index"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-home fs-5 me-3"></i>
-        <span class="fs-6">Inicio</span>
+        <span class="fs-6 text-nowrap">Inicio</span>
       </a>
+      
       <a href="/pacientes"
-      class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
-      <i class="fas fa-users fs-5 me-3"></i>
-      <span class="fs-6">Gestión de pacientes</span>
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+        <i class="fas fa-users fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Gestión de pacientes</span>
+      </a>
+      
       {% if session["rol"] == 1 %}
       <a href="/usuarios"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-users fs-5 me-3"></i>
-        <span class="fs-6">Gestión de Usuarios</span>
-        <a href="/formulario"
-          class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
-          <i class="fas fa-add fs-5 me-3"></i>
-          <span class="fs-6">Agregar Calendario</span>
-        </a>
+        <span class="fs-6 text-nowrap">Gestión de Usuarios</span>
+      </a>
+      
+      <a href="/formulario"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+        <i class="fas fa-add fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Agregar Calendario</span>
       </a>
       {% endif %}
 
@@ -35,13 +38,11 @@
         <span class="fs-6">Calendarios creados</span>
       </a> -->
 
-
       <a href="/logout"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-sign-out-alt fs-5 me-3"></i>
-        <span class="fs-6">Cerrar Sesión</span>
+        <span class="fs-6 text-nowrap">Cerrar Sesión</span>
       </a>
-
 
       <img src="../../static/img/AndesBPO-Logo.png" alt="" style="width: 100%;">
     </nav>
@@ -50,7 +51,7 @@
 
 <!-- Sidebar para mobile (offcanvas) -->
 <div class="offcanvas offcanvas-start bg-primary text-white" data-bs-scroll="true" tabindex="-1" id="sidebar"
-  data-bs-backdrop="false" style="width: 280px;">
+  data-bs-backdrop="false" style="width: 280px; flex-shrink: 0; overflow-x: hidden;">
   <div class="offcanvas-header pb-0">
     <h3 class="offcanvas-title fw-bold">
       <i class="fas fa-heartbeat me-2"></i>Savia Salud
@@ -63,7 +64,7 @@
       <a href="{{url_for('vista_usuarios.tabla_usuarios')}}"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-users fs-5 me-3"></i>
-        <span class="fs-6">Gestión de Usuarios</span>
+        <span class="fs-6 text-nowrap">Gestión de Usuarios</span>
       </a>
 
       <!-- <a href="/calendarios_creados"
@@ -75,7 +76,7 @@
       <a href="/citas"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
         <i class="fas fa-calendar-day fs-5 me-3"></i>
-        <span class="fs-6">Citas Programadas</span>
+        <span class="fs-6 text-nowrap">Citas Programadas</span>
       </a>
     </nav>
   </div>

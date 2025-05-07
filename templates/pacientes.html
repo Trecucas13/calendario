@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pacientes</title>
+  </head>
+
+  <body>
+    {% extends 'base.html' %}
+     {% block content %}
+     <!-- <div class="py-3" style="display: block; overflow: auto;"> -->
+        <div class="user-management" style="display: block; overflow: hidden;">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+                <h2 class="text-primary mb-0">
+                    <i class="fas fa-users-cog me-2"></i>Gestión de Pacientes
+                </h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+                    <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+                </button>
+            </div>
+    
+            <!-- Tabla de pacientes -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-gradient-primary text-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <h4 class="mb-3 mb-md-0 fw-semibold text-dark">
+                <i class=" me-2 text-primary"></i>Pacientes Registrados
+                    </h4>
+    
+                    <!-- BUSCAR -->
+            <div class="input-group shadow-sm" style="max-width: 400px;">
+                <input type="text" id="busqueda" 
+                       class="form-control form-control-lg border-0" 
+                       placeholder="Buscar usuario..."
+                       aria-label="Buscar usuario">
+                <button id="boton-busqueda" 
+                        class="btn btn-light btn-lg" 
+                        type="button">
+                            <i class="fas fa-search text-primary"></i>
+                        </button>
+                    </div>
+                </div>
+    
+                <div class="card-body p-0">
+                    <div class="table-responsive rounded-bottom-4" style="max-height: 70vh; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0" id="tablaPacientes">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold">Nombre</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-sm-table-cell">Apellido</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-lg-table-cell">Tipo doc.</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold">Documento</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-xl-table-cell">Teléfono</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-xl-table-cell">Dirección</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-lg-table-cell">Fecha Nacimiento</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold">Examen</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-md-table-cell">Fecha Examen</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold d-none d-md-table-cell">Hora Examen</th>
+                                    <th class="py-3 px-3 text-uppercase text-dark small fw-semibold text-end">Acciones</th>
+                                </tr>
+                            </thead>
+    
+                            <tbody>
+                                {% for pacientes in pacientes %}
+                                <tr class="border-top border-secondary-subtle" data-user-id="{{ pacientes.id }}">
+                                    <td class="px-3 fw-medium">{{ pacientes.nombre }}</td>
+                                    <td class="px-3 d-none d-sm-table-cell">{{ pacientes.apellido }}</td>
+                                    <td class="px-3 d-none d-lg-table-cell">{{ pacientes.tipo_documento }}</td>
+                                    <td class="px-3 text-secondary">{{ pacientes.numero_documento }}</td>
+                                    <td class="px-3 d-none d-xl-table-cell">{{ pacientes.telefono }}</td>
+                                    <td class="px-3 d-none d-xl-table-cell">{{ pacientes.direccion }}</td>
+                                    <td class="px-3 d-none d-lg-table-cell">{{ pacientes.fecha_nacimiento }}</td>
+                                    <td class="px-3">
+                                        <span class="badge bg-primary rounded-pill text-wrap" style="font-size: 0.8em;">
+                                            {{ pacientes.examen_realizar }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 d-none d-md-table-cell">{{ pacientes.fecha }}</td>
+                                    <td class="px-3 d-none d-md-table-cell">{{ pacientes.hora }}</td>
+                                    <td class="px-3 text-end">
+                                        <div class="d-flex gap-2 justify-content-end">
+                                            <button class="btn btn-sm btn-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#ActualizaruserModal"
+                                                    onclick="mostrarModalActualizarDatos('{{pacientes.id}}', '{{pacientes.nombre}}', '{{pacientes.apellido}}', '{{pacientes.tipo_documento}}', '{{pacientes.numero_documento}}', '{{pacientes.telefono}}', '{{pacientes.direccion}}', '{{pacientes.fecha_nacimiento}}', '{{pacientes.examen_realizar}}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- </div> -->
+    
+    <!-- MODAL NUEVO PACIENTE-->
+    <div
+      class="modal fade"
+      id="userModal"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form
+            action="{{url_for('insertar_pacientes.insert_pacientes')}}"
+            method="post"
+          >
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Nombre
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Apellido
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="apellido"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Tipo documento
+                  </label>
+                  <select class="form-select" name="tipo_documento" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Cedúla ciudadana">Cedúla ciudadana</option>
+                    <option value="Tarjeta identidad">
+                      Tarjeta de identidad
+                    </option>
+                    <option value="Cedúla ciudadana">Cedúla extranjera</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Documento
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="numero_documento"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Telefono
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="telefono"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Dirección
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="direccion"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Fecha nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="fecha_nacimiento"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ACTUALIZAR PACIENTE -->
+    <div
+      class="modal fade"
+      id="ActualizaruserModal"
+      tabindex="-1"
+      aria-labelledby="ActualizaruserModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="ActualizaruserModalLabel">
+              <i class="fas fa-user-edit me-2"></i>Actualizar Paciente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form
+            action="{{url_for('actualizar_pacientes.update_paciente')}}"
+            method="post"
+          >
+            <div class="modal-body">
+              <div class="row g-3">
+                <input type="hidden" name="id" id="actualizarId" />
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Nombre
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    id="actualizarNombre"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Apellido
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="apellido"
+                    id="actualizarApellido"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Tipo documento
+                  </label>
+                  <select
+                    class="form-select"
+                    name="tipo_documento"
+                    id="actualizarTipo"
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="Cedúla ciudadana">Cedúla ciudadana</option>
+                    <option value="Tarjeta identidad">
+                      Tarjeta de identidad
+                    </option>
+                    <option value="Cedúla ciudadana">Cedúla extranjera</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Documento
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="documento"
+                    id="actualizarDocumento"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Telefono
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="telefono"
+                    id="actualizarTelefono"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Dirección
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="direccion"
+                    id="actualizarDireccion"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Fecha nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="fecha_nacimiento"
+                    id="actualizarFecha_nacimiento"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Examen
+                  </label>
+                  <select
+                    class="form-select"
+                    name="examen_realizar"
+                    id="actualizarExamen"
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="Consulta genéral">Consulta genéral</option>
+                    <option value="Ginecología">Ginecología</option>
+                    <option value="Odontología">Odontología</option>
+                    <option value="Pediatría">Pediatría</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Actualizar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Función para mostrar el modal de actualización de datos
+      function mostrarModalActualizarDatos(
+        userID,
+        nombre,
+        apellido,
+        tipo_documento,
+        documento,
+        telefono,
+        direccion,
+        fecha_nacimiento,
+        examen_realizar
+      ) {
+        // Obtener el modal
+        const modal = document.getElementById("modalActualizarDatos");
+        // Establecer los valores en los campos del formulario
+        document.getElementById("actualizarNombre").value = nombre;
+        document.getElementById("actualizarApellido").value = apellido;
+        document.getElementById("actualizarTipo").value = tipo_documento;
+        document.getElementById("actualizarDocumento").value = documento;
+        document.getElementById("actualizarTelefono").value = telefono;
+        document.getElementById("actualizarDireccion").value = direccion;
+        document.getElementById("actualizarFecha_nacimiento").value =
+          fecha_nacimiento;
+        document.getElementById("actualizarExamen").value = examen_realizar;
+
+        console.log(documento);
+        document.getElementById("actualizarId").value = userID;
+        // Mostrar el modal
+        modal.style.display = "block";
+      }
+    </script>
+
+    {% endblock %}
+  </body>
+</html>
