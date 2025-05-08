@@ -53,3 +53,21 @@
     max-width: 30px;
     width: 100%;
 }
+
+
+
+.cancelar{
+    background-color: red;
+    border-radius: 10px;
+    border: none;
+    padding: 5px;
+    color: white;
+}
+
+.guardar{
+    background-color: green;
+    border-radius: 10px;
+    border: none;
+    padding: 5px;
+    color: white;
+}

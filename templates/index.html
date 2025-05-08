@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de calendarios</title>
-    <link rel="stylesheet" href="../static/css/buttons.css">
+    <link rel="stylesheet" href="../static/css/buttons.css" />
   </head>
 
   <body>
@@ -38,7 +38,9 @@
 
       <div class="card shadow">
         <div class="header">
-          <h5 class="mb-3 mb-md-0 fw-semibold text-dark">Calendarios Activos</h5>
+          <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
+            Calendarios Activos
+          </h5>
 
           <!-- BUSCAR -->
           <div class="search-group">
@@ -51,7 +53,6 @@
               value="{{ request.args.get('q', '') }}"
             />
           </div>
-
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -132,12 +133,6 @@
             <h5 class="modal-title" id="userModalLabel">
               <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
             </h5>
-            <button
-              type="button"
-              class="-close -close-white"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
           </div>
           <form action="/insertar-municipio" method="post">
             <div class="modal-body">
@@ -157,15 +152,11 @@
             </div>
 
             <div class="modal-footer">
-              <button
-                type="button"
-                class=" -secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
                 <i class="fas fa-times me-2"></i>Cancelar
               </button>
 
-              <button type="submit" class=" ">
+              <button type="submit" class="guardar">
                 <i class="fas fa-save me-2"></i>Guardar
               </button>
             </div>
@@ -188,12 +179,6 @@
             <h5 class="modal-title" id="userModalLabel">
               <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
             </h5>
-            <button
-              type="button"
-              class="-close -close-white"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
           </div>
           <form action="/insertar-procedimiento" method="post">
             <div class="modal-body">
@@ -213,15 +198,11 @@
             </div>
 
             <div class="modal-footer">
-              <button
-                type="button"
-                class=" -secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
                 <i class="fas fa-times me-2"></i>Cancelar
               </button>
 
-              <button type="submit" class=" ">
+              <button type="submit" class="guardar">
                 <i class="fas fa-save me-2"></i>Guardar
               </button>
             </div>
@@ -235,11 +216,7 @@
         <div class="modal-content">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title">Nuevo Calendario</h5>
-            <button
-              type="button"
-              class="-close"
-              data-bs-dismiss="modal"
-            ></button>
+            <button type="button" class="" data-bs-dismiss="modal"></button>
           </div>
           <form action="/calendario/insertar" method="post">
             <div class="modal-body">
@@ -270,24 +247,18 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button
-                type="button"
-                class=" -secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
                 <i class="fas fa-times me-2"></i>Cancelar
               </button>
-              <button type="submit" class=" ">Guardar</button>
+              <button type="submit" class="guardar">Guardar</button>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-
     <script>
-        
-    // ==================== FUNCIONES DE BÚSQUEDA ====================
+      // ==================== FUNCIONES DE BÚSQUEDA ====================
 
       /**
        * Configura la funcionalidad de búsqueda para filtrar calendarios
@@ -295,7 +266,7 @@
        */
       document.addEventListener("DOMContentLoaded", function () {
         console.log("DOM cargado - Inicializando búsqueda");
-        
+
         /**
          * Elimina tildes y acentos de un texto y lo convierte a minúsculas
          * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
@@ -327,16 +298,16 @@
          */
         function buscarEnTabla(tabla, textoBusqueda) {
           console.log("Buscando:", textoBusqueda);
-          
+
           // Si no hay texto de búsqueda, mostrar todas las filas
           if (!textoBusqueda.trim()) {
             const filas = tabla.querySelectorAll("tbody tr");
-            filas.forEach(fila => {
+            filas.forEach((fila) => {
               fila.style.display = "";
             });
             return;
           }
-          
+
           // Eliminar tildes del texto de búsqueda para mejorar resultados
           const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
           console.log("Texto normalizado:", textoBusquedaSinTildes);
@@ -356,7 +327,7 @@
             celdas.forEach((celda) => {
               // Obtener el texto visible de la celda (excluyendo HTML)
               const textoVisible = celda.textContent || celda.innerText;
-              
+
               // Eliminar tildes del texto de la celda para comparación
               const textoCeldaSinTildes = eliminarTildes(textoVisible);
 
@@ -374,7 +345,7 @@
         // Configurar evento de búsqueda en tiempo real
         if (searchInput) {
           console.log("Configurando evento de búsqueda");
-          
+
           // Evento input para búsqueda en tiempo real
           searchInput.addEventListener("input", function () {
             const textoBusqueda = this.value;
@@ -387,7 +358,7 @@
               console.error("No se encontró la tabla de calendarios");
             }
           });
-          
+
           // También manejar el evento keyup para mayor compatibilidad
           searchInput.addEventListener("keyup", function () {
             const textoBusqueda = this.value;
@@ -400,7 +371,7 @@
               console.error("No se encontró la tabla de calendarios");
             }
           });
-          
+
           // Ejecutar búsqueda inicial si hay un valor en el campo
           if (searchInput.value.trim()) {
             console.log("Ejecutando búsqueda inicial");
