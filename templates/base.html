@@ -13,7 +13,7 @@
 
     <div class="d-flex flex-grow-1">
         {% include "partials/sidebar.html" %}
-        <main class="flex-grow-1 p-4">
+        <main class="p-4" style="display: block; width: 100%; height: 100vh; overflow: hidden;">
             {% block content %}{% endblock %}
         </main>
     </div>

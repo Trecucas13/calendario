@@ -1,208 +1,416 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de calendarios</title>
-</head>
+    <link rel="stylesheet" href="../static/css/buttons.css">
+  </head>
 
-<body>
-
-
-    {% extends "base.html" %}
-
-
-    {% block content %}
-
-
+  <body>
+    {% extends "base.html" %} {% block content %}
 
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-primary"><i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios</h2>
-            <a class="btn btn-primary" href="/formulario">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
-            </a>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="title-header">
+          <i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios
+        </h2>
+        <a class="add" href="/formulario">
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
+        </a>
 
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModalProcedimiento">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
-            </button>
+        <button
+          class="add"
+          data-bs-toggle="modal"
+          data-bs-target="#userModalProcedimiento"
+        >
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
+        </button>
 
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModalMunicipio">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
-            </button>
+        <button
+          class="add"
+          data-bs-toggle="modal"
+          data-bs-target="#userModalMunicipio"
+        >
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
+        </button>
+      </div>
+
+      <div class="card shadow">
+        <div class="header">
+          <h5 class="mb-3 mb-md-0 fw-semibold text-dark">Calendarios Activos</h5>
+
+          <!-- BUSCAR -->
+          <div class="search-group">
+            <i class="bi bi-search"></i>
+            <input
+              type="search"
+              name="q"
+              id="searchInput"
+              placeholder="Buscar"
+              value="{{ request.args.get('q', '') }}"
+            />
+          </div>
+
         </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover" id="tablaCalendario">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Proceso</th>
+                  <th>Municipio</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Datos dinámicos desde backend -->
+                {% for calendario in calendarios %}
+                <tr>
+                  <td>{{ calendario.nombre_calendario }}</td>
+                  <td>{{ calendario.nombreProcedimiento }}</td>
+                  <td>{{ calendario.nombreMunicipio }}</td>
+                  <td>
+                    <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
 
+                    <button
+                      type="button"
+                      class="redirigir"
+                      onclick="window.location.href='/calendario/{{calendario.id_calendario}}'"
+                    >
+                      Ir
+                    </button>
+                    {% if session['rol'] == 1 %}
+                    <form
+                      action="/actualizarCalendario/{{calendario.id_calendario}}"
+                      method="GET"
+                      style="display: inline"
+                    >
+                      <button type="submit" class="edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </form>
 
-        <div class="card shadow">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Calendarios Activos</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Proceso</th>
-                                <th>Municipio</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Datos dinámicos desde backend -->
-                            {% for calendario in calendarios %}
-                            <tr>
-                                <td>{{ calendario.nombre_calendario }}</td>
-                                <td>{{ calendario.nombreProcedimiento }}</td>
-                                <td>{{ calendario.nombreMunicipio }}</td>
-                                <td>
-                                    <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
+                    <form
+                      action="/eliminar_calendario"
+                      method="POST"
+                      style="display: inline"
+                    >
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{calendario.id_calendario}}"
+                      />
+                      <button type="submit" class="eliminar">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                    {% endif %}
+                  </td>
+                </tr>
 
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">Ir</button>
-                                    {% if session['rol'] == 1 %}
-                                    <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
-                                        style="display: inline;">
-                                        <button type="submit" class="btn btn-sm btn-warning"> <i
-                                                class="fas fa-edit"></i>
-                                            </button>
-                                    </form>
-
-                                    <form action="/eliminar_calendario" method="POST" style="display: inline;">
-                                        <input type="hidden" name="id" value="{{calendario.id_calendario}}">
-                                        <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i></button>
-                                    </form>
-                                    {% endif %}
-
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- MODAL AGREGAR MUNICIPIO -->
-    <div class="modal fade" id="userModalMunicipio" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="userModalLabel">
-                        <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div
+      class="modal fade"
+      id="userModalMunicipio"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
+            </h5>
+            <button
+              type="button"
+              class="-close -close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form action="/insertar-municipio" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Nombre del municipio
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
                 </div>
-                <form action="/insertar-municipio" method="post">
-                    <div class="modal-body">
-                        <div class="row g-3">
-            
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    <i class="fas fa-user me-2"></i>Nombre del municipio
-                                </label>
-                                <input type="text" class="form-control" name="nombre" required>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancelar
-                        </button>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Guardar
-                        </button>
-                    </div>
-                </form>
+              </div>
             </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class=" -secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+
+              <button type="submit" class=" ">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
 
-     <!-- MODAL AGREGAR PROCEDIMIENTO -->
-    <div class="modal fade" id="userModalProcedimiento" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="userModalLabel">
-                        <i class="fas fa-user-plus me-2"></i>Nuevo  Procedimiento
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- MODAL AGREGAR PROCEDIMIENTO -->
+    <div
+      class="modal fade"
+      id="userModalProcedimiento"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
+            </h5>
+            <button
+              type="button"
+              class="-close -close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form action="/insertar-procedimiento" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Nombre del procedimiento
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
                 </div>
-                <form action="/insertar-procedimiento" method="post">
-                    <div class="modal-body">
-                        <div class="row g-3">
-            
-                            <div class="col-md-6">
-                                <label class="form-label">
-                                    <i class="fas fa-user me-2"></i>Nombre del procedimiento
-                                </label>
-                                <input type="text" class="form-control" name="nombre" required>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancelar
-                        </button>
-                        
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Guardar
-                        </button>
-                    </div>
-                </form>
+              </div>
             </div>
-        </div>
-    </div>
-    {% endblock %}
 
-    {% block modals %}
+            <div class="modal-footer">
+              <button
+                type="button"
+                class=" -secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+
+              <button type="submit" class=" ">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endblock %} {% block modals %}
     <div class="modal fade" id="modalCalendario">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Nuevo Calendario</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Nuevo Calendario</h5>
+            <button
+              type="button"
+              class="-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <form action="/calendario/insertar" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
                 </div>
-                <form action="/calendario/insertar" method="post">
-                    <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre</label>
-                                <input type="text" class="form-control" name="nombre" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Proceso</label>
-                                <select class="form-select" name="proceso" required>
-                                    <option value="proceso1">Proceso 1</option>
-                                    <option value="proceso2">Proceso 2</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Municipio</label>
-                                <select class="form-select" name="municipio" required>
-                                    <option value="municipio1">Municipio 1</option>
-                                    <option value="municipio2">Municipio 2</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                    </div>
-                </form>
+                <div class="col-md-6">
+                  <label class="form-label">Proceso</label>
+                  <select class="form-select" name="proceso" required>
+                    <option value="proceso1">Proceso 1</option>
+                    <option value="proceso2">Proceso 2</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Municipio</label>
+                  <select class="form-select" name="municipio" required>
+                    <option value="municipio1">Municipio 1</option>
+                    <option value="municipio2">Municipio 2</option>
+                  </select>
+                </div>
+              </div>
             </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class=" -secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+              <button type="submit" class=" ">Guardar</button>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
-    {% endblock %}
-</body>
 
+
+    <script>
+        
+    // ==================== FUNCIONES DE BÚSQUEDA ====================
+
+      /**
+       * Configura la funcionalidad de búsqueda para filtrar calendarios
+       * Permite buscar en todas las columnas de la tabla
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM cargado - Inicializando búsqueda");
+        
+        /**
+         * Elimina tildes y acentos de un texto y lo convierte a minúsculas
+         * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
+         * @param {string} texto - Texto a normalizar
+         * @returns {string} - Texto normalizado sin acentos y en minúsculas
+         */
+        function eliminarTildes(texto) {
+          if (!texto) return "";
+          return texto
+            .toString()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        }
+
+        // Obtener el input de búsqueda
+        const searchInput = document.getElementById("searchInput");
+        console.log("Input de búsqueda:", searchInput);
+
+        // Obtener la tabla de calendarios usando su ID
+        const tablaCalendario = document.getElementById("tablaCalendario");
+        console.log("Tabla de calendarios:", tablaCalendario);
+
+        /*
+         * Filtra las filas de una tabla según el texto de búsqueda
+         * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
+         * @param {HTMLElement} tabla - Tabla a filtrar
+         * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+         */
+        function buscarEnTabla(tabla, textoBusqueda) {
+          console.log("Buscando:", textoBusqueda);
+          
+          // Si no hay texto de búsqueda, mostrar todas las filas
+          if (!textoBusqueda.trim()) {
+            const filas = tabla.querySelectorAll("tbody tr");
+            filas.forEach(fila => {
+              fila.style.display = "";
+            });
+            return;
+          }
+          
+          // Eliminar tildes del texto de búsqueda para mejorar resultados
+          const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
+          console.log("Texto normalizado:", textoBusquedaSinTildes);
+
+          // Obtener todas las filas del tbody, excluyendo el encabezado
+          const filas = tabla.querySelectorAll("tbody tr");
+          console.log("Número de filas a filtrar:", filas.length);
+
+          filas.forEach((fila) => {
+            // Flag para determinar si se muestra la fila
+            let mostrarFila = false;
+
+            // Obtener todas las celdas de la fila
+            const celdas = fila.querySelectorAll("td");
+
+            // Recorrer todas las celdas para buscar coincidencias
+            celdas.forEach((celda) => {
+              // Obtener el texto visible de la celda (excluyendo HTML)
+              const textoVisible = celda.textContent || celda.innerText;
+              
+              // Eliminar tildes del texto de la celda para comparación
+              const textoCeldaSinTildes = eliminarTildes(textoVisible);
+
+              // Si el texto de la celda contiene el texto buscado, mostrar la fila
+              if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
+                mostrarFila = true;
+              }
+            });
+
+            // Mostrar u ocultar fila según resultado de la búsqueda
+            fila.style.display = mostrarFila ? "" : "none";
+          });
+        }
+
+        // Configurar evento de búsqueda en tiempo real
+        if (searchInput) {
+          console.log("Configurando evento de búsqueda");
+          
+          // Evento input para búsqueda en tiempo real
+          searchInput.addEventListener("input", function () {
+            const textoBusqueda = this.value;
+            console.log("Evento input detectado:", textoBusqueda);
+
+            // Buscar en tabla de calendarios
+            if (tablaCalendario) {
+              buscarEnTabla(tablaCalendario, textoBusqueda);
+            } else {
+              console.error("No se encontró la tabla de calendarios");
+            }
+          });
+          
+          // También manejar el evento keyup para mayor compatibilidad
+          searchInput.addEventListener("keyup", function () {
+            const textoBusqueda = this.value;
+            console.log("Evento keyup detectado:", textoBusqueda);
+
+            // Buscar en tabla de calendarios
+            if (tablaCalendario) {
+              buscarEnTabla(tablaCalendario, textoBusqueda);
+            } else {
+              console.error("No se encontró la tabla de calendarios");
+            }
+          });
+          
+          // Ejecutar búsqueda inicial si hay un valor en el campo
+          if (searchInput.value.trim()) {
+            console.log("Ejecutando búsqueda inicial");
+            buscarEnTabla(tablaCalendario, searchInput.value);
+          }
+        } else {
+          console.error("No se encontró el campo de búsqueda");
+        }
+      });
+    </script>
+    {% endblock %}
+  </body>
 </html>

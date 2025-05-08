@@ -162,10 +162,17 @@
         </div>
       </div>
       {% endif %}
-      <button type="button" class="btn-crear" onclick="window.location='/index'">
-        <i class="fas fa-times me-2"></i>Cancelar
-      </button>
-      <button type="submit" class="btn btn-primary">Actualizar</button>
+      <div class="botones">
+        <button
+          type="button"
+          class="btn-cancelar"
+          onclick="window.location='/index'"
+          style="width: 100%"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn-crear">Crear Calendario</button>
+      </div>
     </form>
   </div>
 

@@ -101,19 +101,18 @@ def formularioActualizar(id):
 
 def obtener_pacientes():
     conn = mysql.connection.cursor()
-    conn.execute("""SELECT p.*, c.fecha, c.hora, c.id, c.id_calendario
+    conn.execute("""SELECT p.*, c.fecha, c.hora, c.id, c.id_calendario, c.id_procedimiento, 
+    pr.nombre AS nombre_procedimiento
     FROM pacientes p 
-    LEFT JOIN citas c ON p.id = c.id_paciente""")
+    LEFT JOIN citas c ON p.id = c.id_paciente
+    LEFT JOIN procedimientos pr ON c.id_procedimiento = pr.id_procedimiento
+    """)
     pacientes = conn.fetchall()
 
     return pacientes
 
 @app.route("/pacientes")
 def pacientes():
-    # cursor = mysql.connection.cursor()
-    # cursor.execute("SELECT * FROM citas WHERE id = %s", ())
-    # citas = cursor.fetchone()
-
     pacientes = obtener_pacientes()
     return render_template("pacientes.html", pacientes=pacientes)
 

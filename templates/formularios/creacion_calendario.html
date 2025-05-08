@@ -1,152 +1,206 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creación de Calendario</title>
-  
-  <!-- LINK DE DISEÑOS -->
-  <link rel="stylesheet" href="../../static/css/styles.css">  <!-- LINK DE ESTILO GLOBAL-->
-  <link rel="stylesheet" href="../../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
-  <link rel="stylesheet" href="../../static/css/creacion_calendario.css"> <!-- LINK DE ESTILO ESPECÍFICO-->
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creación de Calendario</title>
 
-<body>
-  <div class="container-2">
-    <h1>Creación de Calendario</h1>
-    <form id="calendarioForm" action="/insertar_calendario" method="post">
-      <div class="form-group">
-        <label for="nombreCalendario">Nombre del Calendario:</label>
-        <input type="text" id="nombreCalendario" name="nombreCalendario" placeholder="Hemoglobina - Municipio X" required>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="municipio">Municipio:</label>
-            <select id="municipio" name="id_municipio" required>
-              <option value="">Seleccione un municipio</option>
-              {% for municipio in datos.municipios %}
-                <option value="{{ municipio.id_municipio }}">{{ municipio.nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
+    <!-- LINK DE DISEÑOS -->
+    <link rel="stylesheet" href="../../static/css/styles.css" />
+    <!-- LINK DE ESTILO GLOBAL-->
+    <link rel="stylesheet" href="../../static/css/form.css" />
+    <!-- LINK DE ESTILO PARA EL FORMULARIO-->
+    <!-- <link rel="stylesheet" href="../../static/css/creacion_calendario.css" /> -->
+    <!-- LINK DE ESTILO ESPECÍFICO-->
+  </head>
+
+  <body>
+    <div class="container-2">
+      <h1>Creación de Calendario</h1>
+      <form id="calendarioForm" action="/insertar_calendario" method="post">
+        <div class="form-group">
+          <label for="nombreCalendario">Nombre del Calendario:</label>
+          <input
+            type="text"
+            id="nombreCalendario"
+            name="nombreCalendario"
+            placeholder="Hemoglobina - Municipio X"
+            required
+          />
         </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="procedimiento">Procedimiento:</label>
-            <select id="procedimiento" name="procedimiento" required>
-              <option value="">Seleccione un procedimiento</option>
-              {% for procedimiento in datos.procedimientos %}
-                <option value="{{ procedimiento.id_procedimiento }}">{{ procedimiento.nombre }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="fechaInicio">Fecha de Inicio:</label>
-            <input type="date" id="fechaInicio" name="fechaInicio" required>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="fechaFin">Fecha de Fin:</label>
-            <input type="date" id="fechaFin" name="fechaFin" required>
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="horaInicio">Hora de Inicio:</label>
-            <input type="time" id="horaInicio" name="horaInicio" value="08:00" required>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="horaFin">Hora de Fin:</label>
-            <input type="time" id="horaFin" name="horaFin" value="17:00" required>
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="espacioCitas">Espacio entre citas:</label>
-        <select id="espacioCitas" name="espacioCitas" required>
-          <option value="10">10 minutos</option>
-          <option value="15">15 minutos</option>
-          <option value="20">20 minutos</option>
-          <option value="30">30 minutos</option>
-          <option value="45">45 minutos</option>
-          <option value="60">60 minutos</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label>¿Desea incluir tiempo fuera (descanso)?</label>
-        <div class="radio-group">
-          <div class="radio-option">
-            <input type="radio" id="tiempoFueraSi" name="tiempoFuera" value="si">
-            <label for="tiempoFueraSi">Sí</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" id="tiempoFueraNo" name="tiempoFuera" value="no" checked>
-            <label for="tiempoFueraNo">No</label>
-          </div>
-        </div>
-      </div>
-      
-      <div id="tiempoFueraOptions" class="hidden">
+
         <div class="form-row">
           <div class="form-col">
             <div class="form-group">
-              <label for="inicioHoraDescanso">Inicio de Descanso:</label>
-              <input type="time" id="inicioHoraDescanso" name="inicioHoraDescanso" value="12:00">
+              <label for="municipio">Municipio:</label>
+              <select id="municipio" name="id_municipio" required>
+                <option value="">Seleccione un municipio</option>
+                {% for municipio in datos.municipios %}
+                <option value="{{ municipio.id_municipio }}">
+                  {{ municipio.nombre }}
+                </option>
+                {% endfor %}
+              </select>
             </div>
           </div>
           <div class="form-col">
             <div class="form-group">
-              <label for="finHoraDescanso">Fin de Descanso:</label>
-              <input type="time" id="finHoraDescanso" name="finHoraDescanso" value="13:00">
+              <label for="procedimiento">Procedimiento:</label>
+              <select id="procedimiento" name="procedimiento" required>
+                <option value="">Seleccione un procedimiento</option>
+                {% for procedimiento in datos.procedimientos %}
+                <option value="{{ procedimiento.id_procedimiento }}">
+                  {{ procedimiento.nombre }}
+                </option>
+                {% endfor %}
+              </select>
             </div>
           </div>
         </div>
-      </div>
-      <button type="button" class="btn-crear" onclick="window.location='/index'">
-        <i class="fas fa-times me-2"></i>Cancelar
-      </button>
-      <button type="submit" class="btn-crear">Crear Calendario</button>
-    </form>
-  </div>
-  
-  <script>
-    // Script para mostrar/ocultar opciones de tiempo fuera
 
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="fechaInicio">Fecha de Inicio:</label>
+              <input type="date" id="fechaInicio" name="fechaInicio" required />
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="fechaFin">Fecha de Fin:</label>
+              <input type="date" id="fechaFin" name="fechaFin" required />
+            </div>
+          </div>
+        </div>
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const tiempoFueraSi = document.getElementById('tiempoFueraSi');
-      const tiempoFueraNo = document.getElementById('tiempoFueraNo');
-      const tiempoFueraOptions = document.getElementById('tiempoFueraOptions');
-      
-      function toggleTiempoFuera() {
-        if (tiempoFueraSi.checked) {
-          tiempoFueraOptions.classList.remove('hidden');
-        } else {
-          tiempoFueraOptions.classList.add('hidden');
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="horaInicio">Hora de Inicio:</label>
+              <input
+                type="time"
+                id="horaInicio"
+                name="horaInicio"
+                value="08:00"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="horaFin">Hora de Fin:</label>
+              <input
+                type="time"
+                id="horaFin"
+                name="horaFin"
+                value="17:00"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="espacioCitas">Espacio entre citas:</label>
+          <select id="espacioCitas" name="espacioCitas" required>
+            <option value="10">10 minutos</option>
+            <option value="15">15 minutos</option>
+            <option value="20">20 minutos</option>
+            <option value="30">30 minutos</option>
+            <option value="45">45 minutos</option>
+            <option value="60">60 minutos</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>¿Desea incluir tiempo fuera (descanso)?</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="tiempoFueraSi"
+                name="tiempoFuera"
+                value="si"
+              />
+              <label for="tiempoFueraSi">Sí</label>
+            </div>
+            <div class="radio-option">
+              <input
+                type="radio"
+                id="tiempoFueraNo"
+                name="tiempoFuera"
+                value="no"
+                checked
+              />
+              <label for="tiempoFueraNo">No</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="tiempoFueraOptions" class="hidden">
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="inicioHoraDescanso">Inicio de Descanso:</label>
+                <input
+                  type="time"
+                  id="inicioHoraDescanso"
+                  name="inicioHoraDescanso"
+                  value="12:00"
+                />
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="finHoraDescanso">Fin de Descanso:</label>
+                <input
+                  type="time"
+                  id="finHoraDescanso"
+                  name="finHoraDescanso"
+                  value="13:00"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="botones">
+          <button
+            type="button"
+            class="btn-cancelar"
+            onclick="window.location='/index'"
+            style="width: 100%"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn-crear">Crear Calendario</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Script para mostrar/ocultar opciones de tiempo fuera
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const tiempoFueraSi = document.getElementById("tiempoFueraSi");
+        const tiempoFueraNo = document.getElementById("tiempoFueraNo");
+        const tiempoFueraOptions =
+          document.getElementById("tiempoFueraOptions");
+
+        function toggleTiempoFuera() {
+          if (tiempoFueraSi.checked) {
+            tiempoFueraOptions.classList.remove("hidden");
+          } else {
+            tiempoFueraOptions.classList.add("hidden");
+          }
         }
-      }
-      
-      tiempoFueraSi.addEventListener('change', toggleTiempoFuera);
-      tiempoFueraNo.addEventListener('change', toggleTiempoFuera);
-      
-      // Inicializar estado
-      toggleTiempoFuera();
-    });
-  </script>
-</body>
+
+        tiempoFueraSi.addEventListener("change", toggleTiempoFuera);
+        tiempoFueraNo.addEventListener("change", toggleTiempoFuera);
+
+        // Inicializar estado
+        toggleTiempoFuera();
+      });
+    </script>
+  </body>
 </html>

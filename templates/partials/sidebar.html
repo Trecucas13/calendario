@@ -1,32 +1,59 @@
 <!-- Sidebar para desktop (siempre visible en lg+) -->
-<div class="d-none d-lg-block bg-primary text-white" style="width: 280px; height: 100vh; flex-shrink: 0; overflow-x: hidden;">
+<div
+  class="d-none d-lg-block text-white"
+  style="width: 280px; height: 100vh; flex-shrink: 0; overflow-x: hidden; background-color: #214c5a;"
+>
   <div class="p-4">
-    <h3 class="fw-bold mb-4">
-      <i class="fas fa-heartbeat me-2"></i>Savia Salud
-    </h3>
+    <div style="display: flex; align-items: center; justify-content: center;">
+      <img src="../../static/img/savia blanco.png" alt="">
+    </div>
 
     <nav class="nav flex-column gap-2">
-      <a href="/index"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
-        <i class="fas fa-home fs-5 me-3"></i>
-        <span class="fs-6 text-nowrap">Inicio</span>
-      </a>
-      
-      <a href="/pacientes"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <a
+      href="/index"
+      class="nav-link text-white d-flex align-items-center rounded-3 p-2 p-md-3 transition-all {% if active_page == 'Inicio' %}bg-info bg-opacity-25 fw-semibold{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+      style="transition: all 0.3s ease;"
+      onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+      onmouseout="this.style.backgroundColor='{% if active_page == 'Inicio' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+      title="Ir a la página de inicio"
+    >
+      <i class="fas fa-home fs-5 me-2 me-md-3"></i>
+      <span class="fs-6 text-nowrap d-none d-sm-inline">Inicio</span>
+    </a>
+
+      <a
+        href="/pacientes"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Gestionar pacientes"
+      >
         <i class="fas fa-users fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Gestión de pacientes</span>
       </a>
-      
+
       {% if session["rol"] == 1 %}
-      <a href="/usuarios"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <a
+        href="/usuarios"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Gestionar usuarios del sistema"
+      >
         <i class="fas fa-users fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Gestión de Usuarios</span>
       </a>
-      
-      <a href="/formulario"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+
+      <a
+        href="/formulario"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Agregar un nuevo calendario"
+      >
         <i class="fas fa-add fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Agregar Calendario</span>
       </a>
@@ -38,34 +65,99 @@
         <span class="fs-6">Calendarios creados</span>
       </a> -->
 
-      <a href="/logout"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <a
+        href="/logout"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Cerrar sesión actual"
+      >
         <i class="fas fa-sign-out-alt fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Cerrar Sesión</span>
       </a>
-
-      <img src="../../static/img/AndesBPO-Logo.png" alt="" style="width: 100%;">
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <img
+          src="../../static/img/logo andes.png"
+          alt=""
+          style="width: 10%; position: absolute; bottom: 0; align-items: center; margin-bottom: 20px;"
+        />
+      </div>
     </nav>
   </div>
 </div>
 
 <!-- Sidebar para mobile (offcanvas) -->
-<div class="offcanvas offcanvas-start bg-primary text-white" data-bs-scroll="true" tabindex="-1" id="sidebar"
-  data-bs-backdrop="false" style="width: 280px; flex-shrink: 0; overflow-x: hidden;">
+<div
+  class="offcanvas offcanvas-start bg-primary text-white"
+  data-bs-scroll="true"
+  tabindex="-1"
+  id="sidebar"
+  data-bs-backdrop="false"
+  style="width: 280px; flex-shrink: 0; overflow-x: hidden"
+>
   <div class="offcanvas-header pb-0">
     <h3 class="offcanvas-title fw-bold">
       <i class="fas fa-heartbeat me-2"></i>Savia Salud
     </h3>
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      data-bs-dismiss="offcanvas"
+    ></button>
   </div>
 
   <div class="offcanvas-body p-3">
     <nav class="nav flex-column gap-2">
-      <a href="{{url_for('vista_usuarios.tabla_usuarios')}}"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <a
+        href="/index"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'Inicio' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'Inicio' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Ir a la página de inicio"
+      >
+        <i class="fas fa-home fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Inicio</span>
+      </a>
+      
+      <a
+        href="/pacientes"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Gestionar pacientes"
+      >
+        <i class="fas fa-users fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Gestión de pacientes</span>
+      </a>
+      
+      {% if session["rol"] == 1 %}
+      <a
+        href="{{url_for('vista_usuarios.tabla_usuarios')}}"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Gestionar usuarios del sistema"
+      >
         <i class="fas fa-users fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Gestión de Usuarios</span>
       </a>
+      
+      <a
+        href="/formulario"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Agregar un nuevo calendario"
+      >
+        <i class="fas fa-add fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Agregar Calendario</span>
+      </a>
+      {% endif %}
 
       <!-- <a href="/calendarios_creados"
         class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'calendarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
@@ -73,17 +165,42 @@
         <span class="fs-6">Calendarios</span>
       </a> -->
 
-      <a href="/citas"
-        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}">
+      <a
+        href="/citas"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'citas' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'citas' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Ver citas programadas"
+      >
         <i class="fas fa-calendar-day fs-5 me-3"></i>
         <span class="fs-6 text-nowrap">Citas Programadas</span>
+      </a>
+      
+      <a
+        href="/logout"
+        class="nav-link text-white d-flex align-items-center rounded-3 p-3 {% if active_page == 'usuarios' %}bg-info bg-opacity-25{% else %}hover-bg-light hover-bg-opacity-10{% endif %}"
+        style="transition: all 0.3s ease;"
+        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+        onmouseout="this.style.backgroundColor='{% if active_page == 'usuarios' %}rgba(13,202,240,0.25){% else %}transparent{% endif %}'"
+        title="Cerrar sesión actual"
+      >
+        <i class="fas fa-sign-out-alt fs-5 me-3"></i>
+        <span class="fs-6 text-nowrap">Cerrar Sesión</span>
       </a>
     </nav>
   </div>
 </div>
 
 <!-- Botón toggle solo para mobile -->
-<button class="btn btn-primary d-lg-none position-fixed bottom-0 end-0 m-3 rounded-circle shadow"
-  data-bs-toggle="offcanvas" data-bs-target="#sidebar" style="width: 56px; height: 56px;">
+<button
+  class="btn btn-primary d-lg-none position-fixed bottom-0 end-0 m-3 rounded-circle shadow"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#sidebar"
+  style="width: 56px; height: 56px; transition: all 0.3s ease;"
+  onmouseover="this.style.transform='scale(1.1)'"
+  onmouseout="this.style.transform='scale(1)'"
+  title="Abrir menú"
+>
   <i class="fas fa-bars"></i>
 </button>

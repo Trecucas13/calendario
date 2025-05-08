@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Usuarios</title>
+    <link rel="stylesheet" href="../static/css/buttons.css">
+
 </head>
 <body>
 
@@ -13,55 +15,54 @@
 
 {% block content %}
 
-<div class="user-management">
+<div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary">
+        <h2 class="title-header">
             <i class="fas fa-users-cog me-2"></i>Gestión de Usuarios
         </h2>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+        <button class="add" data-bs-toggle="modal" data-bs-target="#userModal">
             <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
         </button>
     </div>
 
     <!-- Tabla de usuarios -->
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header bg-gradient-primary text-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <div class="card shadow">
+        <div class="header">
             <h4 class="mb-3 mb-md-0 fw-semibold text-dark">
                 <i class=" me-2 text-primary"></i>Usuarios Registrados
             </h4>
     
-            <!-- BUSCAR -->
-            <div class="input-group shadow-sm" style="max-width: 400px;">
-                <input type="text" id="busqueda" 
-                       class="form-control form-control-lg border-0" 
-                       placeholder="Buscar usuario..."
-                       aria-label="Buscar usuario">
-                <button id="boton-busqueda" 
-                        class="btn btn-light btn-lg" 
-                        type="button">
-                    <i class="fas fa-search text-primary"></i>
-                </button>
-            </div>
+           <!-- BUSCAR -->
+           <div class="search-group">
+            <i class="bi bi-search"></i>
+            <input
+              type="search"
+              name="q"
+              id="searchInput"
+              placeholder="Buscar"
+              value="{{ request.args.get('q', '') }}"
+            />
+          </div>
         </div>
 
-        <div class="card-body p-0">
-            <div class="table-responsive rounded-bottom-4">
-                <table class="table table-hover align-middle mb-0" id="tablaUsuarios">
-                    <thead class="bg-light">
-                        <tr data-id="123">
-                            <th class="py-3 px-4 text-uppercase text-dark small fw-semibold">Documento</th>
-                            <th class="py-3 px-4 text-uppercase text-dark small fw-semibold">Nombre completo</th>
-                            <th class="py-3 px-4 text-uppercase text-dark small fw-semibold">Rol</th>
-                            <th class="py-3 px-4 text-uppercase text-dark small fw-semibold text-end">Acciones</th>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="tablaUsuarios">
+                    <thead class="">
+                        <tr>
+                            <th class="">Documento</th>
+                            <th class="">Nombre completo</th>
+                            <th class="">Rol</th>
+                            <th class="">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {% for usuarios in usuarios %}
-                        <tr class="border-top border-secondary-subtle" data-user-id="{{ usuarios.id }}">
-                            <td class="px-4 fw-medium text-secondary" id="documento" value="{{usuarios.documento}}">{{ usuarios.documento }}</td>
-                            <td class="px-4" id="nombre">{{ usuarios.nombre }}</td>
-                            <td class="px-4">
+                        <tr class="" data-user-id="{{ usuarios.id }}">
+                            <td class="" id="documento" value="{{usuarios.documento}}">{{ usuarios.documento }}</td>
+                            <td class="" id="nombre">{{ usuarios.nombre }}</td>
+                            <td class="">
                                 {% if usuarios.rol == 1 %}
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary" style="width: 200px;">
                                     <i class="fas fa-user-shield me-2"></i>
@@ -76,14 +77,14 @@
                                 </span>
                                 {% endif %}
                             </td>
-                            <td class="px-4 text-end">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#ActualizaruserModal" data-user-id="{{ usuarios.id }}"
+                            <td class="">
+                                <div class="">
+                                    <button class="edit" data-bs-toggle="modal" data-bs-target="#ActualizaruserModal" data-user-id="{{ usuarios.id }}"
                                     onclick="mostrarModalActualizarDatos('{{usuarios.id}}', '{{usuarios.documento}}', '{{usuarios.nombre}}', '{{usuarios.rol}}')">
                                         <i class="fas fa-edit"></i> 
                                     </button>
                                     
-                                    <button class="btn btn-sm btn-danger" 
+                                    <button class="eliminar" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#confirmDeleteModal" 
                                     data-user-id-delete="{{usuarios.id}}"
@@ -276,6 +277,83 @@
             modal.style.display = "block";
 
         }
+
+
+              // ==================== FUNCIONES DE BÚSQUEDA ====================
+
+      /**
+       * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
+       * Permite buscar en todas las columnas de ambas tablas
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        /**
+         * Elimina tildes y acentos de un texto y lo convierte a minúsculas
+         * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
+         * @param {string} texto - Texto a normalizar
+         * @returns {string} - Texto normalizado sin acentos y en minúsculas
+         */
+        function eliminarTildes(texto) {
+          return texto
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        }
+
+        // Obtener el input de búsqueda
+        const searchInput = document.getElementById("searchInput");
+
+        // Obtener las tablas de empleados y usuarios
+        const tablaUsuarios = document.querySelector("table:nth-of-type(1)");
+
+        /*
+         * Filtra las filas de una tabla según el texto de búsqueda
+         * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
+         * @param {HTMLElement} tabla - Tabla a filtrar
+         * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+         */
+        function buscarEnTabla(tabla, textoBusqueda) {
+          // Eliminar tildes del texto de búsqueda para mejorar resultados
+          const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
+
+          // Obtener todas las filas del tbody, excluyendo el encabezado
+          const filas = tabla.querySelectorAll("tbody tr");
+
+          filas.forEach((fila) => {
+            // Flag para determinar si se muestra la fila
+            let mostrarFila = false;
+
+            // Obtener todas las celdas de la fila
+            const celdas = fila.querySelectorAll("td");
+
+            // Recorrer todas las celdas para buscar coincidencias
+            celdas.forEach((celda) => {
+              // Eliminar tildes del texto de la celda para comparación
+              const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+
+              // Si el texto de la celda contiene el texto buscado, mostrar la fila
+              if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
+                mostrarFila = true;
+              }
+            });
+
+            // Mostrar u ocultar fila según resultado de la búsqueda
+            fila.style.display = mostrarFila ? "" : "none";
+          });
+        }
+
+        // Configurar evento de búsqueda en tiempo real
+        if (searchInput) {
+          searchInput.addEventListener("input", function () {
+            const textoBusqueda = this.value;
+
+            // Buscar en tabla de empleados
+            if (tablaUsuarios) {
+              buscarEnTabla(tablaUsuarios, textoBusqueda);
+            }
+
+          });
+        }
+      });
 </script>
 {% endblock %}
 

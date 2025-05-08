@@ -23,16 +23,22 @@ body {
 }
 
 .info-section .title {
-    background-color: #e6e6e6;
-    padding: 10px;
+    background-color: #d4edea;
+    padding: 20px;
     margin-bottom: 15px;
     color: #555;
     font-size: 16px;
+    border-radius: 10px;
+
+    & i {
+        margin-right: 10px;
+    }
 
     & button { 
-        background-color: #0275d8;
+        background-color: #03a591;
         color: white;
         border: none;
+        border-radius: 5px;
         padding: 5px 10px;
     }
 }
@@ -186,7 +192,7 @@ body {
 .schedule-header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    background-color: #004a8f;
+    background-color: #214c5a;
     color: white;
 }
 
