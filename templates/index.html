@@ -93,20 +93,14 @@
                       </button>
                     </form>
 
-                    <form
-                      action="/eliminar_calendario"
-                      method="POST"
-                      style="display: inline"
-                    >
-                      <input
-                        type="hidden"
-                        name="id"
-                        value="{{calendario.id_calendario}}"
-                      />
-                      <button type="submit" class="eliminar">
+                  
+                    
+                      <button type="submit" class="eliminar" data-bs-toggle="modal" 
+                        data-bs-target="#confirmDeleteModal" 
+                        data-user-id-delete="{{calendario.id_calendario}}"
+                        onclick="eliminar_calendario('{{calendario.id_calendario}}')">
                         <i class="fas fa-trash-alt"></i>
                       </button>
-                    </form>
                     {% endif %}
                   </td>
                 </tr>
@@ -119,6 +113,51 @@
       </div>
     </div>
 
+    <!-- MODAL ELIMINAR CALENDARIO -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form action="/eliminar_calendario" method="POST" style="display: inline" id="deleteCalenForm">
+              <input type="hidden" name="id" id="deleteCalenId">
+
+              <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title" id="confirmDeleteModalLabel">
+                      <i class="fas fa-trash-alt me-2"></i>Confirmar Eliminación
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  ¿Estás seguro de que deseas eliminar este calendario? <span id="calenIdDisplay"></span>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                      <i class="fas fa-times me-2"></i>Cancelar
+                  </button>
+                  <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">
+                      <i class="fas fa-trash-alt me-2"></i>Eliminar
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<script>
+  function eliminar_calendario(calenId) {
+          // Set the user ID in the hidden input field
+          document.getElementById('deleteCalenId').value = calenId;
+
+          // Display the user ID in the confirmation message (optional)
+          // const userIdDisplay = document.getElementById('userIdDisplay');
+          // if (userIdDisplay) {
+          //     userIdDisplay.textContent = userId;
+          // }
+
+          // Show the modal (although this is already handled by data-bs-target)
+          // const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+          // modal.show();
+      }
+</script>
     <!-- MODAL AGREGAR MUNICIPIO -->
     <div
       class="modal fade"
@@ -129,7 +168,7 @@
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
+          <div class="modal-header header-modal text-white">
             <h5 class="modal-title" id="userModalLabel">
               <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
             </h5>
@@ -175,7 +214,7 @@
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
+          <div class="modal-header header-modal text-white">
             <h5 class="modal-title" id="userModalLabel">
               <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
             </h5>
@@ -214,7 +253,7 @@
     <div class="modal fade" id="modalCalendario">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
+          <div class="modal-header header-modal text-white">
             <h5 class="modal-title">Nuevo Calendario</h5>
             <button type="button" class="" data-bs-dismiss="modal"></button>
           </div>

@@ -101,10 +101,11 @@
 
             <div class="calendar-footer">
               <div class="legend">
-                <button class="today-btn">Hoy</button>
-                <button class="available-btn">Reserva Temporal</button>
-                <button class="available-btn">Disponible</button>
-                <button class="unavailable-btn">No disponible</button>
+                <button class="" style="background-color: #03a591; color: white; border: none; border-radius: 10px; padding: 5px;">Hoy</button>
+                <button class="" style="background-color: #9e9e9e; color: white; border: none; border-radius: 10px; padding: 5px;">Descanso</button>
+                <button class="" style="background-color: #4caf50; color: white; border: none; border-radius: 10px; padding: 5px;">Disponible</button>
+                <button class="" style="background-color: #f44336; color: white; border: none; border-radius: 10px; padding: 5px;">Ocupado</button>
+                <button class="" style="background-color: #2196f3; color: white; border: none; border-radius: 10px; padding: 5px;">Reserva Temporal</button>
               </div>
             </div>
           </div>
@@ -301,7 +302,7 @@
               class="btn-cancelar"
               onclick="cerrarModal()"
               style="
-                background-color: #f44336;
+                background-color: #c3c1c1;
                 color: white;
                 border: none;
                 padding: 10px 15px;
@@ -317,7 +318,7 @@
               id="boton-reserva-temp"
               class="btn-reservar-temp"
               style="
-                background-color: #ff9800;
+                background-color: #2196f3;
                 color: white;
                 border: none;
                 padding: 10px 15px;
@@ -334,7 +335,7 @@
               id="btn-reservar"
               class="btn-reservar"
               style="
-                background-color: #4caf50;
+                background-color: #f44336;
                 color: white;
                 border: none;
                 padding: 10px 15px;
@@ -367,10 +368,9 @@
     <style>
       /* Estilo para el día seleccionado */
       .days div.selected {
-        background-color: #4caf50;
-        color: white;
+        background-color: #d4edea;
         font-weight: bold;
-        border: 2px solid #2e7d32;
+        border: 2px solid #d4edea;
       }
     </style>
 
@@ -486,13 +486,13 @@
               boton.disabled = true;
           } else if (ocupado) {
               estadoCell.innerText = "Ocupado";
-              boton.innerText = "No disponible";
+              boton.innerText = "Ocupado";
               boton.style.backgroundColor = "#F44336";
               boton.disabled = true;
           } else if (document.getElementById('boton-reserva-temp').clicked) {
               estadoCell.innerText = "Reservado temporalmente";
               boton.innerText = "No disponible";
-              boton.style.backgroundColor = "#FF9800";
+              boton.style.backgroundColor = "#2196f3";
               boton.disabled = true;
           } else {
               estadoCell.innerText = "Disponible";

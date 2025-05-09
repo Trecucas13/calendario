@@ -95,6 +95,7 @@
                   </td>
                   <td class="">
                     <span
+         
                       class="badge bg-primary rounded-pill text-wrap"
                       style="font-size: 0.8em"
                     >
@@ -139,7 +140,7 @@
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
+          <div class="modal-header header-modal text-white">
             <h5 class="modal-title" id="userModalLabel">
               <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
             </h5>
@@ -247,13 +248,13 @@
             <div class="modal-footer">
               <button
                 type="button"
-                class="btn btn-secondary"
+                class="cancelar"
                 data-bs-dismiss="modal"
               >
                 <i class="fas fa-times me-2"></i>Cancelar
               </button>
 
-              <button type="submit" class="btn btn-primary">
+              <button type="submit" class="guardar">
                 <i class="fas fa-save me-2"></i>Guardar
               </button>
             </div>
@@ -272,7 +273,7 @@
     >
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
+          <div class="modal-header header-modal text-white">
             <h5 class="modal-title" id="ActualizaruserModalLabel">
               <i class="fas fa-user-edit me-2"></i>Actualizar Paciente
             </h5>
@@ -410,15 +411,12 @@
             </div>
 
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
                 <i class="fas fa-times me-2"></i>Cancelar
               </button>
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save me-2"></i>Actualizar
+
+              <button type="submit" class="guardar">
+                <i class="fas fa-save me-2"></i>Guardar
               </button>
             </div>
           </form>

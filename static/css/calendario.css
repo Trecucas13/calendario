@@ -131,7 +131,8 @@ body {
 }
 
 .current-day {
-    background-color: #f0f0f0;
+    background-color: #03a591;
+    color: white;
 }
 
 .selected-day {
@@ -231,4 +232,211 @@ body {
 
 .assign-btn:hover {
     background-color: #4CAF50;
+}
+
+
+/* Estilos para el modal de reserva de citas */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.modal-contenido {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.modal-contenido h2 {
+    color: #03a591;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 22px;
+}
+
+#info-cita {
+    background-color: #d4edea;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    color: #214c5a;
+}
+
+.formulario .form-group {
+    margin-bottom: 15px;
+}
+
+.formulario label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.formulario input,
+.formulario select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+    outline: none;
+    border-color: #03a591;
+    box-shadow: 0 0 0 2px rgba(3, 165, 145, 0.2);
+}
+
+.botones-modal {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-cancelar {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-cancelar:hover {
+    background-color: #d32f2f;
+}
+
+.btn-reservar-temp {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-reservar-temp:hover {
+    background-color: #f57c00;
+}
+
+.btn-reservar {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-reservar:hover {
+    background-color: #388e3c;
+}
+
+.contador {
+    text-align: center;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #fff3e0;
+    border-radius: 5px;
+    border-left: 4px solid #ff9800;
+}
+
+.contador p {
+    margin: 0;
+    color: #e65100;
+    font-weight: bold;
+}
+
+#contador {
+    font-size: 18px;
+    color: #ff5722;
+}
+
+/* Estilos para el modal de horario */
+.modal-horario {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.horario-container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.cerrar-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s;
+}
+
+.cerrar-modal:hover {
+    color: #f44336;
+}
+
+.horario-container h2 {
+    color: #03a591;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .botones-modal {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-cancelar, .btn-reservar-temp, .btn-reservar {
+        width: 100%;
+    }
+    
+    .calendar-section {
+        flex-direction: column;
+    }
+    
+    .calendar-container {
+        flex: none;
+        width: 100%;
+        margin-bottom: 20px;
+    }
 }

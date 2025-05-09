@@ -64,7 +64,7 @@
                             <td class="" id="nombre">{{ usuarios.nombre }}</td>
                             <td class="">
                                 {% if usuarios.rol == 1 %}
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary" style="width: 200px;">
+                                <span class="badge header-modal bg-opacity-10 text-primary rounded-pill py-2 px-3 border border-primary" style="width: 200px;">
                                     <i class="fas fa-user-shield me-2"></i>
                                     <span hidden id="rol">{{ usuarios.rol }}</span>
                                     Administrador
@@ -105,7 +105,7 @@
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header header-modal text-white">
                 <h5 class="modal-title" id="userModalLabel">
                     <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
                 </h5>
@@ -142,13 +142,14 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancelar
+                    <button type="button" class="cancelar" data-bs-dismiss="modal">
+                      <i class="fas fa-times me-2"></i>Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Guardar
+      
+                    <button type="submit" class="guardar">
+                      <i class="fas fa-save me-2"></i>Guardar
                     </button>
-                </div>
+                  </div>
             </form>
         </div>
     </div>
@@ -206,7 +207,7 @@
 <div class="modal fade" id="ActualizaruserModal" tabindex="-1" aria-labelledby="ActualizaruserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header header-modal text-white">
                 <h5 class="modal-title" id="ActualizaruserModalLabel">
                     <i class="fas fa-user-edit me-2"></i>Actualizar Usuario
                 </h5>
@@ -245,13 +246,14 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Cancelar
+                    <button type="button" class="cancelar" data-bs-dismiss="modal">
+                      <i class="fas fa-times me-2"></i>Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Actualizar
+      
+                    <button type="submit" class="guardar">
+                      <i class="fas fa-save me-2"></i>Guardar
                     </button>
-                </div>
+                  </div>
             </form>
         </div>
     </div>
