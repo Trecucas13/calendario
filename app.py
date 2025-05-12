@@ -4,8 +4,10 @@ from database.config import db_conexion, mysql
 
 from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import calendarios_creados
-from models.vistas.calendario import datos_calendario
+from models.vistas.calendario import datos_calendario, pdf_calendario
 from models.vistas.usuarios import vista_usuarios
+# from models.vistas.index import datos_citas
+
 
 from models.inserciones.insert_citas import insertar_citas
 from models.inserciones.insert_calendario import insercion_calendario
@@ -29,6 +31,8 @@ db_conexion(app)
 
 
 app.register_blueprint(tabla_calendarios)
+app.register_blueprint(pdf_calendario)
+
 app.register_blueprint(calendarios_creados)
 app.register_blueprint(insercion_calendario)
 app.register_blueprint(auth)
@@ -38,6 +42,8 @@ app.register_blueprint(insertar_citas)
 app.register_blueprint(insertar_pacientes)
 
 app.register_blueprint(vista_usuarios)
+# app.register_blueprint(datos_citas)
+
 
 app.register_blueprint(delete_usuarios)
 app.register_blueprint(delete_calendario)

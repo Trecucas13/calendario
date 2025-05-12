@@ -62,8 +62,13 @@
     max-width: 30px;
     width: 100%;
 }
-
-
+.download  {
+    background-color: d4edea;
+    border-radius: 10px;
+    border: none;
+    max-width: 30px;
+    width: 100%;
+}
 
 .cancelar{
     background-color: red;

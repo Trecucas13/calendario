@@ -96,8 +96,6 @@
                         <i class="fas fa-edit"></i>
                       </button>
                     </form>
-
-                  
                     
                       <button type="submit" class="eliminar" data-bs-toggle="modal" 
                         data-bs-target="#confirmDeleteModal" 
@@ -105,6 +103,12 @@
                         onclick="eliminar_calendario('{{calendario.id_calendario}}')">
                         <i class="fas fa-trash-alt"></i>
                       </button>
+
+                      <a href="/generar_informe_pdf/{{calendario.id_calendario}}">
+                        <button type="submit" class="download">
+                          <i class="fas fa-download me-2"></i>
+                        </button>
+                      </a>
                     {% endif %}
                   </td>
                 </tr>
