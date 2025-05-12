@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de calendarios</title>
     <link rel="stylesheet" href="../static/css/buttons.css" />
+    <!-- Agregar esto para Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   </head>
 
   <body>
@@ -46,14 +48,16 @@
           <div class="search-group">
             <i class="bi bi-search"></i>
             <input
-              type="search"
-              name="q"
-              id="searchInput"
-              placeholder="Buscar"
-              value="{{ request.args.get('q', '') }}"
-            />
+            type="search"
+            name="q"
+            id="searchInput"
+            placeholder="Buscar"
+            value="{{ request.args.get('q', '') }}"
+          />
           </div>
+
         </div>
+
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-hover" id="tablaCalendario">
@@ -297,15 +301,13 @@
     </div>
 
     <script>
-      // ==================== FUNCIONES DE BÚSQUEDA ====================
+  // ==================== FUNCIONES DE BÚSQUEDA ====================
 
       /**
-       * Configura la funcionalidad de búsqueda para filtrar calendarios
-       * Permite buscar en todas las columnas de la tabla
+       * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
+       * Permite buscar en todas las columnas de ambas tablas
        */
       document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM cargado - Inicializando búsqueda");
-
         /**
          * Elimina tildes y acentos de un texto y lo convierte a minúsculas
          * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
@@ -313,9 +315,7 @@
          * @returns {string} - Texto normalizado sin acentos y en minúsculas
          */
         function eliminarTildes(texto) {
-          if (!texto) return "";
           return texto
-            .toString()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase();
@@ -323,11 +323,9 @@
 
         // Obtener el input de búsqueda
         const searchInput = document.getElementById("searchInput");
-        console.log("Input de búsqueda:", searchInput);
 
-        // Obtener la tabla de calendarios usando su ID
+        // Obtener la tabla de calendarios por su ID
         const tablaCalendario = document.getElementById("tablaCalendario");
-        console.log("Tabla de calendarios:", tablaCalendario);
 
         /*
          * Filtra las filas de una tabla según el texto de búsqueda
@@ -336,24 +334,11 @@
          * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
          */
         function buscarEnTabla(tabla, textoBusqueda) {
-          console.log("Buscando:", textoBusqueda);
-
-          // Si no hay texto de búsqueda, mostrar todas las filas
-          if (!textoBusqueda.trim()) {
-            const filas = tabla.querySelectorAll("tbody tr");
-            filas.forEach((fila) => {
-              fila.style.display = "";
-            });
-            return;
-          }
-
           // Eliminar tildes del texto de búsqueda para mejorar resultados
           const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
-          console.log("Texto normalizado:", textoBusquedaSinTildes);
 
           // Obtener todas las filas del tbody, excluyendo el encabezado
           const filas = tabla.querySelectorAll("tbody tr");
-          console.log("Número de filas a filtrar:", filas.length);
 
           filas.forEach((fila) => {
             // Flag para determinar si se muestra la fila
@@ -364,11 +349,8 @@
 
             // Recorrer todas las celdas para buscar coincidencias
             celdas.forEach((celda) => {
-              // Obtener el texto visible de la celda (excluyendo HTML)
-              const textoVisible = celda.textContent || celda.innerText;
-
               // Eliminar tildes del texto de la celda para comparación
-              const textoCeldaSinTildes = eliminarTildes(textoVisible);
+              const textoCeldaSinTildes = eliminarTildes(celda.textContent);
 
               // Si el texto de la celda contiene el texto buscado, mostrar la fila
               if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
@@ -383,41 +365,14 @@
 
         // Configurar evento de búsqueda en tiempo real
         if (searchInput) {
-          console.log("Configurando evento de búsqueda");
-
-          // Evento input para búsqueda en tiempo real
           searchInput.addEventListener("input", function () {
             const textoBusqueda = this.value;
-            console.log("Evento input detectado:", textoBusqueda);
 
             // Buscar en tabla de calendarios
             if (tablaCalendario) {
               buscarEnTabla(tablaCalendario, textoBusqueda);
-            } else {
-              console.error("No se encontró la tabla de calendarios");
             }
           });
-
-          // También manejar el evento keyup para mayor compatibilidad
-          searchInput.addEventListener("keyup", function () {
-            const textoBusqueda = this.value;
-            console.log("Evento keyup detectado:", textoBusqueda);
-
-            // Buscar en tabla de calendarios
-            if (tablaCalendario) {
-              buscarEnTabla(tablaCalendario, textoBusqueda);
-            } else {
-              console.error("No se encontró la tabla de calendarios");
-            }
-          });
-
-          // Ejecutar búsqueda inicial si hay un valor en el campo
-          if (searchInput.value.trim()) {
-            console.log("Ejecutando búsqueda inicial");
-            buscarEnTabla(tablaCalendario, searchInput.value);
-          }
-        } else {
-          console.error("No se encontró el campo de búsqueda");
         }
       });
     </script>
