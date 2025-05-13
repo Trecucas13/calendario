@@ -20,7 +20,7 @@ def db_conexion(app):
     # PASSWORD: Contraseña del usuario MySQL (por defecto: vacío)
     app.config["MYSQL_PASSWORD"] = os.getenv("MYSQL_PASSWORD", "")
     # DB: Nombre de la base de datos a utilizar (por defecto: kliiker)
-    app.config["MYSQL_DB"] = os.getenv("MYSQL_DB", "savia_salud")
+    app.config["MYSQL_DB"] = os.getenv("MYSQL_DB", "savia salud")
 
     # Configuración avanzada de MySQL
     # Puerto de conexión MySQL (por defecto: 3306)
