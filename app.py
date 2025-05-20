@@ -1,10 +1,10 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2 import Template
 from database.config import db_conexion, mysql
-
+from espacios import espacios_api
 from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import calendarios_creados
-from models.vistas.calendario import datos_calendario, pdf_calendario
+from models.vistas.calendario import datos_calendario, csv_calendario
 from models.vistas.usuarios import vista_usuarios
 # from models.vistas.index import datos_citas
 
@@ -29,9 +29,9 @@ from auth.decorators import *
 app = Flask(__name__)
 db_conexion(app)
 
-
+app.register_blueprint(espacios_api)
 app.register_blueprint(tabla_calendarios)
-app.register_blueprint(pdf_calendario)
+app.register_blueprint(csv_calendario)
 
 app.register_blueprint(calendarios_creados)
 app.register_blueprint(insercion_calendario)
