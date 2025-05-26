@@ -3,11 +3,12 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 # IMPORTANTE: Reemplaza con tus datos reales
 DB_USER = "root"
-DB_PASSWORD = "tu_contraseña"
+DB_PASSWORD = ""
+DB_PORT = 3306
 DB_HOST = "localhost"
-DB_NAME = "nombre_de_tu_bd"
+DB_NAME = "savia salud"  # Asegúrate que el nombre coincide exactamente
 
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

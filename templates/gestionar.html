@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de calendarios</title>
+  <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
+  <link rel="stylesheet" href="../static/css/buttons.css" />
+  <!-- Agregar esto para Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
+  
+</head>
+
+<body>
+  {% extends "base.html" %} {% block content %}
+
+  <div class="container-fluid">
+    
+
+    <div class="card shadow">
+      <div class="header">
+        <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
+          Gestionar
+        </h5>
+
+        <!-- BUSCAR -->
+        <div class="search-group">
+          <i class="bi bi-search"></i>
+          <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
+        </div>
+
+      </div>
+
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover" id="tablaCalendario">
+            <thead>
+              <tr>
+                <th>Tipificació</th>
+                <th>Comentario</th>
+                <th>id llamada</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Datos dinámicos desde backend -->
+              {% for calendario in calendarios %}
+              <tr>
+                <td>{{ calendario.nombre_calendario }}</td>
+                <td>{{ calendario.nombreProcedimiento }}</td>
+                <td>{{ calendario.nombreMunicipio }}</td>
+                <td>
+                  <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
+
+                  <button type="button" class="redirigir"
+                    onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">
+                    Ir
+                  </button>
+                  {% if session['rol'] == 1 %}
+                  <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
+                    style="display: inline">
+                    <button type="submit" class="edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </form>
+
+                  <button type="submit" class="eliminar" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                    data-user-id-delete="{{calendario.id_calendario}}"
+                    onclick="eliminar_calendario('{{calendario.id_calendario}}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+
+                  <a href="/generar_informe_csv/{{calendario.id_calendario}}">
+                    <button type="submit" class="download">
+                      <i class="fas fa-download me-2"></i>
+                    </button>
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // ==================== FUNCIONES DE BÚSQUEDA ====================
+
+    /**
+     * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
+     * Permite buscar en todas las columnas de ambas tablas
+     */
+    document.addEventListener("DOMContentLoaded", function () {
+      /**
+       * Elimina tildes y acentos de un texto y lo convierte a minúsculas
+       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
+       * @param {string} texto - Texto a normalizar
+       * @returns {string} - Texto normalizado sin acentos y en minúsculas
+       */
+      function eliminarTildes(texto) {
+        return texto
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+      }
+
+      // Obtener el input de búsqueda
+      const searchInput = document.getElementById("searchInput");
+
+      // Obtener la tabla de calendarios por su ID
+      const tablaCalendario = document.getElementById("tablaCalendario");
+
+      /*
+       * Filtra las filas de una tabla según el texto de búsqueda
+       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
+       * @param {HTMLElement} tabla - Tabla a filtrar
+       * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+       */
+      function buscarEnTabla(tabla, textoBusqueda) {
+        // Eliminar tildes del texto de búsqueda para mejorar resultados
+        const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
+
+        // Obtener todas las filas del tbody, excluyendo el encabezado
+        const filas = tabla.querySelectorAll("tbody tr");
+
+        filas.forEach((fila) => {
+          // Flag para determinar si se muestra la fila
+          let mostrarFila = false;
+
+          // Obtener todas las celdas de la fila
+          const celdas = fila.querySelectorAll("td");
+
+          // Recorrer todas las celdas para buscar coincidencias
+          celdas.forEach((celda) => {
+            // Eliminar tildes del texto de la celda para comparación
+            const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+
+            // Si el texto de la celda contiene el texto buscado, mostrar la fila
+            if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
+              mostrarFila = true;
+            }
+          });
+
+          // Mostrar u ocultar fila según resultado de la búsqueda
+          fila.style.display = mostrarFila ? "" : "none";
+        });
+      }
+
+      // Configurar evento de búsqueda en tiempo real
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          const textoBusqueda = this.value;
+
+          // Buscar en tabla de calendarios
+          if (tablaCalendario) {
+            buscarEnTabla(tablaCalendario, textoBusqueda);
+          }
+        });
+      }
+    });
+  </script>
+  {% endblock %}
+</html>

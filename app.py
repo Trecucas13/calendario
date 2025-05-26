@@ -6,6 +6,10 @@ from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import calendarios_creados
 from models.vistas.calendario import datos_calendario, csv_calendario
 from models.vistas.usuarios import vista_usuarios
+from models.vistas.gestiones import vista_gestiones
+from models.vistas.gestiones import gestion_bd
+from models.vistas.gestiones import gestionar
+
 # from models.vistas.index import datos_citas
 
 
@@ -42,6 +46,9 @@ app.register_blueprint(insertar_citas)
 app.register_blueprint(insertar_pacientes)
 
 app.register_blueprint(vista_usuarios)
+app.register_blueprint(vista_gestiones)
+app.register_blueprint(gestion_bd)
+app.register_blueprint(gestionar)
 # app.register_blueprint(datos_citas)
 
 

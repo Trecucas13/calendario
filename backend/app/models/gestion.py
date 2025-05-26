@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 
 class Gestion(Base):
-    __tablename__ = "Gestion"
+    __tablename__ = "gestion"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     registro_id = Column(String(36), ForeignKey("RegistroBase.id"))
