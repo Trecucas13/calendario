@@ -264,31 +264,284 @@ def calendario(id_calendario):
 
 
 
-pdf_calendario = Blueprint('pdf_calendario', __name__)
+# pdf_calendario = Blueprint('pdf_calendario', __name__)
 
-@pdf_calendario.route("/generar_informe_pdf/<int:id_calendario>")
-@login_required  # Requiere que el usuario esté autenticado
-@role_required(1)  # Requiere que el usuario tenga rol de administrador (rol 1)
-def generar_informe_calendario_pdf(id_calendario):
+# @pdf_calendario.route("/generar_informe_pdf/<int:id_calendario>")
+# @login_required  # Requiere que el usuario esté autenticado
+# @role_required(1)  # Requiere que el usuario tenga rol de administrador (rol 1)
+# def generar_informe_calendario_pdf(id_calendario):
+#     """
+#     Ruta que genera un informe PDF con la lista de trabajadores.
+    
+#     Returns:
+#         Response: Archivo PDF para descargar o mensaje de error
+#     """
+#     try:
+#         # 1. Obtener datos de trabajadores
+#         cur = mysql.connection.cursor()
+
+#         # 1. Obtener datos básicos del empleado
+#         cur.execute(
+#             """
+#             SELECT cal.nombre_calendario,
+#                 m.nombre AS nombre_municipio,
+#                 c.fecha,
+#                 c.hora,
+#                 pa.nombre AS nombre_paciente,
+#                 p.nombre AS nombre_procedimiento
+#             FROM calendarios cal 
+#             LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
+#             LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
+#             LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
+#             LEFT JOIN pacientes pa ON c.id_paciente = pa.id
+#             WHERE cal.id_calendario = %s
+#             """,
+#             (id_calendario,),
+#         )
+
+#         # Obtener el resultado
+#         calendario = cur.fetchone()
+#         print(calendario)
+#         cur.close()
+
+#         # 2. Crear un buffer en memoria para el PDF
+#         buffer = BytesIO()
+
+#         # 3. Configurar el documento PDF
+#         doc = SimpleDocTemplate(
+#             buffer,
+#             pagesize=landscape(A3),  # Orientación horizontal con tamaño A3 (más grande que A4)
+#             rightMargin=20,
+#             leftMargin=20,
+#             topMargin=60,  # Aumentado para dejar espacio para el logo
+#             bottomMargin=60,  # Aumentado para dejar espacio para el pie de página
+#         )
+
+#         # 4. Configurar estilos para el documento
+#         styles = getSampleStyleSheet()
+#         title_style = styles["Heading1"]
+#         normal_style = styles["Normal"]
+
+#         # 5. Crear estilo para el pie de página
+#         footer_style = ParagraphStyle(
+#             "Footer",
+#             parent=styles["Normal"],
+#             fontSize=8,
+#             alignment=TA_CENTER,
+#         )
+
+#         # 6. Inicializar lista de elementos del PDF
+#         elements = []
+
+#         # 7. Definir la ruta del logo
+#         logo_path = os.path.join(
+#             os.path.dirname(os.path.abspath(__file__)),
+#             "..",
+#             "..",
+#             "static",
+#             "img",
+#             "logoSinFondo.png",
+#         )
+
+#         # 8. Agregar título centrado
+#         title_style.alignment = TA_CENTER
+#         elements.append(Paragraph("Informe de Calendario", title_style))
+#         elements.append(Spacer(1, 10))
+
+#         # 9. Agregar fecha de generación
+#         fecha_generacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#         elements.append(
+#             Paragraph(f"Fecha de generación: {fecha_generacion}", normal_style)
+#         )
+#         elements.append(Spacer(1, 20))
+
+#         # 10. Definir encabezados de la tabla
+#         headers = [
+#             "Calendario",
+#             "Municipio",
+#             "Fecha",
+#             "Hora",
+#             "Paciente",
+#             "Procedimiento",
+#         ]
+
+#         # 11. Inicializar datos para la tabla con los encabezados
+#         data = [headers]
+
+#         # 12. Agregar fila de datos del calendario
+#         if calendario:
+#             fecha_formateada = (
+#                 calendario["fecha"].strftime("%Y-%m-%d")
+#                 if calendario["fecha"]
+#                 else ""
+#             )
+
+#             # Crear fila con datos del calendario
+#             row = [
+#                 calendario["nombre_calendario"],
+#                 calendario["nombre_municipio"],
+#                 fecha_formateada,
+#                 calendario["hora"],
+#                 calendario["nombre_paciente"],
+#                 calendario["nombre_procedimiento"],
+#             ]
+#             data.append(row)
+
+#         # 13. Crear la tabla con ancho específico para cada columna
+#         col_widths = [
+#             120,  # Nombre calendario
+#             80,   # Nombre municipio
+#             90,   # Fecha 
+#             60,   # Hora
+#             120,  # Nombre paciente
+#             80,   # Nombre procedimiento
+#         ]
+#         table = Table(data, repeatRows=1, colWidths=col_widths)
+
+#         # 14. Definir estilo de la tabla
+#         table_style = TableStyle(
+#             [
+#                 # Estilo para la fila de encabezados
+#                 ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+#                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+#                 ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+#                 ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+#                 ("FONTSIZE", (0, 0), (-1, 0), 10),
+#                 ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                
+#                 # Estilo para las filas de datos
+#                 ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+#                 ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+#                 ("ALIGN", (0, 1), (-1, -1), "LEFT"),
+#                 ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+#                 ("FONTSIZE", (0, 1), (-1, -1), 9),
+                
+#                 # Estilo general de la tabla
+#                 ("GRID", (0, 0), (-1, -1), 1, colors.black),
+#                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#                 ("WORDWRAP", (0, 0), (-1, -1), True),  # Permitir que el texto se ajuste
+                
+#                 # Padding para mejorar legibilidad
+#                 ("LEFTPADDING", (0, 0), (-1, -1), 6),
+#                 ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+#                 ("TOPPADDING", (0, 0), (-1, -1), 4),
+#                 ("BOTTOMPADDING", (0, 1), (-1, -1), 4),
+#             ]
+#         )
+
+#         # 15. Aplicar estilo alternado de filas (filas pares con fondo gris claro)
+#         for i in range(1, len(data)):
+#             if i % 2 == 0:
+#                 table_style.add("BACKGROUND", (0, i), (-1, i), colors.lightgrey)
+
+#         # 16. Aplicar estilo a la tabla y agregarla a los elementos
+#         table.setStyle(table_style)
+#         elements.append(table)
+
+#         # 17. Agregar espacio antes del pie de página
+#         elements.append(Spacer(1, 30))
+
+#         # 18. Definir función para agregar encabezado y pie de página en cada página
+#         def add_page_elements(canvas, doc):
+#             """
+#             Función que agrega elementos comunes a todas las páginas:
+#             logo en la esquina superior derecha y pie de página.
+            
+#             Args:
+#                 canvas: Lienzo del PDF
+#                 doc: Documento PDF
+#             """
+#             # Guardar estado del lienzo
+#             canvas.saveState()
+
+#             # Agregar logo en la esquina superior derecha
+#             if os.path.exists(logo_path):
+#                 canvas.drawImage(
+#                     logo_path,
+#                     doc.width + doc.leftMargin - 150,  # Posición X en la esquina derecha
+#                     doc.height + doc.bottomMargin - 50,  # Posición Y
+#                     width=150,
+#                     height=50,
+#                     preserveAspectRatio=True,
+#                     mask="auto",
+#                 )
+
+#             # Agregar línea horizontal encima del pie de página
+#             canvas.setStrokeColor(colors.black)
+#             canvas.line(doc.leftMargin, 50, doc.width + doc.leftMargin, 50)
+
+#             # Agregar texto del pie de página debajo de la línea
+#             canvas.setFont("Helvetica", 8)
+            
+#             # Primera línea del pie de página
+#             # footer_text = "Trabajamos con la mejor calidad en la manufactura del hierro"
+#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 35, footer_text)
+            
+#             # Segunda línea del pie de página
+#             # footer_text2 = "Carrera 24 N°17.19 La Ceja Antioquia Celular: 3113148914"
+#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 25, footer_text2)
+            
+#             # # Tercera línea del pie de página
+#             # footer_text3 = "metalicas.fino@hotmail.com"
+#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 15, footer_text3)
+
+#             # Restaurar estado del lienzo
+#             canvas.restoreState()
+
+#         # 19. Construir el PDF con la función de encabezado y pie de página
+#         doc.build(
+#             elements, onFirstPage=add_page_elements, onLaterPages=add_page_elements
+#         )
+
+#         # 20. Obtener el contenido del buffer y cerrarlo
+#         pdf_value = buffer.getvalue()
+#         buffer.close()
+
+#         # 21. Crear respuesta HTTP con el PDF
+#         response = make_response(pdf_value)
+#         response.headers["Content-Type"] = "application/pdf"
+#         response.headers["Content-Disposition"] = (
+#             "attachment; filename=informe_trabajadores.pdf"
+#         )
+
+#         return response
+
+#     except Exception as e:
+#         # Manejar errores en la generación del PDF
+#         print(f"Error al generar PDF: {e}")
+#         return jsonify({"error": str(e)}), 500
+
+
+#Descarga en CSV
+from flask import make_response, jsonify
+import csv
+from io import StringIO
+
+csv_calendario = Blueprint("csv_calendario", __name__)
+
+@csv_calendario.route("/generar_informe_csv/<int:id_calendario>")
+@login_required
+@role_required(1)
+def generar_informe_calendario_csv(id_calendario):
     """
-    Ruta que genera un informe PDF con la lista de trabajadores.
+    Ruta que genera un informe CSV con la lista de trabajadores del calendario.
     
     Returns:
-        Response: Archivo PDF para descargar o mensaje de error
+        Response: Archivo CSV para descargar o mensaje de error
     """
     try:
-        # 1. Obtener datos de trabajadores
+        # Conexión a la base de datos
         cur = mysql.connection.cursor()
 
-        # 1. Obtener datos básicos del empleado
+        # Consulta de datos
         cur.execute(
             """
             SELECT cal.nombre_calendario,
-                m.nombre AS nombre_municipio,
-                c.fecha,
-                c.hora,
-                pa.nombre AS nombre_paciente,
-                p.nombre AS nombre_procedimiento
+                   m.nombre AS nombre_municipio,
+                   c.fecha,
+                   c.hora,
+                   pa.nombre AS nombre_paciente,
+                   p.nombre AS nombre_procedimiento
             FROM calendarios cal 
             LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
             LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
@@ -299,214 +552,47 @@ def generar_informe_calendario_pdf(id_calendario):
             (id_calendario,),
         )
 
-        # Obtener el resultado
-        calendario = cur.fetchone()
-        print(calendario)
+        # Obtener todos los resultados
+        filas = cur.fetchall()
         cur.close()
 
-        # 2. Crear un buffer en memoria para el PDF
-        buffer = BytesIO()
+        if not filas:
+            return jsonify({"error": "No se encontraron datos para el calendario"}), 404
 
-        # 3. Configurar el documento PDF
-        doc = SimpleDocTemplate(
-            buffer,
-            pagesize=landscape(A3),  # Orientación horizontal con tamaño A3 (más grande que A4)
-            rightMargin=20,
-            leftMargin=20,
-            topMargin=60,  # Aumentado para dejar espacio para el logo
-            bottomMargin=60,  # Aumentado para dejar espacio para el pie de página
-        )
+        # Crear archivo CSV en memoria
+        buffer = StringIO()
+        writer = csv.writer(buffer)
 
-        # 4. Configurar estilos para el documento
-        styles = getSampleStyleSheet()
-        title_style = styles["Heading1"]
-        normal_style = styles["Normal"]
-
-        # 5. Crear estilo para el pie de página
-        footer_style = ParagraphStyle(
-            "Footer",
-            parent=styles["Normal"],
-            fontSize=8,
-            alignment=TA_CENTER,
-        )
-
-        # 6. Inicializar lista de elementos del PDF
-        elements = []
-
-        # 7. Definir la ruta del logo
-        logo_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "..",
-            "..",
-            "static",
-            "img",
-            "logoSinFondo.png",
-        )
-
-        # 8. Agregar título centrado
-        title_style.alignment = TA_CENTER
-        elements.append(Paragraph("Informe de Calendario", title_style))
-        elements.append(Spacer(1, 10))
-
-        # 9. Agregar fecha de generación
-        fecha_generacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        elements.append(
-            Paragraph(f"Fecha de generación: {fecha_generacion}", normal_style)
-        )
-        elements.append(Spacer(1, 20))
-
-        # 10. Definir encabezados de la tabla
+        # Escribir encabezados
         headers = [
             "Calendario",
             "Municipio",
             "Fecha",
             "Hora",
             "Paciente",
-            "Procedimiento",
+            "Procedimiento"
         ]
+        writer.writerow(headers)
 
-        # 11. Inicializar datos para la tabla con los encabezados
-        data = [headers]
+        # Escribir filas
+        for fila in filas:
+            writer.writerow([
+                fila["nombre_calendario"],
+                fila["nombre_municipio"],
+                fila["fecha"].strftime("%Y-%m-%d") if fila["fecha"] else "",
+                fila["hora"],
+                fila["nombre_paciente"],
+                fila["nombre_procedimiento"]
+            ])
 
-        # 12. Agregar fila de datos del calendario
-        if calendario:
-            fecha_formateada = (
-                calendario["fecha"].strftime("%Y-%m-%d")
-                if calendario["fecha"]
-                else ""
-            )
-
-            # Crear fila con datos del calendario
-            row = [
-                calendario["nombre_calendario"],
-                calendario["nombre_municipio"],
-                fecha_formateada,
-                calendario["hora"],
-                calendario["nombre_paciente"],
-                calendario["nombre_procedimiento"],
-            ]
-            data.append(row)
-
-        # 13. Crear la tabla con ancho específico para cada columna
-        col_widths = [
-            120,  # Nombre calendario
-            80,   # Nombre municipio
-            90,   # Fecha 
-            60,   # Hora
-            120,  # Nombre paciente
-            80,   # Nombre procedimiento
-        ]
-        table = Table(data, repeatRows=1, colWidths=col_widths)
-
-        # 14. Definir estilo de la tabla
-        table_style = TableStyle(
-            [
-                # Estilo para la fila de encabezados
-                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, 0), 10),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                
-                # Estilo para las filas de datos
-                ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-                ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
-                ("ALIGN", (0, 1), (-1, -1), "LEFT"),
-                ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-                ("FONTSIZE", (0, 1), (-1, -1), 9),
-                
-                # Estilo general de la tabla
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("WORDWRAP", (0, 0), (-1, -1), True),  # Permitir que el texto se ajuste
-                
-                # Padding para mejorar legibilidad
-                ("LEFTPADDING", (0, 0), (-1, -1), 6),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, -1), 4),
-                ("BOTTOMPADDING", (0, 1), (-1, -1), 4),
-            ]
-        )
-
-        # 15. Aplicar estilo alternado de filas (filas pares con fondo gris claro)
-        for i in range(1, len(data)):
-            if i % 2 == 0:
-                table_style.add("BACKGROUND", (0, i), (-1, i), colors.lightgrey)
-
-        # 16. Aplicar estilo a la tabla y agregarla a los elementos
-        table.setStyle(table_style)
-        elements.append(table)
-
-        # 17. Agregar espacio antes del pie de página
-        elements.append(Spacer(1, 30))
-
-        # 18. Definir función para agregar encabezado y pie de página en cada página
-        def add_page_elements(canvas, doc):
-            """
-            Función que agrega elementos comunes a todas las páginas:
-            logo en la esquina superior derecha y pie de página.
-            
-            Args:
-                canvas: Lienzo del PDF
-                doc: Documento PDF
-            """
-            # Guardar estado del lienzo
-            canvas.saveState()
-
-            # Agregar logo en la esquina superior derecha
-            if os.path.exists(logo_path):
-                canvas.drawImage(
-                    logo_path,
-                    doc.width + doc.leftMargin - 150,  # Posición X en la esquina derecha
-                    doc.height + doc.bottomMargin - 50,  # Posición Y
-                    width=150,
-                    height=50,
-                    preserveAspectRatio=True,
-                    mask="auto",
-                )
-
-            # Agregar línea horizontal encima del pie de página
-            canvas.setStrokeColor(colors.black)
-            canvas.line(doc.leftMargin, 50, doc.width + doc.leftMargin, 50)
-
-            # Agregar texto del pie de página debajo de la línea
-            canvas.setFont("Helvetica", 8)
-            
-            # Primera línea del pie de página
-            footer_text = "Trabajamos con la mejor calidad en la manufactura del hierro"
-            canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 35, footer_text)
-            
-            # Segunda línea del pie de página
-            footer_text2 = "Carrera 24 N°17.19 La Ceja Antioquia Celular: 3113148914"
-            canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 25, footer_text2)
-            
-            # Tercera línea del pie de página
-            footer_text3 = "metalicas.fino@hotmail.com"
-            canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 15, footer_text3)
-
-            # Restaurar estado del lienzo
-            canvas.restoreState()
-
-        # 19. Construir el PDF con la función de encabezado y pie de página
-        doc.build(
-            elements, onFirstPage=add_page_elements, onLaterPages=add_page_elements
-        )
-
-        # 20. Obtener el contenido del buffer y cerrarlo
-        pdf_value = buffer.getvalue()
+        # Crear respuesta con el contenido del CSV
+        response = make_response(buffer.getvalue())
         buffer.close()
-
-        # 21. Crear respuesta HTTP con el PDF
-        response = make_response(pdf_value)
-        response.headers["Content-Type"] = "application/pdf"
-        response.headers["Content-Disposition"] = (
-            "attachment; filename=informe_trabajadores.pdf"
-        )
+        response.headers["Content-Disposition"] = "attachment; filename=informe_calendario.csv"
+        response.headers["Content-Type"] = "text/csv"
 
         return response
 
     except Exception as e:
-        # Manejar errores en la generación del PDF
-        print(f"Error al generar PDF: {e}")
+        print(f"Error al generar CSV: {e}")
         return jsonify({"error": str(e)}), 500

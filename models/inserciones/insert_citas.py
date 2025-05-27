@@ -39,6 +39,7 @@ def insertar_cita():
                     id_procedimiento,
                     fecha,
                     hora,
+                    estado
                     )
                     VALUES (%s, %s, %s, %s, %s)""",
                     (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))

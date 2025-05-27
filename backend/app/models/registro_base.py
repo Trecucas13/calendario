@@ -4,9 +4,9 @@ from datetime import datetime
 import uuid
 
 class RegistroBase(Base):
-    __tablename__ = "RegistroBase"
+    __tablename__ = "registro_base"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tipo_id = Column(String(10))
     num_id = Column(String(20))
     primer_nombre = Column(String(100))

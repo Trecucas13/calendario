@@ -72,6 +72,10 @@ def obtener_historico_gestiones(db: Session):
 
     for g in gestiones:
         reg = db.query(RegistroBase).filter(RegistroBase.id == g.registro_id).first()
+        
+        if not reg:
+            continue  # Saltar registros inválidos
+        
         tip = db.query(Tipificacion).filter(Tipificacion.nombre == g.tipificacion).first()
 
         resultado.append({
@@ -82,7 +86,6 @@ def obtener_historico_gestiones(db: Session):
             "primer_apellido": reg.primer_apellido,
             "segundo_apellido": reg.segundo_apellido,
             "proceso": reg.proceso,
-
             "tipificacion": g.tipificacion,
             "tipo_contacto": tip.tipo_contacto if tip else "SIN CATEGORIZAR",
             "comentario": g.comentario,
