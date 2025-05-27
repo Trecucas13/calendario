@@ -7,7 +7,7 @@ class Gestion(Base):
     __tablename__ = "gestion"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    registro_id = Column(String(36), ForeignKey("RegistroBase.id"))
+    registro_id = Column(String(36), ForeignKey("registro_base.id"))
     tipificacion = Column(String(100))
     comentario = Column(Text)
     id_llamada = Column(String(100))

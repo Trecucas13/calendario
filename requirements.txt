@@ -1,0 +1,8 @@
+fastapi==0.115.12
+Flask==3.1.1
+flask_mysqldb==2.0.0
+Jinja2==3.1.6
+pandas==2.2.3
+pydantic==2.11.5
+reportlab==4.4.1
+SQLAlchemy==2.0.41

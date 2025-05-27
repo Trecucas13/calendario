@@ -56,7 +56,15 @@ def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
     registros_nuevos = 0
     for _, row in df.iterrows():
-        llave = (row["TIPO DE IDENTIFICACIÓN"], str(row["NUMERO DE IDENTIFICACIÓN"]), row["PROCESO"])
+        # Convert row to dictionary and handle nan values
+        row_dict = row.to_dict()
+        for key in row_dict:
+            if pd.isna(row_dict[key]):
+                row_dict[key] = None
+
+        llave = (row_dict["TIPO DE IDENTIFICACIÓN"], 
+                str(row_dict["NUMERO DE IDENTIFICACIÓN"]), 
+                row_dict["PROCESO"])
 
         existe = db.query(RegistroBase).filter_by(
             tipo_id=llave[0],
@@ -66,25 +74,29 @@ def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
         if not existe:
             nuevo = RegistroBase(
-                tipo_id=row["TIPO DE IDENTIFICACIÓN"],
-                num_id=str(row["NUMERO DE IDENTIFICACIÓN"]),
-                primer_nombre=row["1ER NOMBRE"],
-                segundo_nombre=row.get("2DO NOMBRE"),
-                primer_apellido=row["1ER APELLDO"],
-                segundo_apellido=row.get("2DO APELLDO"),
-                fecha=pd.to_datetime(row["FECHA"], errors='coerce'),
-                edad=int(row["EDAD"]),
-                estado_afiliacion=row["ESTADO DE AFILIACIÓN"],
-                regimen_afiliacion=row["RÉGIMEN DE AFILIACIÓN"],
-                telefonos=row["TELEFONO FIJO / OTRO"],
-                direccion=row["DIRECCIÓN DE RESIDENCIA"],
-                municipio=row["MUNICIPIO"],
-                subregion=row["SUBREGIÓN"],
-                proceso=row["PROCESO"]
+                tipo_id=row_dict["TIPO DE IDENTIFICACIÓN"],
+                num_id=str(row_dict["NUMERO DE IDENTIFICACIÓN"]),
+                primer_nombre=row_dict["1ER NOMBRE"],
+                segundo_nombre=row_dict.get("2DO NOMBRE"),
+                primer_apellido=row_dict["1ER APELLDO"],
+                segundo_apellido=row_dict.get("2DO APELLDO"),
+                fecha=pd.to_datetime(row_dict["FECHA"], errors='coerce'),
+                edad=int(row_dict["EDAD"]) if not pd.isna(row_dict["EDAD"]) else None,
+                estado_afiliacion=row_dict["ESTADO DE AFILIACIÓN"],
+                regimen_afiliacion=row_dict["RÉGIMEN DE AFILIACIÓN"],
+                telefonos=row_dict["TELEFONO FIJO / OTRO"],
+                direccion=row_dict["DIRECCIÓN DE RESIDENCIA"],
+                municipio=row_dict["MUNICIPIO"],
+                subregion=row_dict["SUBREGIÓN"],
+                proceso=row_dict["PROCESO"]
             )
             db.add(nuevo)
             registros_nuevos += 1
 
-    db.commit()
-    return {"mensaje": f"Proceso completado. Se insertaron {registros_nuevos} nuevos registros."}
+    try:
+        db.commit()
+        return {"mensaje": f"Proceso completado. Se insertaron {registros_nuevos} nuevos registros."}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 

@@ -43,7 +43,7 @@
                 <th>Nombre</th>
                 <th>Base</th>
                 <th>Asesor</th>
-                <th>Tipificació</th>
+                <th>Tipificación</th>
                 <th>Comentario</th>
                 <th>Id de la llamada</th>
                 <th>Fecha gestión</th>
@@ -51,53 +51,36 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Datos dinámicos desde backend -->
-              {% for calendario in calendarios %}
-              <tr>
-                <td>{{ calendario.nombre_calendario }}</td>
-                <td>{{ calendario.nombreProcedimiento }}</td>
-                <td>{{ calendario.nombreMunicipio }}</td>
-                <td>
-                  <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
-
-                  <button type="button" class="redirigir"
-                    onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">
-                    Ir
-                  </button>
-                  {% if session['rol'] == 1 %}
-                  <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
-                    style="display: inline">
-                    <button type="submit" class="edit">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                  </form>
-
-                  <button type="submit" class="eliminar" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-                    data-user-id-delete="{{calendario.id_calendario}}"
-                    onclick="eliminar_calendario('{{calendario.id_calendario}}')">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-
-                  <a href="/generar_informe_csv/{{calendario.id_calendario}}">
-                    <button type="submit" class="download">
-                      <i class="fas fa-download me-2"></i>
-                    </button>
-                  </a>
-                  {% endif %}
-                </td>
-              </tr>
-
-              {% endfor %}
+              {% if historico %}
+                {% for h in historico %}
+                <tr>
+                  <td>{{ h.tipo_id }}</td>
+                  <td>{{ h.num_id }}</td>
+                  <td>{{ h.primer_nombre }}</td>
+                  <td>{{ h.segundo_base }}</td>
+                  <td>{{ h.asesor }}</td>
+                  <td>{{ h.tipificacion }}</td>
+                  <td>{{ h.comentario }}</td>
+                  <td>{{ h.id_llamada }}</td>
+                  <td>{{ h.fecha_gestion.strftime('%Y-%m-%d %H:%M:%S') if h.fecha_gestion else '' }}</td>
+                  <td>{{ h.usuario }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="10" class="text-center">No hay gestiones registradas</td>
+                </tr>
+              {% endif %}
             </tbody>
           </table>
         </div>
-        <button>
-          <a href="http://127.0.0.1:8000/gestiones/historico/">pelala</a>
-        </button>
+      </div>
       </div>
     </div>
   </div>
   <script>
+    // console.log("Historico Gestiones: " + historico);
+
     // ==================== FUNCIONES DE BÚSQUEDA ====================
 
     /**

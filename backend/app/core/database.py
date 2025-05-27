@@ -6,7 +6,7 @@ DB_USER = "root"
 DB_PASSWORD = ""
 DB_PORT = 3306
 DB_HOST = "localhost"
-DB_NAME = "savia salud"  # Asegúrate que el nombre coincide exactamente
+DB_NAME = "savia_salud"  # Asegúrate que el nombre coincide exactamente
 
 DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 

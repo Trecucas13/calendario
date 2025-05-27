@@ -25,11 +25,7 @@
           Gestiones Bd
         </h5>
 
-        <!-- BUSCAR -->
-        <div class="search-group">
-          <i class="bi bi-search"></i>
-          <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
-        </div>
+       
 
       </div>
         
@@ -108,18 +104,19 @@
           <table class="table table-hover" id="tablaCalendario">
             <thead>
               <div class="container">
-   
+                <form action="http://127.0.0.1:8000/registros/cargar_archivo/" method="POST" enctype="multipart/form-data">
                 <div class="upload-box" onclick="document.getElementById('archivo').click();">
                   <i>📤</i>
                   <p>Haz clic para subir o arrastra y suelta<br>
                    (MAX. 10MB)</p>
-                  <input type="file" id="archivo" style="display: none">
+                  <input type="file" id="archivo" style="display: none" name="file" accept=".csv, .xlsx" required>
                   <p id="archivo-nombre">Browse… No files selected.</p>
                 </div>
             
                 <div style="text-align: center;">
                   <button type="submit">Subir</button>
                 </div>
+                </form>
               </div>
               <script>
                     // Mostrar nombre del archivo seleccionado
@@ -173,81 +170,4 @@
       </div>
     </div>
   </div>
-  <script>
-    // ==================== FUNCIONES DE BÚSQUEDA ====================
-
-    /**
-     * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
-     * Permite buscar en todas las columnas de ambas tablas
-     */
-    document.addEventListener("DOMContentLoaded", function () {
-      /**
-       * Elimina tildes y acentos de un texto y lo convierte a minúsculas
-       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
-       * @param {string} texto - Texto a normalizar
-       * @returns {string} - Texto normalizado sin acentos y en minúsculas
-       */
-      function eliminarTildes(texto) {
-        return texto
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-      }
-
-      // Obtener el input de búsqueda
-      const searchInput = document.getElementById("searchInput");
-
-      // Obtener la tabla de calendarios por su ID
-      const tablaCalendario = document.getElementById("tablaCalendario");
-
-      /*
-       * Filtra las filas de una tabla según el texto de búsqueda
-       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
-       * @param {HTMLElement} tabla - Tabla a filtrar
-       * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
-       */
-      function buscarEnTabla(tabla, textoBusqueda) {
-        // Eliminar tildes del texto de búsqueda para mejorar resultados
-        const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
-
-        // Obtener todas las filas del tbody, excluyendo el encabezado
-        const filas = tabla.querySelectorAll("tbody tr");
-
-        filas.forEach((fila) => {
-          // Flag para determinar si se muestra la fila
-          let mostrarFila = false;
-
-          // Obtener todas las celdas de la fila
-          const celdas = fila.querySelectorAll("td");
-
-          // Recorrer todas las celdas para buscar coincidencias
-          celdas.forEach((celda) => {
-            // Eliminar tildes del texto de la celda para comparación
-            const textoCeldaSinTildes = eliminarTildes(celda.textContent);
-
-            // Si el texto de la celda contiene el texto buscado, mostrar la fila
-            if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
-              mostrarFila = true;
-            }
-          });
-
-          // Mostrar u ocultar fila según resultado de la búsqueda
-          fila.style.display = mostrarFila ? "" : "none";
-        });
-      }
-
-      // Configurar evento de búsqueda en tiempo real
-      if (searchInput) {
-        searchInput.addEventListener("input", function () {
-          const textoBusqueda = this.value;
-
-          // Buscar en tabla de calendarios
-          if (tablaCalendario) {
-            buscarEnTabla(tablaCalendario, textoBusqueda);
-          }
-        });
-      }
-    });
-  </script>
-  {% endblock %}
-</html>
+</html>  {% endblock %}
