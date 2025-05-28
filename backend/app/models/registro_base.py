@@ -23,4 +23,5 @@ class RegistroBase(Base):
     subregion = Column(String(100))
     proceso = Column(String(100))
     fecha_carga = Column(DateTime, default=datetime.utcnow)
+    mes  = Column(String(20), nullable=True)  # Mes de la fecha de carga
     

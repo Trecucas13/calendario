@@ -22,7 +22,7 @@
     <div class="card shadow">
       <div class="header">
         <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
-          Historico Gestiones
+          Histórico Gestiones
         </h5>
 
         <!-- BUSCAR -->
@@ -40,14 +40,26 @@
               <tr>
                 <th>Tipo</th>
                 <th>Documento</th>
-                <th>Nombre</th>
-                <th>Base</th>
+                <th>Primer Nombre</th>
+                <th>Segudo Nombre</th>
+                <th>Primer Apellido</th>
+                <th>Segudo Apellido</th>
+                <th>Fecha</th>
+                <th>Edad</th>
+                <th>Estado Afiliacion</th>
+                <th>Regimen Afiliado</th>
+                <th>Telefono</th>
+                <th>Direccion</th>
+                <th>Municipio</th>
+                <th>Subregion</th>
+                <th>Proceso</th>
+                <th>Fecha Carga</th>
+                <th>Mejor Gestion</th>
                 <th>Asesor</th>
-                <th>Tipificación</th>
-                <th>Comentario</th>
-                <th>Id de la llamada</th>
-                <th>Fecha gestión</th>
-                <th>Usuario</th>
+                <th>Tipo Gestión</th>
+                <th>Fecha Gestión</th>
+                <th>Meses</th>
+                <th>Cantidad Gestiones</th>
               </tr>
             </thead>
             <tbody>
@@ -57,13 +69,25 @@
                   <td>{{ h.tipo_id }}</td>
                   <td>{{ h.num_id }}</td>
                   <td>{{ h.primer_nombre }}</td>
-                  <td>{{ h.segundo_base }}</td>
+                  <td>{{ h.segundo_nombre }}</td>
+                  <td>{{ h.primer_apellido }}</td>
+                  <td>{{ h.segundo_apellido }}</td>
+                  <td>{{h.fecha}}</td>
+                  <td>{{ h.edad }}</td>
+                  <td>{{ h.estado_afiliacion }}</td>
+                  <td>{{ h.regimen_afiliacion }}</td>
+                  <td>{{ h.telefonos }}</td>
+                  <td>{{ h.direccion }}</td>
+                  <td>{{ h.municipio }}</td>
+                  <td>{{ h.subregion }}</td>
+                  <td>{{ h.proceso }}</td>
+                  <td>{{ h.fecha_carga }}</td>
+                  <td>{{ h.mejor_gestion }}</td>
                   <td>{{ h.asesor }}</td>
-                  <td>{{ h.tipificacion }}</td>
-                  <td>{{ h.comentario }}</td>
-                  <td>{{ h.id_llamada }}</td>
+                  <td>{{ h.tipo_gestion }}</td>
                   <td>{{ h.fecha_gestion.strftime('%Y-%m-%d %H:%M:%S') if h.fecha_gestion else '' }}</td>
-                  <td>{{ h.usuario }}</td>
+                  <td>{{ h.mes }}</td>
+                  <td>{{ h.cantidad_gestiones }}</td>
                 </tr>
                 {% endfor %}
               {% else %}

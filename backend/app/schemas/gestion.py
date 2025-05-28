@@ -3,14 +3,14 @@ from typing import Optional
 from datetime import datetime
 
 class GestionCreate(BaseModel):
-    registro_id: str
+    registro_id: int
     tipificacion: str
     comentario: Optional[str] = None
     id_llamada: Optional[str] = None
     usuario: str
 
 class GestionResponse(GestionCreate):
-    id: str
+    id: int
     fecha_gestion: datetime
 
     class Config:

@@ -85,13 +85,27 @@ def obtener_historico_gestiones(db: Session):
             "segundo_nombre": reg.segundo_nombre,
             "primer_apellido": reg.primer_apellido,
             "segundo_apellido": reg.segundo_apellido,
+            "edad": reg.edad,
+            "fecha": reg.fecha.strftime("%Y-%m-%d"),
+            "estado_afiliacion": reg.estado_afiliacion,
+            "regimen_afiliacion": reg.regimen_afiliacion,
             "proceso": reg.proceso,
+            "telefonos": reg.telefonos,
+            "direccion": reg.direccion,
+            "municipio": reg.municipio,
+            "subregion": reg.subregion,
+            "proceso": reg.proceso,
+            "fecha_carga": reg.fecha_carga.strftime("%Y-%m-%d %H:%M:%S"),
+            "mejor_gestion": obtener_mejor_gestion_por_registro(db, g.registro_id),
             "tipificacion": g.tipificacion,
             "tipo_contacto": tip.tipo_contacto if tip else "SIN CATEGORIZAR",
             "comentario": g.comentario,
             "id_llamada": g.id_llamada,
             "fecha_gestion": g.fecha_gestion,
-            "usuario": g.usuario
+            "asesesor": g.usuario,
+            "tipo_gestion": "EFECTIVO" if tip and tip.tipo_contacto == "EFECTIVO" else "NO EFECTIVO",
+            "mes": reg.mes,
+            "cantidad_gestiones": db.query(Gestion).filter(Gestion.registro_id == g.registro_id).count()
         })
 
     return resultado

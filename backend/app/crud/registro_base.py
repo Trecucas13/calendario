@@ -15,3 +15,7 @@ def create_registro(db: Session, data: RegistroBaseCreate):
 
 def get_registros(db: Session, skip: int = 0, limit: int = 100):
     return db.query(RegistroBase).offset(skip).limit(limit).all()
+
+
+def get_lista_completa(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(RegistroBase).offset(skip).limit(limit).all()

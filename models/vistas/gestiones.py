@@ -55,6 +55,8 @@ gestionar = Blueprint('gestionar', __name__)
 @login_required
 @role_required([1 , 2])
 def tabla_gestiones():
-    return render_template("gestionar.html")
+    gestiones = obtener_historico_gestiones()
+    # print(gestionar)
+    return render_template("gestionar.html", gestiones=gestiones)
 
 

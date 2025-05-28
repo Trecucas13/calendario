@@ -29,7 +29,7 @@ def listar_registros(skip: int = 0, limit: int = 100, db: Session = Depends(get_
 
 @router.get("/completo/", response_model=List[RegistroConGestion])
 def listar_registros_completos(db: Session = Depends(get_db)):
-    return crud.obtener_registros_con_gestion(db)
+    return crud.RegistroConGestion(db)
 
 @router.post("/cargar_archivo/")
 def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):

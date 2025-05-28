@@ -5,7 +5,7 @@ from datetime import date, datetime
 # ✅ Schema para creación individual
 class RegistroBaseCreate(BaseModel):
     tipo_id: str
-    num_id: str
+    num_id: int
     primer_nombre: str
     segundo_nombre: Optional[str] = None
     primer_apellido: str
@@ -22,7 +22,7 @@ class RegistroBaseCreate(BaseModel):
 
 # ✅ Schema para respuesta individual
 class RegistroBaseResponse(RegistroBaseCreate):
-    id: str
+    id: int
     fecha_carga: datetime
 
     class Config:
@@ -38,8 +38,8 @@ class MejorGestion(BaseModel):
     cantidad: int
 
 class RegistroConGestion(BaseModel):
-    id: str
-    tipo_id: str
+    id: int
+    tipo_id: int
     num_id: str
     primer_nombre: str
     segundo_nombre: Optional[str]

@@ -38,49 +38,55 @@
           <table class="table table-hover" id="tablaCalendario">
             <thead>
               <tr>
-                <th>Tipificació</th>
-                <th>Comentario</th>
-                <th>id llamada</th>
+                <th>Tipo</th>
+                <th>Documento</th>
+                <th>Primer Nombre</th>
+                <th>Segudo Nombre</th>
+                <th>Primer Apellido</th>
+                <th>Segudo Apellido</th>
+                <th>Fecha</th>
+                <th>Edad</th>
+                <th>Estado Afiliacion</th>
+                <th>Regimen Afiliado</th>
+                <th>Telefono</th>
+                <th>Direccion</th>
+                <th>Municipio</th>
+                <th>Subregion</th>
+                <th>Proceso</th>
+                
               </tr>
             </thead>
             <tbody>
-              <!-- Datos dinámicos desde backend -->
-              {% for calendario in calendarios %}
-              <tr>
-                <td>{{ calendario.nombre_calendario }}</td>
-                <td>{{ calendario.nombreProcedimiento }}</td>
-                <td>{{ calendario.nombreMunicipio }}</td>
-                <td>
-                  <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
-
-                  <button type="button" class="redirigir"
-                    onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">
-                    Ir
-                  </button>
-                  {% if session['rol'] == 1 %}
-                  <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
-                    style="display: inline">
-                    <button type="submit" class="edit">
-                      <i class="fas fa-edit"></i>
+              {% if gestiones %}
+                {% for h in gestiones %}
+                <tr>
+                  <td>{{ h.tipo_id }}</td>
+                  <td>{{ h.num_id }}</td>
+                  <td>
+                    <button type="button" onclick="mostrarModal()">
+                      {{ h.primer_nombre }}
                     </button>
-                  </form>
-
-                  <button type="submit" class="eliminar" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-                    data-user-id-delete="{{calendario.id_calendario}}"
-                    onclick="eliminar_calendario('{{calendario.id_calendario}}')">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-
-                  <a href="/generar_informe_csv/{{calendario.id_calendario}}">
-                    <button type="submit" class="download">
-                      <i class="fas fa-download me-2"></i>
-                    </button>
-                  </a>
-                  {% endif %}
-                </td>
-              </tr>
-
-              {% endfor %}
+                  </td>
+                  <td>{{ h.segundo_nombre }}</td>
+                  <td>{{ h.primer_apellido }}</td>
+                  <td>{{ h.segundo_apellido }}</td>
+                  <td>{{h.fecha}}</td>
+                  <td>{{ h.edad }}</td>
+                  <td>{{ h.estado_afiliacion }}</td>
+                  <td>{{ h.regimen_afiliacion }}</td>
+                  <td>{{ h.telefonos }}</td>
+                  <td>{{ h.direccion }}</td>
+                  <td>{{ h.municipio }}</td>
+                  <td>{{ h.subregion }}</td>
+                  <td>{{ h.proceso }}</td>
+                  
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="10" class="text-center">No hay gestiones registradas</td>
+                </tr>
+              {% endif %}
             </tbody>
           </table>
         </div>
@@ -195,6 +201,11 @@
         });
       }
     });
+
+    function mostrarModal() {
+      const modal = new bootstrap.Modal(document.getElementById('formModal'));
+      modal.show();
+    }
   </script>
   {% endblock %}
 </html>
