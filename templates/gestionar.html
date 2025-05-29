@@ -41,17 +41,17 @@
                 <th>Tipo</th>
                 <th>Documento</th>
                 <th>Primer Nombre</th>
-                <th>Segudo Nombre</th>
+                <th>Segundo Nombre</th>
                 <th>Primer Apellido</th>
-                <th>Segudo Apellido</th>
+                <th>Segundo Apellido</th>
                 <th>Fecha</th>
                 <th>Edad</th>
-                <th>Estado Afiliacion</th>
-                <th>Regimen Afiliado</th>
-                <th>Telefono</th>
-                <th>Direccion</th>
+                <th>Estado Afiliación</th>
+                <th>Régimen Afiliado</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
                 <th>Municipio</th>
-                <th>Subregion</th>
+                <th>Subregión</th>
                 <th>Proceso</th>
                 
               </tr>
@@ -63,7 +63,7 @@
                   <td>{{ h.tipo_id }}</td>
                   <td>{{ h.num_id }}</td>
                   <td>
-                    <button type="button" onclick="mostrarModal()">
+                    <button type="button" onclick="mostrarModal()" class="agregar_gestion">
                       {{ h.primer_nombre }}
                     </button>
                   </td>
@@ -99,22 +99,32 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="formModalLabel">Nuevo Registro</h5>
+          <h5 class="modal-title" id="formModalLabel">Nueva Gestión</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+
         <div class="modal-body">
-          <form id="registroForm" method="POST">
+          <form action="{{url_for('insertar_gestiones.insert_gestiones')}}" id="registroForm" method="POST">
             <div class="mb-3">
               <label for="tipificacion" class="form-label">Tipificación</label>
-              <input type="text" class="form-control" id="tipificacion" name="tipificacion" required>
+              <select name="tipificacion" id="tipificacion" class="form-select" required>
+                <option value="" disabled selected>Seleccione una opción</option>
+                {% for tipificacion in tipificaciones %}
+                  <option value="{{ tipificacion.nombre }}">
+                  {{ tipificacion.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
             </div>
-            <div class="mb-3">
-              <label for="comentario" class="form-label">Comentario</label>
-              <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
-            </div>
+            
             <div class="mb-3">
               <label for="idLlamada" class="form-label">ID Llamada</label>
               <input type="text" class="form-control" id="idLlamada" name="idLlamada" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="comentario" class="form-label">Comentario</label>
+              <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -125,6 +135,38 @@
       </div>
     </div>
   </div>
+  <style>
+  .agregar_gestion {
+  color: #333;
+  padding: 0.4em 1em;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 0.5em;
+  background: linear-gradient(145deg, #f0f0f0, #dcdcdc);
+  cursor: pointer;
+  border: 1px solid #ccc;
+  transition: all 0.25s ease;
+  box-shadow: 4px 4px 8px #d1d1d1, -4px -4px 8px #ffffff;
+  outline: none;
+}
+
+.agregar_gestion:hover {
+  background: linear-gradient(145deg, #e2e2e2, #f5f5f5);
+  box-shadow: 2px 2px 6px #bbb, -2px -2px 6px #fff;
+  transform: translateY(-1px);
+}
+
+.agregar_gestion:active {
+  box-shadow: inset 2px 2px 4px #c5c5c5, inset -2px -2px 4px #ffffff;
+  transform: translateY(1px);
+}
+
+.agregar_gestion:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+}
+
+  </style>
 
   <script>
     // ==================== FUNCIONES DE BÚSQUEDA ====================

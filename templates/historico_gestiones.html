@@ -30,6 +30,7 @@
           <i class="bi bi-search"></i>
           <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
         </div>
+       
 
       </div>
 
@@ -38,28 +39,25 @@
           <table class="table table-hover" id="tablaCalendario">
             <thead>
               <tr>
-                <th>Tipo</th>
+               <th>Tipo</th>
                 <th>Documento</th>
                 <th>Primer Nombre</th>
-                <th>Segudo Nombre</th>
+                <th>Segundo Nombre</th>
                 <th>Primer Apellido</th>
-                <th>Segudo Apellido</th>
+                <th>Segundo Apellido</th>
                 <th>Fecha</th>
                 <th>Edad</th>
-                <th>Estado Afiliacion</th>
-                <th>Regimen Afiliado</th>
-                <th>Telefono</th>
-                <th>Direccion</th>
+                <th>Estado Afiliación</th>
+                <th>Régimen Afiliado</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
                 <th>Municipio</th>
-                <th>Subregion</th>
+                <th>Subregión</th>
                 <th>Proceso</th>
-                <th>Fecha Carga</th>
-                <th>Mejor Gestion</th>
+                <th>Tipificación</th>
+                <th>Fecha de gestión</th>
+                <th>Comentario</th>
                 <th>Asesor</th>
-                <th>Tipo Gestión</th>
-                <th>Fecha Gestión</th>
-                <th>Meses</th>
-                <th>Cantidad Gestiones</th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +70,7 @@
                   <td>{{ h.segundo_nombre }}</td>
                   <td>{{ h.primer_apellido }}</td>
                   <td>{{ h.segundo_apellido }}</td>
-                  <td>{{h.fecha}}</td>
+                  <td>{{ h.fecha}}</td>
                   <td>{{ h.edad }}</td>
                   <td>{{ h.estado_afiliacion }}</td>
                   <td>{{ h.regimen_afiliacion }}</td>
@@ -81,13 +79,10 @@
                   <td>{{ h.municipio }}</td>
                   <td>{{ h.subregion }}</td>
                   <td>{{ h.proceso }}</td>
-                  <td>{{ h.fecha_carga }}</td>
-                  <td>{{ h.mejor_gestion }}</td>
+                  <td>{{ h.tipifiacion}}</td>
+                  <td>{{ h.fecha }}</td>
+                  <td>{{ h.comentario }}</td>
                   <td>{{ h.asesor }}</td>
-                  <td>{{ h.tipo_gestion }}</td>
-                  <td>{{ h.fecha_gestion.strftime('%Y-%m-%d %H:%M:%S') if h.fecha_gestion else '' }}</td>
-                  <td>{{ h.mes }}</td>
-                  <td>{{ h.cantidad_gestiones }}</td>
                 </tr>
                 {% endfor %}
               {% else %}

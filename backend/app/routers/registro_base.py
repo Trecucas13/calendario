@@ -23,7 +23,7 @@ def get_db():
 def crear_registro(data: RegistroBaseCreate, db: Session = Depends(get_db)):
     return crud.create_registro(db, data)
 
-@router.get("/", response_model=List[RegistroBaseResponse])
+@router.get("/listar_registros", response_model=List[RegistroBaseResponse])
 def listar_registros(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud.get_registros(db, skip, limit)
 

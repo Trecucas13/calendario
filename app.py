@@ -17,6 +17,7 @@ from models.inserciones.insert_citas import insertar_citas
 from models.inserciones.insert_calendario import insercion_calendario
 from models.inserciones.insert_usuario import insertar_usuario
 from models.inserciones.insert_pacientes import insertar_pacientes
+from models.inserciones.insert_gestionar import insertar_gestiones
 
 # from models.vistas.calendario import obtener_citas
 from models.eliminar.eliminar_usuario import delete_usuarios
@@ -44,6 +45,7 @@ app.register_blueprint(auth)
 app.register_blueprint(insertar_usuario)
 app.register_blueprint(insertar_citas)
 app.register_blueprint(insertar_pacientes)
+app.register_blueprint(insertar_gestiones)
 
 app.register_blueprint(vista_usuarios)
 app.register_blueprint(vista_gestiones)
@@ -128,7 +130,6 @@ def obtener_pacientes():
 def pacientes():
     pacientes = obtener_pacientes()
     return render_template("pacientes.html", pacientes=pacientes)
-
 
 
 # PROCEDIMIENTO
