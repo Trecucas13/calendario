@@ -9,7 +9,7 @@ import uuid
 
 def crear_gestion(db: Session, data: GestionCreate):
     nueva = Gestion(
-        id=str(uuid.uuid4()),
+        # id=str(uuid.uuid4()),
         registro_id=data.registro_id,
         tipificacion=data.tipificacion,
         comentario=data.comentario,
@@ -103,14 +103,16 @@ def obtener_historico_gestiones(db: Session):
             "id_llamada": g.id_llamada,
             "fecha_gestion": g.fecha_gestion,
             "asesesor": g.usuario,
+            "llave_compuesta": g.llave_compuesta,
             "tipo_gestion": "EFECTIVO" if tip and tip.tipo_contacto == "EFECTIVO" else "NO EFECTIVO",
             "mes": reg.mes,
             "cantidad_gestiones": db.query(Gestion).filter(Gestion.registro_id == g.registro_id).count()
         })
+        print(resultado)
 
     return resultado
 
-# def obtener_total_gestiones(db: Session):
+# def obtener_total_mejor_gestiones(db: Session):
 #     gestiones = db.query(Gestion).all()
 #     resultado = []
 
@@ -127,7 +129,7 @@ def obtener_historico_gestiones(db: Session):
 #                 "segundo_nombre": r.segundo_nombre,
 #                 "primer_apellido": r.primer_apellido,
 #                 "segundo_apellido": r.segundo_apellido,
-#                 "edad": reg.edad,
+#                 # "edad": reg.edad,
 #                 "fecha": reg.fecha.strftime("%Y-%m-%d"),
 #                 "estado_afiliacion": reg.estado_afiliacion,
 #                 "regimen_afiliacion": reg.regimen_afiliacion,
@@ -149,6 +151,7 @@ def obtener_historico_gestiones(db: Session):
 #                 "mes": reg.mes,
 #                 # "cantidad_gestiones": db.query(Gestion).filter(Gestion.registro_id == g.registro_id).count()
 #         })
+#         print(resultado)
 
 #     return resultado
 

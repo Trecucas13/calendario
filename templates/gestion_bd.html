@@ -4,18 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestión de calendarios</title>
+
     <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
     <link rel="stylesheet" href="../static/css/buttons.css" />
+    <link rel="stylesheet" href="../static/css/tablas.css">
+
     <!-- Agregar esto para Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
+
     <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
   </head>
-  <style></style>
+
   <body>
-    {% extends "base.html" %} {% block content %}
+
+  {% extends "base.html" %} {% block content %}
 
     <div class="container-fluid">
       <div class="card shadow">
@@ -47,116 +52,75 @@
             >
             <input type="file" id="file-upload" class="custom-file-input" />
           </div>
-
-          <style>
-            .custom-file-wrapper {
-              display: flex;
-              align-items: center;
-              gap: 0.6em;
-              background-color: #e6f4f1;
-              padding: 0.6em 1em;
-              border-radius: 1em;
-              box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-              font-family: sans-serif;
-            }
-
-            .custom-file-label {
-              background-color:rgba(61, 156, 107, 0.71);
-              color: white;
-              padding: 6px 12px;
-              border-radius: 0.5em;
-              cursor: pointer;
-              font-size: 14px;
-              white-space: nowrap;
-              transition: background-color 0.3s;
-            }
-
-            .custom-file-label:hover {
-              background-color:rgb(59, 196, 148);
-            }
-
-            .custom-file-input {
-              display: none;
-            }
-
-            .file-name {
-              font-size: 14px;
-              color: #333;
-              max-width: 150px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
-          </style>
         </div>
 
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover" id="tablaCalendario">
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Documento</th>
-                  <th>Primer Nombre</th>
-                  <th>Segundo Nombre</th>
-                  <th>Primer Apellido</th>
-                  <th>Segundo Apellido</th>
-                  <th>Fecha</th>
-                  <th>Edad</th>
-                  <th>Estado Afiliación</th>
-                  <th>Régimen Afiliado</th>
-                  <th>Teléfono</th>
-                  <th>Dirección</th>
-                  <th>Municipio</th>
-                  <th>Subregión</th>
-                  <th>Proceso</th>
-                  <th>Fecha Carga</th>
-                  <th>Mejor Gestión</th>
-                  <th>Asesor</th>
-                  <th>Tipo Gestión</th>
-                  <th>Fecha Gestión</th>
-                  <th>Mes de Gestión</th>
-                  <th>Cantidad Gestiones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% if historico %} {% for h in historico %}
-                <tr>
-                  <td>{{ h.tipo_id }}</td>
-                  <td>{{ h.num_id }}</td>
-                  <td>{{ h.primer_nombre }}</td>
-                  <td>{{ h.segundo_nombre }}</td>
-                  <td>{{ h.primer_apellido }}</td>
-                  <td>{{ h.segundo_apellido }}</td>
-                  <td>{{h.fecha}}</td>
-                  <td>{{ h.edad }}</td>
-                  <td>{{ h.estado_afiliacion }}</td>
-                  <td>{{ h.regimen_afiliacion }}</td>
-                  <td>{{ h.telefonos }}</td>
-                  <td>{{ h.direccion }}</td>
-                  <td>{{ h.municipio }}</td>
-                  <td>{{ h.subregion }}</td>
-                  <td>{{ h.proceso }}</td>
-                  <td>{{ h.fecha_carga }}</td>
-                  <td>{{ h.mejor_gestion }}</td>
-                  <td>{{ h.asesor }}</td>
-                  <td>{{ h.tipo_gestion }}</td>
-                  <td>
-                    {{ h.fecha_gestion.strftime('%Y-%m-%d %H:%M:%S') if
-                    h.fecha_gestion else '' }}
-                  </td>
-                  <td>{{ h.mes }}</td>
-                  <td>{{ h.cantidad_gestiones }}</td>
-                </tr>
-                {% endfor %} {% else %}
-                <tr>
-                  <td colspan="10" class="text-center">
-                    No hay gestiones registradas
-                  </td>
-                </tr>
-                {% endif %}
-              </tbody>
-            </table>
+  <div class="table-responsive">
+    <table class="table table-hover mi-tabla" id="tablaCalendario">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Documento</th>
+          <th>Primer Nombre</th>
+          <th>Segundo Nombre</th>
+          <th>Primer Apellido</th>
+          <th>Segundo Apellido</th>
+          <th>Fecha</th>
+          <th>Edad</th>
+          <th>Estado Afiliación</th>
+          <th>Régimen Afiliado</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Municipio</th>
+          <th>Subregión</th>
+          <th>Proceso</th>
+          <th>Fecha Carga</th>
+          <th>Mejor Gestión</th>
+          <th>Asesor</th>
+          <th>Tipo Gestión</th>
+          <th>Fecha Gestión</th>
+          <th>Mes de Gestión</th>
+          <th>Cantidad Gestiones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if historico %} 
+          {% for h in historico %}
+          <tr>
+            <td>{{ h.tipo_id }}</td>
+            <td>{{ h.num_id }}</td>
+            <td>{{ h.primer_nombre }}</td>
+            <td>{{ h.segundo_nombre }}</td>
+            <td>{{ h.primer_apellido }}</td>
+            <td>{{ h.segundo_apellido }}</td>
+            <td>{{ h.fecha }}</td>
+            <td>{{ h.edad }}</td>
+            <td>{{ h.estado_afiliacion }}</td>
+            <td>{{ h.regimen_afiliacion }}</td>
+            <td>{{ h.telefonos }}</td>
+            <td>{{ h.direccion }}</td>
+            <td>{{ h.municipio }}</td>
+            <td>{{ h.subregion }}</td>
+            <td>{{ h.proceso }}</td>
+            <td>{{ h.fecha_carga }}</td>
+            <td>{{ h.mejor_gestion }}</td>
+            <td>{{ h.asesor }}</td>
+            <td>{{ h.tipo_gestion }}</td>
+            <td>{{ h.fecha_gestion.strftime('%Y-%m-%d %H:%M:%S') if h.fecha_gestion else '' }}</td>
+            <td>{{ h.mes }}</td>
+            <td>{{ h.cantidad_gestiones }}</td>
+          </tr>
+          {% endfor %} 
+        {% else %}
+          <tr>
+            <td colspan="22" class="text-center">No hay gestiones registradas</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
           </div>
         </div>
       </div>

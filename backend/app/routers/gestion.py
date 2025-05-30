@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from app.schemas.gestion import GestionCreate, GestionResponse, GestionHistorico
 from app.crud import gestion as crud
+
 from app.core.database import SessionLocal
 from typing import List
 from fastapi.templating import Jinja2Templates

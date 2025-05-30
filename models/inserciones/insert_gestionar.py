@@ -25,20 +25,23 @@ def insert_gestiones():
             tipificacion = request.form["tipificacion"]
             idLlamada = request.form["idLlamada"]
             comentario = request.form["comentario"]
+            registro_id = request.form["registro_id"]
            
             print("Datos recibidos: ", request.form)
 
             # Insertar el nuevo usuario en la base de datos
             cur.execute(
                 """INSERT INTO gestion(
+                    registro_id,
                     tipificacion,
                     id_llamada,
                     comentario,
                     usuario
                     )
-                    VALUES (%s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
+                    registro_id,
                     tipificacion,
                     idLlamada,
                     comentario,

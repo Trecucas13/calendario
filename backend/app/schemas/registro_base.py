@@ -23,8 +23,15 @@ class RegistroBaseCreate(BaseModel):
 # ✅ Schema para respuesta individual
 class RegistroBaseResponse(RegistroBaseCreate):
     id: int
-    fecha_carga: datetime
-
+    fecha_carga: Optional[datetime] = None  # Fecha de carga del registro
+    comentario: Optional[str] = None  # Comentario opcional
+    mes: Optional[str] = None  # Mes del registro
+    id_llamada: Optional[int] = None  # ID de llamada opcional
+    cantidad_gestiones: Optional[int] = None  # Cantidad de gestiones asociadas
+    mejor_gestion: Optional[str] = None  # Mejor gestión asociada
+    tipificacion: Optional[str] = None  # Tipificación asociada
+    asesor: Optional[str] = None  # Asesor asociado
+    
     class Config:
         from_attributes = True
 

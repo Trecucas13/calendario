@@ -8,8 +8,9 @@ class Gestion(Base):
 
     id = Column(Integer, primary_key=True, default=lambda: str(uuid.uuid4()))
     registro_id = Column(Integer, ForeignKey("registro_base.id"))
-    tipificacion = Column(String(100))
+    tipificacion = Column(String(100)) 
     comentario = Column(Text)
     id_llamada = Column(String(100))
     fecha_gestion = Column(DateTime, default=datetime.utcnow)
-    usuario = Column(String(100))
+    usuario = Column(String(100), nullable=True)
+    llave_compuesta = Column(String(100), nullable=True)  # Llave compuesta para evitar duplicados

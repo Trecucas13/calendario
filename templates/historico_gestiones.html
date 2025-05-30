@@ -7,6 +7,7 @@
   <title>Gestión de calendarios</title>
   <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
   <link rel="stylesheet" href="../static/css/buttons.css" />
+   <link rel="stylesheet" href="../static/css/tablas.css">
   <!-- Agregar esto para Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
@@ -36,62 +37,65 @@
 
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-hover" id="tablaCalendario">
-            <thead>
-              <tr>
-               <th>Tipo</th>
-                <th>Documento</th>
-                <th>Primer Nombre</th>
-                <th>Segundo Nombre</th>
-                <th>Primer Apellido</th>
-                <th>Segundo Apellido</th>
-                <th>Fecha</th>
-                <th>Edad</th>
-                <th>Estado Afiliación</th>
-                <th>Régimen Afiliado</th>
-                <th>Teléfono</th>
-                <th>Dirección</th>
-                <th>Municipio</th>
-                <th>Subregión</th>
-                <th>Proceso</th>
-                <th>Tipificación</th>
-                <th>Fecha de gestión</th>
-                <th>Comentario</th>
-                <th>Asesor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if historico %}
-                {% for h in historico %}
-                <tr>
-                  <td>{{ h.tipo_id }}</td>
-                  <td>{{ h.num_id }}</td>
-                  <td>{{ h.primer_nombre }}</td>
-                  <td>{{ h.segundo_nombre }}</td>
-                  <td>{{ h.primer_apellido }}</td>
-                  <td>{{ h.segundo_apellido }}</td>
-                  <td>{{ h.fecha}}</td>
-                  <td>{{ h.edad }}</td>
-                  <td>{{ h.estado_afiliacion }}</td>
-                  <td>{{ h.regimen_afiliacion }}</td>
-                  <td>{{ h.telefonos }}</td>
-                  <td>{{ h.direccion }}</td>
-                  <td>{{ h.municipio }}</td>
-                  <td>{{ h.subregion }}</td>
-                  <td>{{ h.proceso }}</td>
-                  <td>{{ h.tipifiacion}}</td>
-                  <td>{{ h.fecha }}</td>
-                  <td>{{ h.comentario }}</td>
-                  <td>{{ h.asesor }}</td>
-                </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td colspan="10" class="text-center">No hay gestiones registradas</td>
-                </tr>
-              {% endif %}
-            </tbody>
-          </table>
+          <table class="table table-hover mi-tabla" id="tablaCalendario">
+  <thead>
+    <tr>
+      <th>Tipo</th>
+      <th>Documento</th>
+      <th>Primer Nombre</th>
+      <th>Segundo Nombre</th>
+      <th>Primer Apellido</th>
+      <th>Segundo Apellido</th>
+      <th>Fecha</th>
+      <th>Edad</th>
+      <th>Estado Afiliación</th>
+      <th>Régimen Afiliado</th>
+      <th>Teléfono</th>
+      <th>Dirección</th>
+      <th>Municipio</th>
+      <th>Subregión</th>
+      <th>Proceso</th>
+      <th>Tipificación</th>
+      <th>Id llamada</th>
+      <th>Fecha de gestión</th>
+      <th>Comentario</th>
+      <th>Asesor</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if historico %}
+      {% for h in historico %}
+      <tr>
+        <td>{{ h.tipo_id }}</td>
+        <td>{{ h.num_id }}</td>
+        <td>{{ h.primer_nombre }}</td>
+        <td>{{ h.segundo_nombre }}</td>
+        <td>{{ h.primer_apellido }}</td>
+        <td>{{ h.segundo_apellido }}</td>
+        <td>{{ h.fecha }}</td>
+        <td>{{ h.edad }}</td>
+        <td>{{ h.estado_afiliacion }}</td>
+        <td>{{ h.regimen_afiliacion }}</td>
+        <td>{{ h.telefonos }}</td>
+        <td>{{ h.direccion }}</td>
+        <td>{{ h.municipio }}</td>
+        <td>{{ h.subregion }}</td>
+        <td>{{ h.proceso }}</td>
+        <td>{{ h.tipifiacion }}</td>
+        <td>{{ h.id_llamada }}</td>
+        <td>{{ h.fecha }}</td>
+        <td>{{ h.comentario }}</td>
+        <td>{{ h.asesor }}</td>
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr>
+        <td colspan="19" class="text-center">No hay gestiones registradas</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
+
         </div>
       </div>
       </div>

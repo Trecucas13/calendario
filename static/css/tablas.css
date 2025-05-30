@@ -1,0 +1,70 @@
+.table-responsive {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px; /* Puedes ajustar este valor según el espacio disponible */
+  border: 1px solid #ddd;
+}
+
+/* Tabla */
+/* .mi-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: sans-serif;
+} */
+
+
+.mi-tabla td {
+  /* padding: 8px 12px; */
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  /*overflow: hidden;*/
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mi-tabla th {
+  /* width: 100%; */
+  white-space: wrap;
+  text-align: center;
+}
+
+/*ESTILOS DEL SUBIR ARCHIVOS*/
+ .custom-file-wrapper {
+              display: flex;
+              align-items: center;
+              gap: 0.6em;
+              background-color: #e6f4f1;
+              padding: 0.6em 1em;
+              border-radius: 1em;
+              box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+              font-family: sans-serif;
+            }
+
+            .custom-file-label {
+              background-color:rgba(61, 156, 107, 0.71);
+              color: white;
+              padding: 6px 12px;
+              border-radius: 0.5em;
+              cursor: pointer;
+              font-size: 14px;
+              white-space: nowrap;
+              transition: background-color 0.3s;
+            }
+
+            .custom-file-label:hover {
+              background-color:rgb(59, 196, 148);
+            }
+
+            .custom-file-input {
+              display: none;
+            }
+
+            .file-name {
+              font-size: 14px;
+              color: #333;
+              max-width: 150px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }

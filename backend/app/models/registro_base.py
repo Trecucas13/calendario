@@ -13,7 +13,7 @@ class RegistroBase(Base):
     segundo_nombre = Column(String(100), nullable=True)
     primer_apellido = Column(String(100))
     segundo_apellido = Column(String(100), nullable=True)
-    fecha = Column(Date)
+    fecha = Column(Date, nullable=True)
     edad = Column(Integer)
     estado_afiliacion = Column(String(50))
     regimen_afiliacion = Column(String(50))
@@ -22,6 +22,11 @@ class RegistroBase(Base):
     municipio = Column(String(100))
     subregion = Column(String(100))
     proceso = Column(String(100))
-    fecha_carga = Column(DateTime, default=datetime.utcnow)
+    fecha_carga = Column(DateTime, default=datetime.utcnow, nullable=True)  # Fecha de carga del registro
+    mejor_gestion = Column(String(100), nullable=True)  # Mejor gestión asociada
+    asesor = Column(String(100), nullable=True)  # Asesor que realizó la gestión
+    tipo_gestion = Column(String(50), nullable=True)  # Tipo de gestión (EFECTIVO o NO EFECTIVO)
+    fecha_gestion = Column(DateTime, nullable=True)  # Fecha de la gestión
     mes  = Column(String(20), nullable=True)  # Mes de la fecha de carga
-    
+    cantidad_gestiones = Column(Integer, default=0)  # Cantidad de gestiones asociadas
+    #Hola , no se que hago
