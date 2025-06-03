@@ -23,7 +23,7 @@ def get_db():
 def registrar_gestion(data: GestionCreate, db: Session = Depends(get_db)):
     return crud.crear_gestion(db, data)
 
-@router.get("/historico/", response_model=List[GestionHistorico])
+@router.get("/gestion_bd/")
 def listar_historico(db: Session = Depends(get_db)):
     return crud.obtener_historico_gestiones(db)
 

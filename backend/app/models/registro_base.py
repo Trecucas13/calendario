@@ -26,7 +26,7 @@ class RegistroBase(Base):
     mejor_gestion = Column(String(100), nullable=True)  # Mejor gestión asociada
     asesor = Column(String(100), nullable=True)  # Asesor que realizó la gestión
     tipo_gestion = Column(String(50), nullable=True)  # Tipo de gestión (EFECTIVO o NO EFECTIVO)
-    fecha_gestion = Column(DateTime, nullable=True)  # Fecha de la gestión
+    fecha_gestion = Column(DateTime, default=datetime.utcnow, nullable=True)  # Fecha de la gestión
     mes  = Column(String(20), nullable=True)  # Mes de la fecha de carga
     cantidad_gestiones = Column(Integer, default=0)  # Cantidad de gestiones asociadas
-    #Hola , no se que hago
+  

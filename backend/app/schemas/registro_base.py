@@ -19,6 +19,9 @@ class RegistroBaseCreate(BaseModel):
     municipio: str
     subregion: str
     proceso: str
+    tipificacion: str
+    tipo_gestion: Optional[str] = None
+    # fecha_gestion: Optional[datetime] = None
 
 # ✅ Schema para respuesta individual
 class RegistroBaseResponse(RegistroBaseCreate):
@@ -31,7 +34,9 @@ class RegistroBaseResponse(RegistroBaseCreate):
     mejor_gestion: Optional[str] = None  # Mejor gestión asociada
     tipificacion: Optional[str] = None  # Tipificación asociada
     asesor: Optional[str] = None  # Asesor asociado
-    
+    tipo_gestion: Optional[str] = None
+    # fecha_gestion: Optional[datetime] = None
+
     class Config:
         from_attributes = True
 

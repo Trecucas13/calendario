@@ -68,7 +68,7 @@ def obtener_mejor_gestion_por_registro(db: Session, registro_id: str):
 
 def obtener_historico_gestiones(db: Session):
     gestiones = db.query(Gestion).all()
-    resultado = []
+    resultado = []  
 
     for g in gestiones:
         reg = db.query(RegistroBase).filter(RegistroBase.id == g.registro_id).first()
@@ -104,9 +104,9 @@ def obtener_historico_gestiones(db: Session):
             "fecha_gestion": g.fecha_gestion,
             "asesesor": g.usuario,
             "llave_compuesta": g.llave_compuesta,
-            "tipo_gestion": "EFECTIVO" if tip and tip.tipo_contacto == "EFECTIVO" else "NO EFECTIVO",
+            "tipo_gestion": "EFECTIVO" if tip and tip.tipo_contacto == "efectivo" else "no efectivo",
             "mes": reg.mes,
-            "cantidad_gestiones": db.query(Gestion).filter(Gestion.registro_id == g.registro_id).count()
+            # "cantidad_gestiones": db.query(Gestion).filter(Gestion.registro_id == g.registro_id).count()
         })
         print(resultado)
 

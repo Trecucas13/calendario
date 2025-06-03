@@ -30,6 +30,7 @@ class GestionHistorico(BaseModel):
     id_llamada: Optional[str]
     fecha_gestion: datetime
     usuario: str
+    
 
     class Config:
         from_attributes = True

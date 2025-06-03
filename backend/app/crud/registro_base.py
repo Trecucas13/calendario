@@ -15,7 +15,7 @@ def create_registro(db: Session, data: RegistroBaseCreate):
     return nuevo
 
 def get_registros_completos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(RegistroBase).offset(skip).limit(limit).all()
+    return db.query(RegistroBase).offset(skip).limit(limit).all()  
 
 def get_registros(db: Session, skip: int = 0, limit: int = 100):
     """
@@ -53,7 +53,7 @@ def get_registros(db: Session, skip: int = 0, limit: int = 100):
         RegistroBase.mejor_gestion,
         RegistroBase.asesor,
         RegistroBase.tipo_gestion,
-        RegistroBase.fecha_gestion
+        # RegistroBase.fecha_gestion
         ).join(
         Gestion, RegistroBase.id == Gestion.registro_id
     ).offset(skip).limit(limit).all()
@@ -68,7 +68,7 @@ def get_registros(db: Session, skip: int = 0, limit: int = 100):
         print(f"Fecha Gestión: {registro.fecha_gestion}")
         print(f"Usuario: {registro.usuario}")
         print(f"ID Registro: {registro.registro_id}")
-        print(f"Tipo ID: {registro.tipo_id}")
+        # print(f"Tipo ID: {registro.contador}")
     
     return resultados
 
