@@ -43,6 +43,7 @@
           <!--<div class="search-group">
             <input type="file" />
           </div>-->
+          <form action="http://127.0.0.1:8000/registros/cargar_archivo/" method="post" enctype="multipart/form-data">
           <div class="custom-file-wrapper">
             <label for="file-upload" class="custom-file-label"
               > Seleccionar archivo</label
@@ -50,9 +51,13 @@
             <span class="file-name" id="file-name"
               >Sin archivo seleccionado</span
             >
-            <input type="file" id="file-upload" class="custom-file-input" />
+            <input type="file" id="file-upload" class="custom-file-input" name="file"/>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-upload"></i>
+            </button>
           </div>
         </div>
+        </form>
 
         <div class="card-body">
   <div class="table-responsive">
