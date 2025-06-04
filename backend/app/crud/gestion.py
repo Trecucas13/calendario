@@ -27,14 +27,7 @@ def obtener_mejor_gestion_por_registro(db: Session, registro_id: str):
     gestiones = db.query(Gestion).filter(Gestion.registro_id == registro_id).all()
 
     if not gestiones:
-        return {
-            "tipificacion": "Sin gestión",
-            "tipo_contacto": "Sin gestión",
-            "usuario": "Sin gestión",
-            "fecha_gestion": "Sin gestión",
-            "mes": "Sin gestión",
-            "cantidad": 0
-        }
+        return "Sin gestión"
 
     # Buscar tipificación con menor ranking
     mejor = None
@@ -57,15 +50,7 @@ def obtener_mejor_gestion_por_registro(db: Session, registro_id: str):
             # "cantidad": len(gestiones)
         }
     else:
-        return {
-            "tipificacion": "Sin gestión",
-            "tipo_contacto": "Sin gestión",
-            "usuario": "Sin gestión",
-            "fecha_gestion": "Sin gestión",
-            "mes": "Sin gestión",
-            "cantidad": len(gestiones)
-        }
-
+        return "Sin gestión"
 def obtener_historico_gestiones(db: Session):
     gestiones = db.query(Gestion).all()
     resultado = []  
@@ -142,7 +127,7 @@ def obtener_total_mejor_gestiones(db: Session):
                 "municipio": r.municipio,
                 "subregion": r.subregion,
                 "fecha_carga": r.fecha_carga.strftime("%Y-%m-%d %H:%M:%S"),
-                "mejor_gestion": obtener_mejor_gestion_por_registro(db, r.id),
+                "mejor_gestion": obtener_mejor_gestion_por_registro(db, r.id)["tipificacion"],
                 "tipificacion": ultima_gestion.tipificacion,
                 "tipo_contacto": tip.tipo_contacto if tip else "sin categorizar",
                 "comentario": ultima_gestion.comentario,
