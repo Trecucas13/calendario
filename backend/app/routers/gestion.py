@@ -25,7 +25,7 @@ def registrar_gestion(data: GestionCreate, db: Session = Depends(get_db)):
 
 @router.get("/gestion_bd/")
 def listar_historico(db: Session = Depends(get_db)):
-    return crud.obtener_historico_gestiones(db)
+    return crud.obtener_total_mejor_gestiones(db)
 
 # Nueva ruta para renderizar la plantilla HTML
 @router.get("/historico-page/")

@@ -14,15 +14,15 @@ def obtener_historico_gestiones():
         response = requests.get('http://127.0.0.1:8000/registros/listar_historico/')
         if response.status_code == 200:
             datos = response.json()
-            print(f"Datos recibidos: {len(datos)} registros")
+            # print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            for item in datos:
-                if 'fecha_gestion' in item and item['fecha_gestion']:
-                    try:
-                        item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-                    except ValueError as e:
-                        print(f"Error al convertir fecha: {e}")
-                        item['fecha_gestion'] = None
+            # for item in datos:
+            #     if 'fecha_gestion' in item and item['fecha_gestion']:
+            #         try:
+            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
+            #         except ValueError as e:
+            #             print(f"Error al convertir fecha: {e}")
+            #             item['fecha_gestion'] = None
             return datos
         else:
             print(f"Error en la API: Status code {response.status_code}")
@@ -83,15 +83,17 @@ def obtener_gestiones_bd():
         response = requests.get('http://127.0.0.1:8000/gestiones/gestion_bd/')
         if response.status_code == 200:
             datos = response.json()
+            
             print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            for item in datos:
-                if 'fecha_gestion' in item and item['fecha_gestion']:
-                    try:
-                        item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-                    except ValueError as e:
-                        print(f"Error al convertir fecha: {e}")
-                        item['fecha_gestion'] = None
+            # for item in datos:
+            #     if 'fecha_gestion' in item and item['fecha_gestion']:
+            #         try:
+            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
+            #         except ValueError as e:
+            #             print(f"Error al convertir fecha: {e}")
+            #             item['fecha_gestion'] = None
+            # print(datos)
             return datos
         else:
             print(f"Error en la API: Status code {response.status_code}")
@@ -126,7 +128,7 @@ gestion_bd = Blueprint('gestion_bd', __name__)
 @role_required([1 , 2])
 def tabla_gestiones():
     historial = obtener_gestiones_bd()
-      
+    print(historial)
     return render_template("gestion_bd.html", historico = historial)
 
 #Ruta para Gestionar
@@ -138,6 +140,7 @@ gestionar = Blueprint('gestionar', __name__)
 def tabla_gestiones():
     gestiones = obtener_total_gestiones()
     tipificaciones = obtener_tipificaciones()
+    
     
     print(tipificaciones)
     return render_template("gestionar.html", gestiones=gestiones, tipificaciones=tipificaciones)

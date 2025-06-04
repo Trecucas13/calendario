@@ -51,11 +51,11 @@ def get_registros(db: Session, skip: int = 0, limit: int = 100):
         RegistroBase.mes,
         RegistroBase.cantidad_gestiones.label("cantidad_gestiones"), # Asegúrate de que este campo exista
         RegistroBase.mejor_gestion,
-        RegistroBase.asesor,
         RegistroBase.tipo_gestion,
         # RegistroBase.fecha_gestion
         ).join(
         Gestion, RegistroBase.id == Gestion.registro_id
+        
     ).offset(skip).limit(limit).all()
     
     # Imprimir resultados para depuración
@@ -68,7 +68,7 @@ def get_registros(db: Session, skip: int = 0, limit: int = 100):
         print(f"Fecha Gestión: {registro.fecha_gestion}")
         print(f"Usuario: {registro.usuario}")
         print(f"ID Registro: {registro.registro_id}")
-        # print(f"Tipo ID: {registro.contador}")
+        print(f"mes: {registro.mes}")
     
     return resultados
 

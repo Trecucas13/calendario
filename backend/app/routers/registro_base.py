@@ -11,7 +11,7 @@ from app.core.database import SessionLocal
 
 router = APIRouter()
 
-# Dependency para obtener la sesión
+# Dependencia para obtener la sesión
 def get_db():
     db = SessionLocal()
     try:
@@ -56,7 +56,7 @@ def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
     registros_nuevos = 0
     for _, row in df.iterrows():
-        # Convert row to dictionary and handle nan values
+
         row_dict = row.to_dict()
         for key in row_dict:
             if pd.isna(row_dict[key]):
