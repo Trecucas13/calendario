@@ -2,8 +2,8 @@ from flask import Flask, jsonify, request
 from flask.blueprints import Blueprint
 from database.config import db_conexion, mysql
 
-# app = Flask(__name__)
-# db_conexion(app)
+app = Flask(__name__)
+db_conexion(app)
 
 espacios_api = Blueprint('espacios_api', __name__)
 
@@ -28,7 +28,7 @@ def verificar_espacio():
     if resultado is None:
         estado = 'disponible'
     else:
-        estado = resultado[0]
+        estado = 'ocupado'
 
     return jsonify({
         'estado': estado,
@@ -47,19 +47,23 @@ def espacios_por_fecha():
         return jsonify({'error': 'Faltan parámetros'}), 400
         
     conn = mysql.connection.cursor()
-    # Suponiendo que tienes una tabla de horarios disponibles o un rango de horas predefinido
     query = """
-        SELECT hora, COALESCE(c.estado, 'disponible') as estado
-        FROM horarios h
-        LEFT JOIN citas c ON c.id_calendario = %s AND c.fecha = %s AND c.hora = h.hora
+        SELECT hora, COALESCE(h.estado, 'disponible') as estado
+        FROM citas h
         WHERE h.id_calendario = %s
         ORDER BY h.hora
     """
-    conn.execute(query, (id_calendario, fecha, id_calendario))
+    
+        
+    conn.execute(query, (id_calendario,))
     resultados = conn.fetchall()
     conn.close()
     
-    espacios = [{'hora': r[0], 'estado': r[1]} for r in resultados]
+    # Convert timedelta objects to string representation
+    espacios = [{
+        'hora': str(r["hora"]) if r["hora"] else None,  # Convert timedelta to string
+        'estado': r["estado"]
+    } for r in resultados]
     
     return jsonify({
         'fecha': fecha,
@@ -70,47 +74,56 @@ def espacios_por_fecha():
 @espacios_api.route('/api/reservar-cita', methods=['POST'])
 def reservar_cita():
     """Crea una nueva reserva de cita"""
-    datos = request.json
+    id_calendario = request.args.get('id_calendario')
+    fecha = request.args.get('fecha')
+    hora = request.args.get('hora')
+    id_paciente = request.args.get('id_paciente')
+    id_usuario = request.args.get('id_usuario') 
+    # documento_paciente = request.args.get('documento_paciente')
+    
+    # Asignar un valor por defecto si no se proporciona
     
     # Validar datos requeridos
-    campos_requeridos = ['id_calendario', 'fecha', 'hora', 'nombre_paciente', 'documento_paciente']
-    for campo in campos_requeridos:
-        if campo not in datos:
-            return jsonify({'error': f'Falta el campo {campo}'}), 400
+    if not id_calendario or not fecha or not hora:
+        return jsonify({'error': 'Faltan parámetros'}), 400
     
     # Verificar disponibilidad
     conn = mysql.connection.cursor()
     query = """
-        SELECT estado FROM citas 
+        SELECT estado FROM citas
         WHERE id_calendario = %s AND fecha = %s AND hora = %s
     """
-    conn.execute(query, (datos['id_calendario'], datos['fecha'], datos['hora']))
+    conn.execute(query, (id_calendario, fecha, hora))
     resultado = conn.fetchone()
     
-    if resultado is not None and resultado[0] != 'disponible':
+    if resultado is not None:
+        # estado_finañ
         conn.close()
         return jsonify({'error': 'El espacio ya no está disponible'}), 409
     
+    
+    resultado = "ocupado"
     # Crear la cita
     query = """
-        INSERT INTO citas (id_calendario, fecha, hora, nombre_paciente, documento_paciente, estado)
-        VALUES (%s, %s, %s, %s, %s, 'reservado')
+        INSERT INTO citas (id_calendario, fecha, hora, id_paciente, estado, id_usuario)
+        VALUES (%s, %s, %s, %s, %s, %s )
     """
     conn.execute(query, (
-        datos['id_calendario'], 
-        datos['fecha'], 
-        datos['hora'],
-        datos['nombre_paciente'],
-        datos['documento_paciente']
+        id_calendario, 
+        fecha, 
+        hora,
+        id_paciente,
+        resultado,  # Estado inicial de la cita
+        id_usuario
     ))
     mysql.connection.commit()
     id_cita = conn.lastrowid
     conn.close()
     
     return jsonify({
-        'mensaje': 'Cita reservada exitosamente',
+        'mensaje': 'Cita agendada exitosamente',
         'id_cita': id_cita,
-        'estado': 'reservado'
+        'estado': 'ocupado'
     }), 201
 
 if __name__ == '__main__':

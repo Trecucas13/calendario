@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import List
 from io import BytesIO
@@ -31,7 +32,7 @@ def listar_registros(skip: int = 0, limit: int = 100, db: Session = Depends(get_
 def listar_registros_completos(db: Session = Depends(get_db), skip: int = 0, limit: int = 100):
     return crud.get_registros_completos(db, skip, limit)
 
-@router.post("/cargar_archivo/")
+@router.post("/cargar_archivo/", response_class=RedirectResponse)
 def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):
     if not file.filename.endswith((".xlsx", ".csv")):
         raise HTTPException(status_code=400, detail="Formato no soportado. Usa .xlsx o .csv")
@@ -95,7 +96,8 @@ def cargar_archivo(file: UploadFile = File(...), db: Session = Depends(get_db)):
 
     try:
         db.commit()
-        return {"mensaje": f"Proceso completado. Se insertaron {registros_nuevos} nuevos registros."}
+        # return {"mensaje": f"Proceso completado. Se insertaron {registros_nuevos} nuevos registros."}
+        return RedirectResponse(url="http://localhost:5000/gestion_bd", status_code=303)
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))

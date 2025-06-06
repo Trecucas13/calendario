@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template
+from flask import Flask, Blueprint, render_template, flash
 from database.config import mysql
 from auth.decorators import *
 from auth.decorators import *
@@ -111,13 +111,6 @@ def tabla_gestiones():
     tipificaciones = obtener_tipificaciones()
     print(historial)
     return render_template("historico_gestiones.html", historico=historial, tipificaciones=tipificaciones)
-
-# def datos_gestiones():
-#     conn = mysql.connection.cursor()
-#     conn.execute("SELECT * FROM gestion")
-#     gestion = conn.fetchall()
-
-#     return {"gestion": gestion}
 
     
 #Ruta para Gestion BD

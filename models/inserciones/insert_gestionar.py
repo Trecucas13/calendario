@@ -7,46 +7,39 @@ insertar_gestiones = Blueprint("insertar_gestiones", __name__)
 
 @insertar_gestiones.route("/insertar_gestiones", methods=["POST", "GET"])
 def insert_gestiones():
-    """
-    Función que maneja la inserción de nuevas gestiones.
-    Recibe los datos del formulario y guarda la gestion en la base de datos.
-    """
-
-    # Solo procesar si es una solicitud POST
     if request.method == "POST":
         nombre_asesor = session.get("nombre")
-        print(nombre_asesor)  # Log para depuración
-
-        # Inicializar el cursor para la conexión a la base de datos
         cur = mysql.connection.cursor()
-        
+
         try:
-            # Obtener datos del formulario - corregido para usar 'nombre' en lugar de 'nombreCompleto'
+            # Datos del formulario
             tipificacion = request.form["tipificacion"]
             idLlamada = request.form["idLlamada"]
             comentario = request.form["comentario"]
             registro_id = request.form["registro_id"]
-           
-            print("Datos recibidos: ", request.form)
 
-            # Insertar el nuevo usuario en la base de datos
+            # Obtener tipo_id, num_id y proceso desde la tabla registro_base
+            cur.execute("SELECT tipo_id, num_id, proceso FROM registro_base WHERE id = %s", (registro_id,))
+            registro = cur.fetchone()
+
+            if not registro:
+                flash("No se encontró el registro en registro_base", "error")
+                return redirect("/gestionar")
+
+            # tipo_id, num_id, proceso = registro
+            llave_compuesta = f"{registro["tipo_id"]}-{registro["num_id"]}-{registro["proceso"]}"
+
+            # Insertar en tabla gestion
             cur.execute(
-                """INSERT INTO gestion(
+                """INSERT INTO gestion (
                     registro_id,
                     tipificacion,
                     id_llamada,
                     comentario,
-                    usuario
-                    )
-                    VALUES (%s, %s, %s, %s, %s)
-                """,
-                (
-                    registro_id,
-                    tipificacion,
-                    idLlamada,
-                    comentario,
-                    nombre_asesor
-                ), 
+                    usuario,
+                    llave_compuesta
+                ) VALUES (%s, %s, %s, %s, %s, %s)""",
+                (registro_id, tipificacion, idLlamada, comentario, nombre_asesor, llave_compuesta)
             )
 
             # Confirmar los cambios en la base de datos
