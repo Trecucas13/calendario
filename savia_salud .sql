@@ -2382,7 +2382,8 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `documento`, `nombre`, `password`, `rol`) VALUES
 (17, 1234567890, 'hola', 'savia', 1),
-(18, 123456789, 'cardona', 'Salud', 2);
+(18, 123456789, 'cardona', 'Salud', 2),
+  (19, 123456781, 'bot', 'Salud', 1);
 
 --
 -- Índices para tablas volcadas
