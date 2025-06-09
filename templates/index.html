@@ -1,59 +1,74 @@
+<!-- Plantilla para la página principal o dashboard -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> <!-- El idioma debería ser "es" si el contenido principal es en español -->
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de calendarios</title>
+  <!-- Icono de la pestaña del navegador -->
   <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
-  <link rel="stylesheet" href="../static/css/buttons.css" />
-  <!-- Agregar esto para Bootstrap Icons -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/andesBpo.png') }}"> <!-- Forma correcta de enlazar estáticos en Flask -->
+
+  <!-- Enlace a hoja de estilos personalizada para botones -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}" />
+  <!-- Enlace a Bootstrap Icons para iconos adicionales -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
   
 </head>
 
 <body>
-  {% extends "base.html" %} {% block content %}
+  <!-- Extiende la plantilla base 'base.html', heredando su estructura y estilos -->
+  {% extends "base.html" %}
+
+  <!-- Bloque de contenido específico para esta página -->
+  {% block content %}
 
   <div class="container-fluid">
+    <!-- Sección de encabezado y acciones principales, visible solo para el rol de administrador (rol 1) -->
     {% if session['rol'] == 1 %}
     <div class="d-flex justify-content-between align-items-center mb-4">
+      <!-- Título de la página -->
       <h2 class="title-header">
-        <i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios
+        <i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios <!-- Icono de calendario de Font Awesome -->
       </h2>
       
-      <a class="add" href="/formulario">
+      <!-- Botón/Enlace para crear un nuevo calendario -->
+      <a class="add" href="{{ url_for('formulario') }}"> <!-- Usar url_for para generar URLs -->
         <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
       </a>
 
+      <!-- Botón para abrir modal de creación de nuevo procedimiento -->
       <button class="add" data-bs-toggle="modal" data-bs-target="#userModalProcedimiento">
         <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
       </button>
 
+      <!-- Botón para abrir modal de creación de nuevo municipio -->
       <button class="add" data-bs-toggle="modal" data-bs-target="#userModalMunicipio">
         <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
       </button>
     </div>
     {% endif %}
 
+    <!-- Tarjeta (card) para mostrar la tabla de calendarios activos -->
     <div class="card shadow">
       <div class="header">
         <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
           Calendarios Activos
         </h5>
 
-        <!-- BUSCAR -->
+        <!-- Grupo de búsqueda -->
         <div class="search-group">
-          <i class="bi bi-search"></i>
+          <i class="bi bi-search"></i> <!-- Icono de búsqueda de Bootstrap Icons -->
           <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
         </div>
-
       </div>
 
+      <!-- Cuerpo de la tarjeta con la tabla responsiva -->
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-hover" id="tablaCalendario">
+            <!-- Encabezado de la tabla -->
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -62,119 +77,123 @@
                 <th>Acciones</th>
               </tr>
             </thead>
+            <!-- Cuerpo de la tabla, se llena dinámicamente con datos del backend -->
             <tbody>
-              <!-- Datos dinámicos desde backend -->
+              <!-- Bucle de Jinja2 para iterar sobre la lista de 'calendarios' pasada desde el backend -->
               {% for calendario in calendarios %}
               <tr>
+                <!-- Muestra los datos de cada calendario -->
                 <td>{{ calendario.nombre_calendario }}</td>
-                <td>{{ calendario.nombreProcedimiento }}</td>
-                <td>{{ calendario.nombreMunicipio }}</td>
+                <td>{{ calendario.nombreProcedimiento }}</td> <!-- Asume que el backend provee este campo con el nombre del procedimiento -->
+                <td>{{ calendario.nombreMunicipio }}</td>   <!-- Asume que el backend provee este campo con el nombre del municipio -->
                 <td>
-                  <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
-
+                  <!-- Botón para ir a la vista detallada del calendario -->
                   <button type="button" class="redirigir"
-                    onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">
+                    onclick="window.location.href='{{ url_for('tabla_calendarios.vista_detalle_calendario', id_calendario=calendario.id_calendario) }}'">
                     Ir
                   </button>
+                  <!-- Acciones adicionales solo para administradores (rol 1) -->
                   {% if session['rol'] == 1 %}
-                  <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
+                  <!-- Formulario para editar el calendario (redirige a la vista de actualización) -->
+                  <form action="{{ url_for('formularioActualizar', id=calendario.id_calendario) }}" method="GET"
                     style="display: inline">
                     <button type="submit" class="edit">
-                      <i class="fas fa-edit"></i>
+                      <i class="fas fa-edit"></i> <!-- Icono de editar -->
                     </button>
                   </form>
 
+                  <!-- Botón para abrir el modal de confirmación de eliminación -->
                   <button type="submit" class="eliminar" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-                    data-user-id-delete="{{calendario.id_calendario}}"
-                    onclick="eliminar_calendario('{{calendario.id_calendario}}')">
-                    <i class="fas fa-trash-alt"></i>
+                    data-user-id-delete="{{calendario.id_calendario}}" <!-- Atributo de datos para pasar el ID al modal -->
+                    onclick="eliminar_calendario('{{calendario.id_calendario}}')"> <!-- Llama a JS para configurar el modal -->
+                    <i class="fas fa-trash-alt"></i> <!-- Icono de eliminar -->
                   </button>
 
-                  <a href="/generar_informe_csv/{{calendario.id_calendario}}">
+                  <!-- Enlace para descargar el informe CSV del calendario -->
+                  <a href="{{ url_for('csv_calendario.generar_informe_calendario_csv', id_calendario=calendario.id_calendario) }}">
                     <button type="submit" class="download">
-                      <i class="fas fa-download me-2"></i>
+                      <i class="fas fa-download me-2"></i> <!-- Icono de descarga -->
                     </button>
                   </a>
                   {% endif %}
                 </td>
               </tr>
-
-              {% endfor %}
+              {% endfor %} <!-- Fin del bucle -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Script para la funcionalidad de búsqueda en la tabla -->
   <script>
     // ==================== FUNCIONES DE BÚSQUEDA ====================
 
     /**
-     * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
-     * Permite buscar en todas las columnas de ambas tablas
+     * Configura la funcionalidad de búsqueda para filtrar calendarios.
+     * Permite buscar en todas las columnas de la tabla de calendarios.
      */
     document.addEventListener("DOMContentLoaded", function () {
       /**
-       * Elimina tildes y acentos de un texto y lo convierte a minúsculas
-       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
-       * @param {string} texto - Texto a normalizar
-       * @returns {string} - Texto normalizado sin acentos y en minúsculas
+       * Elimina tildes y acentos de un texto y lo convierte a minúsculas.
+       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas.
+       * @param {string} texto - Texto a normalizar.
+       * @returns {string} - Texto normalizado sin acentos y en minúsculas.
        */
       function eliminarTildes(texto) {
         return texto
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
+          .normalize("NFD") // Normaliza a forma de descomposición canónica (separa tildes)
+          .replace(/[\u0300-\u036f]/g, "") // Elimina los diacríticos (tildes, etc.)
+          .toLowerCase(); // Convierte a minúsculas
       }
 
-      // Obtener el input de búsqueda
+      // Obtener el elemento input de búsqueda
       const searchInput = document.getElementById("searchInput");
 
       // Obtener la tabla de calendarios por su ID
       const tablaCalendario = document.getElementById("tablaCalendario");
 
-      /*
-       * Filtra las filas de una tabla según el texto de búsqueda
-       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
-       * @param {HTMLElement} tabla - Tabla a filtrar
-       * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+      /**
+       * Filtra las filas de una tabla según el texto de búsqueda.
+       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas.
+       * @param {HTMLElement} tabla - La tabla HTML a filtrar.
+       * @param {string} textoBusqueda - El texto ingresado por el usuario para filtrar.
        */
       function buscarEnTabla(tabla, textoBusqueda) {
-        // Eliminar tildes del texto de búsqueda para mejorar resultados
+        // Normalizar el texto de búsqueda
         const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
 
-        // Obtener todas las filas del tbody, excluyendo el encabezado
+        // Obtener todas las filas del cuerpo de la tabla (tbody)
         const filas = tabla.querySelectorAll("tbody tr");
 
+        // Iterar sobre cada fila para aplicar el filtro
         filas.forEach((fila) => {
-          // Flag para determinar si se muestra la fila
-          let mostrarFila = false;
+          let mostrarFila = false; // Bandera para determinar si la fila debe mostrarse
 
-          // Obtener todas las celdas de la fila
+          // Obtener todas las celdas (td) de la fila actual
           const celdas = fila.querySelectorAll("td");
 
-          // Recorrer todas las celdas para buscar coincidencias
+          // Iterar sobre cada celda para buscar coincidencias
           celdas.forEach((celda) => {
-            // Eliminar tildes del texto de la celda para comparación
-            const textoCeldaSinTildes = eliminarTildes(celda.textContent);
-
-            // Si el texto de la celda contiene el texto buscado, mostrar la fila
+            const textoCeldaSinTildes = eliminarTildes(celda.textContent); // Normalizar texto de la celda
+            // Si el texto de la celda incluye el texto de búsqueda, marcar para mostrar la fila
             if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
               mostrarFila = true;
             }
           });
 
-          // Mostrar u ocultar fila según resultado de la búsqueda
+          // Mostrar u ocultar la fila basado en si se encontró una coincidencia
           fila.style.display = mostrarFila ? "" : "none";
         });
       }
 
-      // Configurar evento de búsqueda en tiempo real
+      // Añadir evento 'input' al campo de búsqueda para filtrar en tiempo real
       if (searchInput) {
         searchInput.addEventListener("input", function () {
-          const textoBusqueda = this.value;
+          const textoBusqueda = this.value; // Obtener el valor actual del campo de búsqueda
 
-          // Buscar en tabla de calendarios
+          // Filtrar la tabla de calendarios si existe
           if (tablaCalendario) {
             buscarEnTabla(tablaCalendario, textoBusqueda);
           }
@@ -182,12 +201,15 @@
       }
     });
   </script>
-  <!-- MODAL ELIMINAR CALENDARIO -->
+
+  <!-- MODAL PARA CONFIRMAR ELIMINACIÓN DE CALENDARIO -->
   <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
-    aria-hidden="true" style="display: none;">
+    aria-hidden="true" style="display: none;"> <!-- style="display: none;" es redundante con la clase 'fade' de Bootstrap -->
     <div class="modal-dialog">
       <div class="modal-content">
-        <form action="/eliminar_calendario" method="POST" style="display: inline" id="deleteCalenForm">
+        <!-- Formulario que se enviará para eliminar el calendario -->
+        <form action="{{ url_for('delete_calendario.delete_calendario_entries') }}" method="POST" style="display: inline" id="deleteCalenForm"> <!-- Usar url_for y el nombre correcto del endpoint -->
+          <!-- Campo oculto para enviar el ID del calendario a eliminar -->
           <input type="hidden" name="id" id="deleteCalenId">
 
           <div class="modal-header bg-danger text-white">
@@ -197,7 +219,7 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            ¿Estás seguro de que deseas eliminar este calendario? <span id="calenIdDisplay"></span>
+            ¿Estás seguro de que deseas eliminar este calendario? <span id="calenIdDisplay"></span> <!-- Span para mostrar ID (opcional) -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -213,47 +235,51 @@
   </div>
 
   <script>
+    /**
+     * Prepara el modal de confirmación de eliminación de calendario.
+     * Establece el ID del calendario en el campo oculto del formulario del modal.
+     * @param {string} calenId - El ID del calendario a eliminar.
+     */
     function eliminar_calendario(calenId) {
-      // Set the user ID in the hidden input field
+      // Establece el valor del ID del calendario en el input oculto del formulario del modal
       document.getElementById('deleteCalenId').value = calenId;
 
-      // Display the user ID in the confirmation message (optional)
-      // const userIdDisplay = document.getElementById('userIdDisplay');
-      // if (userIdDisplay) {
-      //     userIdDisplay.textContent = userId;
+      // Opcional: Mostrar el ID en el cuerpo del modal para confirmación visual
+      // const calenIdDisplay = document.getElementById('calenIdDisplay');
+      // if (calenIdDisplay) {
+      //     calenIdDisplay.textContent = calenId; // O un mensaje más descriptivo
       // }
 
-      // Show the modal (although this is already handled by data-bs-target)
-      // const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-      // modal.show();
+      // Nota: El modal se muestra automáticamente por los atributos data-bs-toggle y data-bs-target en el botón.
+      // No es necesario llamarlo explícitamente con new bootstrap.Modal(...).show();
     }
   </script>
-  <!-- MODAL AGREGAR MUNICIPIO -->
+
+  <!-- MODAL PARA AGREGAR NUEVO MUNICIPIO -->
   <div class="modal fade" id="userModalMunicipio" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg"> <!-- modal-lg para un modal más ancho -->
       <div class="modal-content">
-        <div class="modal-header header-modal text-white">
+        <div class="modal-header header-modal text-white"> <!-- Clase 'header-modal' para estilo personalizado -->
           <h5 class="modal-title" id="userModalLabel">
-            <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
+            <i class="fas fa-user-plus me-2"></i>Nuevo Municipio <!-- Icono de Font Awesome -->
           </h5>
         </div>
-        <form action="/insertar-municipio" method="post">
+        <!-- Formulario para insertar un nuevo municipio -->
+        <form action="{{ url_for('insertar_municipio') }}" method="post"> <!-- Usar url_for -->
           <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
+            <div class="row g-3"> <!-- 'g-3' para espaciado entre columnas -->
+              <div class="col-md-6"> <!-- Ocupa la mitad del ancho en dispositivos medianos y superiores -->
                 <label class="form-label">
                   <i class="fas fa-user me-2"></i>Nombre del municipio
                 </label>
-                <input type="text" class="form-control" name="nombre" required />
+                <input type="text" class="form-control" name="nombre" required /> <!-- Campo requerido -->
               </div>
             </div>
           </div>
-
           <div class="modal-footer">
             <button type="button" class="cancelar" data-bs-dismiss="modal">
               <i class="fas fa-times me-2"></i>Cancelar
             </button>
-
             <button type="submit" class="guardar">
               <i class="fas fa-save me-2"></i>Guardar
             </button>
@@ -263,7 +289,7 @@
     </div>
   </div>
 
-  <!-- MODAL AGREGAR PROCEDIMIENTO -->
+  <!-- MODAL PARA AGREGAR NUEVO PROCEDIMIENTO -->
   <div class="modal fade" id="userModalProcedimiento" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -272,7 +298,8 @@
             <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
           </h5>
         </div>
-        <form action="/insertar-procedimiento" method="post">
+        <!-- Formulario para insertar un nuevo procedimiento -->
+        <form action="{{ url_for('insertar_procedimiento') }}" method="post"> <!-- Usar url_for -->
           <div class="modal-body">
             <div class="row g-3">
               <div class="col-md-6">
@@ -283,12 +310,10 @@
               </div>
             </div>
           </div>
-
           <div class="modal-footer">
             <button type="button" class="cancelar" data-bs-dismiss="modal">
               <i class="fas fa-times me-2"></i>Cancelar
             </button>
-
             <button type="submit" class="guardar">
               <i class="fas fa-save me-2"></i>Guardar
             </button>
@@ -297,14 +322,25 @@
       </div>
     </div>
   </div>
-  {% endblock %} {% block modals %}
-  <div class="modal fade" id="modalCalendario">
+  {% endblock %} <!-- Fin del bloque 'content' -->
+
+  <!-- Bloque 'modals': Este bloque no está definido en base.html. -->
+  <!-- Si se pretende que este modal sea parte de la estructura base o se use en múltiples páginas, -->
+  <!-- el bloque 'modals' debería definirse en base.html. -->
+  <!-- Actualmente, este modal solo existirá en las páginas que extiendan index.html y definan este bloque, -->
+  <!-- o si index.html es la única página que lo necesita. -->
+  <!-- Este modal 'modalCalendario' parece ser para crear un nuevo calendario, -->
+  <!-- lo cual podría ser redundante con el botón "Nuevo Calendario" que redirige a /formulario. -->
+  {% block modals %}
+  <div class="modal fade" id="modalCalendario"> <!-- ID 'modalCalendario' -->
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header header-modal text-white">
           <h5 class="modal-title">Nuevo Calendario</h5>
-          <button type="button" class="" data-bs-dismiss="modal"></button>
+          <button type="button" class="" data-bs-dismiss="modal"></button> <!-- Botón de cierre sin estilo visible, solo 'x' -->
         </div>
+        <!-- Formulario para insertar un nuevo calendario, acción a '/calendario/insertar' -->
+        <!-- Esta acción es diferente de la usada por el Blueprint 'insercion_calendario_bp' (/insertar_calendario) -->
         <form action="/calendario/insertar" method="post">
           <div class="modal-body">
             <div class="row g-3">
@@ -314,6 +350,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">Proceso</label>
+                <!-- Opciones de select hardcodeadas, idealmente vendrían del backend -->
                 <select class="form-select" name="proceso" required>
                   <option value="proceso1">Proceso 1</option>
                   <option value="proceso2">Proceso 2</option>
@@ -321,6 +358,7 @@
               </div>
               <div class="col-md-6">
                 <label class="form-label">Municipio</label>
+                <!-- Opciones de select hardcodeadas -->
                 <select class="form-select" name="municipio" required>
                   <option value="municipio1">Municipio 1</option>
                   <option value="municipio2">Municipio 2</option>
@@ -338,9 +376,7 @@
       </div>
     </div>
   </div>
-
-
-  {% endblock %}
+  {% endblock %} <!-- Fin del bloque 'modals' -->
 </body>
 
 </html>

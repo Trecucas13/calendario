@@ -1,3 +1,8 @@
+# Lógica para la vista principal o dashboard de la aplicación.
+# NOTA: Todo el código funcional en este archivo se encuentra actualmente comentado.
+# El código comentado sugiere funcionalidades para generar un informe PDF de citas,
+# incluyendo datos de pacientes y procedimientos.
+
 # # Importaciones necesarias
 # from flask import (
 #     Flask,

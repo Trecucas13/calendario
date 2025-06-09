@@ -1,24 +1,47 @@
+<!-- Plantilla base para todas las páginas de la aplicación -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"> <!-- Define el idioma de la página como español -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savia Salud - {% block title %}{% endblock %}</title>
+    <!-- Sección de metadatos y enlaces a recursos -->
+    <meta charset="UTF-8"> <!-- Especifica la codificación de caracteres como UTF-8 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Configura la vista para dispositivos móviles, asegurando que el ancho sea el del dispositivo y la escala inicial sea 1 -->
     
+    <!-- Título de la página. El bloque 'title' puede ser sobrescrito por plantillas hijas -->
+    <title>Savia Salud - {% block title %}{% endblock %}</title> <!-- El título base es "Savia Salud - ", seguido del título específico de la página hija -->
+
+    <!-- Enlace al CSS de Bootstrap para estilos generales y componentes predefinidos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Enlace a Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Aquí podría ir un bloque para estilos CSS adicionales específicos de cada página -->
+    <!-- {% block styles %}{% endblock %} -->
 </head>
 
+<!-- El cuerpo de la página. Clases de Bootstrap para layout flexible y altura completa de la ventana gráfica -->
 <body class="d-flex flex-column vh-100">
 
+    <!-- Contenedor principal flexible que crece para ocupar el espacio disponible -->
     <div class="d-flex flex-grow-1">
-        {% include "partials/sidebar.html" %}
+        <!-- Inclusión de la barra lateral (sidebar) desde un archivo parcial -->
+        <!-- Esto promueve la reutilización del componente de la barra lateral en múltiples páginas -->
+        {% include "partials/sidebar.html" %} <!-- El contenido de 'partials/sidebar.html' se insertará aquí -->
+
+        <!-- Contenido principal de la página -->
+        <!-- El estilo 'overflow: hidden;' podría necesitar revisión si el contenido es más grande que la pantalla y requiere scroll -->
         <main class="p-4" style="display: block; width: 100%; height: 100vh; overflow: hidden;">
+            <!-- Bloque de contenido principal que será reemplazado por el contenido específico de las plantillas hijas -->
             {% block content %}{% endblock %}
         </main>
     </div>
     
+    <!-- Scripts de JavaScript -->
+    <!-- Script de Bootstrap (Bundle) que incluye Popper.js para funcionalidades como dropdowns, modals, etc. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Bloque para scripts JavaScript adicionales específicos de cada página -->
+    <!-- Es común colocar los scripts al final del body para una carga más rápida del contenido visible de la página -->
+    {% block scripts %}{% endblock %}
 
 </body>
 </html>

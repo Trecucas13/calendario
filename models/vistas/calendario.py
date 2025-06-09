@@ -1,598 +1,394 @@
-from flask import Flask, render_template, Blueprint, flash, redirect, url_for, request, session, make_response
-from database.config import mysql
-from datetime import datetime, timedelta
-from calendar import monthrange
-from flask import Flask, Blueprint, render_template, jsonify
-from auth.decorators import *
-from flask_mysqldb import MySQLdb, cursors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # Estilos para el PDF
-from reportlab.lib.enums import TA_CENTER, TA_LEFT  # Alineación de texto
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer  # Componentes para el PDF
-from reportlab.lib.pagesizes import A3, landscape  # Tamaños de página
-from reportlab.lib import colors  # Colores para el PDF
-from io import BytesIO  # Para manejar el PDF en memoria
-from datetime import datetime  # Para fechas y horas
-import os  # Para manejo de rutas de archivos
-import traceback
+# Lógica para generar vistas relacionadas con el calendario y citas.
+
+from flask import (Flask, render_template, Blueprint, flash, redirect, url_for,
+                   request, session, make_response, jsonify) # session y request no se usan en todas las funciones.
+from database.config import mysql # Conexión a la base de datos.
+from datetime import datetime, timedelta # Para manipulación de fechas y horas.
+# from calendar import monthrange # monthrange no se usa.
+from auth.decorators import login_required, role_required # Decoradores para control de acceso.
+from flask_mysqldb import MySQLdb # Para tipos de cursor como DictCursor.
+
+# Importaciones para generación de PDF con ReportLab (actualmente comentadas en el código original).
+# from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+# from reportlab.lib.enums import TA_CENTER, TA_LEFT
+# from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+# from reportlab.lib.pagesizes import A3, landscape
+# from reportlab.lib import colors
+# from io import BytesIO # Para manejar el PDF en memoria
+# import os # Para manejo de rutas de archivos
+
+import traceback # Para logging de errores.
+import csv # Para la generación de CSV.
+from io import StringIO # Para manejar el CSV en memoria.
+
+# La instancia de Flask app = Flask(__name__) es inusual aquí si esto es un módulo de Blueprint.
+# Normalmente, la app se crea en el archivo principal de la aplicación.
+# Se comentará para evitar problemas si este archivo es solo para Blueprints.
+# app = Flask(__name__)
+
+# --- Blueprints ---
+# Blueprint para la tabla principal de calendarios y la vista detallada de un calendario.
+vista_calendario_bp = Blueprint('tabla_calendarios', __name__, template_folder='templates')
+# Blueprint para calendarios creados (no se usa en el código proporcionado, podría ser para otra funcionalidad).
+calendarios_creados_bp = Blueprint('calendarios_creados', __name__, template_folder='templates')
+# Blueprint para la generación de informes CSV de calendarios.
+csv_calendario_bp = Blueprint("csv_calendario", __name__, template_folder='templates')
+# Blueprint para PDF (comentado en el original)
+# pdf_calendario_bp = Blueprint('pdf_calendario', __name__, template_folder='templates')
 
 
-app = Flask(__name__)
-
-tabla_calendarios = Blueprint('tabla_calendarios', __name__)
-calendarios_creados = Blueprint('calendarios_creados', __name__)
+# --- Funciones Auxiliares ---
 
 def datos_calendario():
+    """
+    Obtiene todos los datos de los calendarios de la base de datos.
+
+    Realiza un JOIN con las tablas `procedimientos` y `municipios` para obtener
+    los nombres en lugar de solo los IDs. Formatea las fechas de inicio y fin
+    de los calendarios a 'YYYY-MM-DD'.
+
+    Returns:
+        list: Una lista de diccionarios, donde cada diccionario representa un calendario
+              con sus datos y los nombres del procedimiento y municipio.
+              Retorna una lista vacía en caso de error.
+    """
+    conn = None
     try:
-        # Use DictCursor instead of dictionary=True
-        # id_usuario = session.get('id')
+        # Usar DictCursor para obtener resultados como diccionarios.
         conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        conn.execute("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio FROM calendarios c
+        # Consulta para obtener datos de calendarios con nombres de procedimiento y municipio.
+        conn.execute("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio
+                        FROM calendarios c
                         JOIN procedimientos p ON c.id_procedimiento = p.id_procedimiento
                         JOIN municipios m ON c.id_municipio = m.id_municipio
                         """)
-        datos = conn.fetchall()
-        conn.close()
+        datos = conn.fetchall() # Recupera todas las filas.
 
-        # Formatear las fechas antes de devolver los datos
-        for calendario in datos:
-            if 'fecha_inicio' in calendario and calendario['fecha_inicio']:
-                calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
-            if 'fecha_fin' in calendario and calendario['fecha_fin']:
-                calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
+        # Formatea las fechas antes de devolver los datos.
+        for calendario_item in datos: # Renombrado 'calendario' a 'calendario_item' para evitar conflicto con la ruta.
+            if 'fecha_inicio' in calendario_item and calendario_item['fecha_inicio']:
+                calendario_item['fecha_inicio'] = calendario_item['fecha_inicio'].strftime('%Y-%m-%d')
+            if 'fecha_fin' in calendario_item and calendario_item['fecha_fin']:
+                calendario_item['fecha_fin'] = calendario_item['fecha_fin'].strftime('%Y-%m-%d')
 
-        # return redirect(url_for("index"))
         return datos
     except Exception as e:
-        error = traceback.format_exc()
-        print(error)
+        # Manejo de errores: imprime el error y el traceback, y devuelve una lista vacía.
+        print(f"Error en datos_calendario: {e}")
+        traceback.print_exc()
         return []
+    finally:
+        if conn:
+            conn.close() # Asegura que la conexión se cierre.
 
 
 def obtener_procedimientos():
+    """
+    Obtiene todos los procedimientos de la tabla `procedimientos`.
+
+    Returns:
+        list: Una lista de tuplas (o diccionarios si se usa DictCursor) con los datos
+              de los procedimientos. Retorna una lista vacía en caso de error.
+    """
+    conn = None
     try:
-        conn = mysql.connection.cursor()
+        conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor) # Usar DictCursor para consistencia.
         conn.execute("SELECT * FROM procedimientos")
         procedimientos = conn.fetchall()
-        conn.close()
         return procedimientos
     except Exception as e:
-        error = traceback.format_exc()
-        print(error)
+        print(f"Error en obtener_procedimientos: {e}")
+        traceback.print_exc()
         return []
+    finally:
+        if conn:
+            conn.close()
 
 
 def generar_semanas(fecha_inicio, fecha_fin):
-    # Convertir strings a objetos date
-    inicio = fecha_inicio
-    fin = fecha_fin
-    
-    if inicio > fin:
-        raise ValueError("La fecha de inicio no puede ser mayor a la fecha final")
+    """
+    Genera una estructura de datos representando las semanas entre una fecha de inicio y fin.
 
-    # Encontrar el lunes anterior o igual a la fecha de inicio
-    dias_hasta_lunes = inicio.weekday()  # 0 es lunes, 1 es martes, etc.
-    lunes_inicio = inicio - timedelta(days=dias_hasta_lunes)
+    Ajusta el rango para empezar en el lunes de la semana de `fecha_inicio` y terminar
+    en el domingo de la semana de `fecha_fin`. Cada día en la estructura contiene
+    información sobre el día, mes, año, fecha completa, si es el día actual ('hoy'),
+    y si está dentro del rango original de `fecha_inicio` a `fecha_fin`.
+
+    Args:
+        fecha_inicio (date): La fecha de inicio del rango original.
+        fecha_fin (date): La fecha de fin del rango original.
+
+    Returns:
+        list: Una lista de semanas. Cada semana es una lista de diccionarios,
+              donde cada diccionario representa un día.
+
+    Raises:
+        ValueError: Si `fecha_inicio` es posterior a `fecha_fin`.
+    """
+    # Se asume que fecha_inicio y fecha_fin ya son objetos date.
+    # Si fueran strings, necesitarían conversión: datetime.strptime(fecha_str, '%Y-%m-%d').date()
     
-    # Encontrar el domingo posterior o igual a la fecha de fin
-    dias_hasta_domingo = 6 - fin.weekday()  # 6 - weekday para llegar al domingo
-    domingo_fin = fin + timedelta(days=dias_hasta_domingo)
+    if not isinstance(fecha_inicio, datetime.date) or not isinstance(fecha_fin, datetime.date):
+        raise TypeError("Las fechas de inicio y fin deben ser objetos date.")
+
+    if fecha_inicio > fecha_fin:
+        raise ValueError("La fecha de inicio no puede ser mayor que la fecha final.")
+
+    # Encuentra el lunes anterior o igual a la fecha de inicio.
+    dias_hasta_lunes = fecha_inicio.weekday()  # weekday(): Lunes es 0 y Domingo es 6.
+    lunes_inicio_semana = fecha_inicio - timedelta(days=dias_hasta_lunes)
     
-    # Generar todas las fechas en el rango ampliado
-    delta = domingo_fin - lunes_inicio
-    todas_fechas = [lunes_inicio + timedelta(days=i) for i in range(delta.days + 1)]
+    # Encuentra el domingo posterior o igual a la fecha de fin.
+    dias_hasta_domingo = 6 - fecha_fin.weekday()
+    domingo_fin_semana = fecha_fin + timedelta(days=dias_hasta_domingo)
     
-    # Organizar en semanas
-    semanas = []
-    semana_actual = []
+    # Genera todas las fechas en el rango ampliado (de lunes a domingo).
+    delta_total_dias = (domingo_fin_semana - lunes_inicio_semana).days
+    todas_las_fechas_del_rango_ampliado = [lunes_inicio_semana + timedelta(days=i) for i in range(delta_total_dias + 1)]
     
-    for fecha in todas_fechas:
-        # Determinar si la fecha está dentro del rango original
-        dentro_rango = inicio <= fecha <= fin
+    semanas_generadas = []
+    semana_actual_lista = []
+    
+    for fecha_iter in todas_las_fechas_del_rango_ampliado:
+        # Determina si la fecha está dentro del rango original (fecha_inicio a fecha_fin).
+        esta_dentro_rango_original = (fecha_inicio <= fecha_iter <= fecha_fin)
         
-        semana_actual.append({
-            "dia": fecha.day,
-            "mes": fecha.month,
-            "año": fecha.year,
-            "fecha_completa": fecha.strftime('%Y-%m-%d'),
-            "hoy": fecha == datetime.now().date(),
-            "dentro_rango": dentro_rango
+        semana_actual_lista.append({
+            "dia": fecha_iter.day,
+            "mes": fecha_iter.month,
+            "año": fecha_iter.year,
+            "fecha_completa": fecha_iter.strftime('%Y-%m-%d'), # Formato estándar para fechas.
+            "hoy": fecha_iter == datetime.now().date(), # Compara con la fecha actual.
+            "dentro_rango": esta_dentro_rango_original # Indica si es parte del intervalo original.
         })
-        # print(semana_actual)
         
-        if fecha.weekday() == 6:  # Domingo
-            semanas.append(semana_actual)
-            semana_actual = []
+        if fecha_iter.weekday() == 6:  # Si es Domingo, se completa una semana.
+            semanas_generadas.append(semana_actual_lista)
+            semana_actual_lista = [] # Reinicia la lista para la siguiente semana.
     
-    if semana_actual:  # Añadir la última semana incompleta
-        semanas.append(semana_actual)
+    if semana_actual_lista:  # Añade la última semana si quedó incompleta (no terminó en domingo).
+        semanas_generadas.append(semana_actual_lista)
     
-    return semanas
+    return semanas_generadas
 
-@tabla_calendarios.route("/calendario/<int:id_calendario>", methods=["GET", "POST"])
-@login_required
-@role_required([1, 2])
-def calendario(id_calendario):
+# --- Rutas Principales del Calendario ---
+
+@vista_calendario_bp.route("/calendario/<int:id_calendario>", methods=["GET"]) # Removido POST si no se maneja.
+@login_required # Requiere inicio de sesión.
+@role_required([1, 2]) # Permite acceso a roles 1 (Admin) y 2 (Usuario regular, por ejemplo).
+def vista_detalle_calendario(id_calendario): # Nombre de función más descriptivo.
+    """
+    Muestra la vista detallada de un calendario específico, incluyendo sus citas y horarios.
+
+    Obtiene los datos del calendario, las citas asociadas, genera los horarios disponibles
+    basados en la configuración del calendario (hora de inicio, fin, intervalo de citas),
+    y prepara la estructura de semanas para la visualización.
+    Pasa todos estos datos a la plantilla 'calendario2.html'.
+
+    Args:
+        id_calendario (int): El ID del calendario a visualizar, obtenido de la URL.
+
+    Returns:
+        Response: Renderiza la plantilla 'calendario2.html' con los datos del calendario,
+                  o redirige a la página de inicio con un mensaje de error si ocurre una excepción.
+    """
+    conn = None
     try:
-        conn = mysql.connection.cursor()
+        conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor) # Usar DictCursor.
+        # Obtener datos del calendario específico.
         conn.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id_calendario,))
-        calendario = conn.fetchone()
+        calendario_db = conn.fetchone() # Datos del calendario.
 
+        if not calendario_db:
+            flash(f"Calendario con ID {id_calendario} no encontrado.", "warning")
+            return redirect(url_for("index")) # O a una página de listado de calendarios.
+
+        # Obtener citas para este calendario.
         conn.execute("SELECT * FROM citas WHERE id_calendario = %s", (id_calendario,))
-        citas = conn.fetchall()
-        # print(citas)
-        conn.close()  
+        citas_db = conn.fetchall() # Lista de citas.
         
+        # --- Generación de Horarios ---
+        # Convertir strings de hora a objetos time o datetime si es necesario para la lógica.
+        # Aquí se asume que son objetos time o que la comparación directa funciona.
+        # Si son strings, podrían necesitar conversión: datetime.strptime(calendario_db['hora_inicio'], '%H:%M:%S').time()
         
-        inicio_hora = calendario['hora_inicio']
-        fin_hora = calendario['hora_fin']
-        intervalo = timedelta(minutes = calendario['espacio_citas'])
+        # Validar que las horas y el intervalo son válidos antes de proceder.
+        if not all(k in calendario_db and calendario_db[k] is not None for k in ['hora_inicio', 'hora_fin', 'espacio_citas']):
+            flash("Datos de configuración de horario incompletos o inválidos para el calendario.", "danger")
+            return redirect(url_for("index")) # O a una página de error o listado.
+
+        # Asegurar que las horas son objetos time para la comparación.
+        # Si ya son time desde la BD (poco común para MySQL), esto no es necesario.
+        # Si son strings, necesitan conversión. Si son timedelta (desde MySQL TIME type), necesitan manejo.
+        # Por simplicidad, si son strings 'HH:MM:SS', se convierten a datetime con fecha dummy.
+        try:
+            hora_inicio_dt = datetime.strptime(str(calendario_db['hora_inicio']), '%H:%M:%S')
+            hora_fin_dt = datetime.strptime(str(calendario_db['hora_fin']), '%H:%M:%S')
+        except ValueError:
+             # Si ya son timedelta (común con MySQL TIME y algunos conectores)
+            if isinstance(calendario_db['hora_inicio'], timedelta) and isinstance(calendario_db['hora_fin'], timedelta):
+                base_date = datetime.min.date() # Fecha base para convertir timedelta a datetime
+                hora_inicio_dt = datetime.combine(base_date, (datetime.min + calendario_db['hora_inicio']).time())
+                hora_fin_dt = datetime.combine(base_date, (datetime.min + calendario_db['hora_fin']).time())
+            else:
+                raise ValueError("Formato de hora de inicio/fin no reconocido.")
+
+        intervalo_minutos = int(calendario_db['espacio_citas'])
+        intervalo_td = timedelta(minutes=intervalo_minutos)
+
+        horarios_disponibles = []
+        hora_actual_dt = hora_inicio_dt
     
+        while hora_actual_dt <= hora_fin_dt:
+            horarios_disponibles.append(hora_actual_dt.time()) # Almacena solo la parte de la hora.
+            hora_actual_dt += intervalo_td
         
-        horarios = []
-        hora_actual = inicio_hora
+        # --- Generación de Semanas ---
+        # Asegurar que las fechas son objetos date.
+        fecha_inicio_cal = calendario_db['fecha_inicio']
+        fecha_fin_cal = calendario_db['fecha_fin']
+        if isinstance(fecha_inicio_cal, str):
+            fecha_inicio_cal = datetime.strptime(fecha_inicio_cal, '%Y-%m-%d').date()
+        if isinstance(fecha_fin_cal, str):
+            fecha_fin_cal = datetime.strptime(fecha_fin_cal, '%Y-%m-%d').date()
+
+        semanas_vista = generar_semanas(fecha_inicio_cal, fecha_fin_cal)
+        
+        # Contexto para la plantilla.
+        contexto_plantilla = {
+            "calendario": calendario_db,
+            "horarios": horarios_disponibles,
+            "citas": citas_db,
+            "semanas": semanas_vista,
+            "procedimientos": obtener_procedimientos(), # Obtiene lista de procedimientos para formularios, etc.
+            "meses": ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            "dias_semana": ['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom']
+        }
+        return render_template("calendario2.html", **contexto_plantilla)
     
-        while hora_actual <= fin_hora:
-            horarios.append(hora_actual)
-            hora_actual += intervalo
-        
-        
-        
-        # citas = obtener_citas(id_calendario)
-        # horario = horario_tabla()
-        semanas = generar_semanas(
-            calendario['fecha_inicio'], 
-            calendario['fecha_fin']
-        )
-        
-        return render_template("calendario2.html", 
-                            calendario=calendario, 
-                            horarios = horarios,
-                            citas=citas,
-                            semanas=semanas,
-                            procedimientos = obtener_procedimientos(),
-                            meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                            dias_semana=['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom'])
     except Exception as e:
-        error = traceback.format_exc()
-        print(error)
-        flash("Error al cargar el calendario", "error")
-        return redirect(url_for("index"))
+        # Manejo de errores generales al cargar el calendario.
+        print(f"Error en vista_detalle_calendario (ID: {id_calendario}): {e}")
+        traceback.print_exc()
+        flash("Error al cargar el calendario. Por favor, intente más tarde.", "danger")
+        return redirect(url_for("index")) # Redirige a la página principal o de error.
+    finally:
+        if conn:
+            conn.close()
 
 
-# Generar PDF
-# @tabla_trabajadores.route("/obtener_citas_pdf/<int:id_calendario>")
-# @login_required  # Requiere que el usuario esté autenticado
-# @role_required(1)  # Requiere que el usuario tenga rol de administrador (rol 1)
-# def obtener_empleado(id_calendario):
-#     """
-#     Ruta que obtiene la información detallada de un empleado específico.
-#     Si el empleado tiene acceso al sistema, también incluye sus datos de usuario.
-    
-#     Args:
-#         id_empleado (int): ID del empleado a consultar
-        
-#     Returns:
-#         Response: Datos del empleado en formato JSON
-#     """
-#     try:
-#         # Iniciar conexión a la base de datos
-#         cur = mysql.connection.cursor()
+# --- Generación de Informes (PDF y CSV) ---
+# La sección de PDF está mayormente comentada en el original. Se mantendrá así.
+# El Blueprint original para PDF era 'tabla_trabajadores', lo cual es confuso.
+# Se comentan las rutas de PDF por ahora, ya que el código está incompleto/comentado.
 
-#         # 1. Obtener datos básicos del empleado
-#         cur.execute(
-#             """
-#             SELECT cal.nombre_calendario,
-#                 c.fecha,
-#                 c.hora,
-#                 pa.nombre AS nombre_paciente,
-#                 p.nombre AS nombre_procedimiento,
-#             FROM calendario cal 
-#             LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
-#             LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
-#             LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
-#             LEFT JOIN pacientes pa ON c.id_paciente = pa.id_pacient
-#             WHERE cal.id_calendario = %s
-#             """,
-#             (id_calendario,),
-#         )
-
-#         # Obtener el resultado
-#         calendario = cur.fetchone()
-#         print(calendario)
-#         # # Verificar si se encontró el empleado
-#         if not calendario:
-#             return jsonify({"error": "Calendario no encontrado"}), 404
-
-#         # # 2. Si tiene acceso al sistema, obtener datos del usuario asociado
-#         # if empleado["accesoSistema"] == "1":
-#         #     cur.execute(
-#         #         """
-#         #         SELECT u.*, r.idRol, r.nombreRol
-#         #         FROM usuario u
-#         #         LEFT JOIN rol r ON u.idRol = r.idRol
-#         #         WHERE u.idEmpleado = %s
-#         #         """,
-#         #         (id_empleado,),
-#         #     )
-#         #     usuario = cur.fetchone()
-
-#         #     # Si no se encuentra el usuario, crear un objeto vacío
-#         #     if not usuario:
-#         #         usuario = {"idRol": None, "nombreRol": None, "fechaCreacion": None}
-
-#         #     # Convertir fechas a formato string para JSON
-#         #     if "fechaCreacion" in usuario and usuario["fechaCreacion"]:
-#         #         usuario["fechaCreacion"] = usuario["fechaCreacion"].strftime("%Y-%m-%d")
-
-#         #     # Asegurarse de que el idRol sea un string para la comparación en JavaScript
-#         #     if "idRol" in usuario and usuario["idRol"] is not None:
-#         #         usuario["idRol"] = str(usuario["idRol"])
-
-#         #     # Agregar datos de usuario al objeto empleado
-#         #     empleado["usuario"] = usuario
-#         # else:
-#         #     # Si no tiene acceso al sistema, establecer usuario como None
-#         #     empleado["usuario"] = None
-
-#         # # 3. Convertir fechas a formato string para JSON
-#         # if "fechaNacimiento" in empleado and empleado["fechaNacimiento"]:
-#         #     empleado["fechaNacimiento"] = empleado["fechaNacimiento"].strftime(
-#         #         "%Y-%m-%d"
-#         #     )
-#         # if "fechaContratacion" in empleado and empleado["fechaContratacion"]:
-#         #     empleado["fechaContratacion"] = empleado["fechaContratacion"].strftime(
-#         #         "%Y-%m-%d"
-#         #     )
-
-#         # # 4. Asegurarse de que accesoSistema sea un string para la comparación en JavaScript
-#         # if "accesoSistema" in empleado:
-#         #     empleado["accesoSistema"] = str(empleado["accesoSistema"])
-
-#         # 5. Devolver los datos en formato JSON
-#         return jsonify(empleado)
-
-#     except Exception as e:
-#         # Manejar errores en la consulta
-#         print(f"Error al obtener empleado: {e}")
-#         return jsonify({"error": str(e)}), 500
-
-#     finally:
-#         # Asegurar que el cursor se cierre incluso si hay errores
-#         if "cur" in locals():
-#             cur.close()
-
-
-
-# pdf_calendario = Blueprint('pdf_calendario', __name__)
-
-# @pdf_calendario.route("/generar_informe_pdf/<int:id_calendario>")
-# @login_required  # Requiere que el usuario esté autenticado
-# @role_required(1)  # Requiere que el usuario tenga rol de administrador (rol 1)
+# @pdf_calendario_bp.route("/generar_informe_pdf/<int:id_calendario>")
+# @login_required
+# @role_required(1)
 # def generar_informe_calendario_pdf(id_calendario):
 #     """
-#     Ruta que genera un informe PDF con la lista de trabajadores.
-    
-#     Returns:
-#         Response: Archivo PDF para descargar o mensaje de error
+#     (Comentado en el original) Genera un informe PDF para un calendario específico.
+#     Contendría detalles del calendario, citas, pacientes y procedimientos.
 #     """
-#     try:
-#         # 1. Obtener datos de trabajadores
-#         cur = mysql.connection.cursor()
-
-#         # 1. Obtener datos básicos del empleado
-#         cur.execute(
-#             """
-#             SELECT cal.nombre_calendario,
-#                 m.nombre AS nombre_municipio,
-#                 c.fecha,
-#                 c.hora,
-#                 pa.nombre AS nombre_paciente,
-#                 p.nombre AS nombre_procedimiento
-#             FROM calendarios cal 
-#             LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
-#             LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
-#             LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
-#             LEFT JOIN pacientes pa ON c.id_paciente = pa.id
-#             WHERE cal.id_calendario = %s
-#             """,
-#             (id_calendario,),
-#         )
-
-#         # Obtener el resultado
-#         calendario = cur.fetchone()
-#         print(calendario)
-#         cur.close()
-
-#         # 2. Crear un buffer en memoria para el PDF
-#         buffer = BytesIO()
-
-#         # 3. Configurar el documento PDF
-#         doc = SimpleDocTemplate(
-#             buffer,
-#             pagesize=landscape(A3),  # Orientación horizontal con tamaño A3 (más grande que A4)
-#             rightMargin=20,
-#             leftMargin=20,
-#             topMargin=60,  # Aumentado para dejar espacio para el logo
-#             bottomMargin=60,  # Aumentado para dejar espacio para el pie de página
-#         )
-
-#         # 4. Configurar estilos para el documento
-#         styles = getSampleStyleSheet()
-#         title_style = styles["Heading1"]
-#         normal_style = styles["Normal"]
-
-#         # 5. Crear estilo para el pie de página
-#         footer_style = ParagraphStyle(
-#             "Footer",
-#             parent=styles["Normal"],
-#             fontSize=8,
-#             alignment=TA_CENTER,
-#         )
-
-#         # 6. Inicializar lista de elementos del PDF
-#         elements = []
-
-#         # 7. Definir la ruta del logo
-#         logo_path = os.path.join(
-#             os.path.dirname(os.path.abspath(__file__)),
-#             "..",
-#             "..",
-#             "static",
-#             "img",
-#             "logoSinFondo.png",
-#         )
-
-#         # 8. Agregar título centrado
-#         title_style.alignment = TA_CENTER
-#         elements.append(Paragraph("Informe de Calendario", title_style))
-#         elements.append(Spacer(1, 10))
-
-#         # 9. Agregar fecha de generación
-#         fecha_generacion = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-#         elements.append(
-#             Paragraph(f"Fecha de generación: {fecha_generacion}", normal_style)
-#         )
-#         elements.append(Spacer(1, 20))
-
-#         # 10. Definir encabezados de la tabla
-#         headers = [
-#             "Calendario",
-#             "Municipio",
-#             "Fecha",
-#             "Hora",
-#             "Paciente",
-#             "Procedimiento",
-#         ]
-
-#         # 11. Inicializar datos para la tabla con los encabezados
-#         data = [headers]
-
-#         # 12. Agregar fila de datos del calendario
-#         if calendario:
-#             fecha_formateada = (
-#                 calendario["fecha"].strftime("%Y-%m-%d")
-#                 if calendario["fecha"]
-#                 else ""
-#             )
-
-#             # Crear fila con datos del calendario
-#             row = [
-#                 calendario["nombre_calendario"],
-#                 calendario["nombre_municipio"],
-#                 fecha_formateada,
-#                 calendario["hora"],
-#                 calendario["nombre_paciente"],
-#                 calendario["nombre_procedimiento"],
-#             ]
-#             data.append(row)
-
-#         # 13. Crear la tabla con ancho específico para cada columna
-#         col_widths = [
-#             120,  # Nombre calendario
-#             80,   # Nombre municipio
-#             90,   # Fecha 
-#             60,   # Hora
-#             120,  # Nombre paciente
-#             80,   # Nombre procedimiento
-#         ]
-#         table = Table(data, repeatRows=1, colWidths=col_widths)
-
-#         # 14. Definir estilo de la tabla
-#         table_style = TableStyle(
-#             [
-#                 # Estilo para la fila de encabezados
-#                 ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-#                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-#                 ("ALIGN", (0, 0), (-1, 0), "CENTER"),
-#                 ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-#                 ("FONTSIZE", (0, 0), (-1, 0), 10),
-#                 ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                
-#                 # Estilo para las filas de datos
-#                 ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-#                 ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
-#                 ("ALIGN", (0, 1), (-1, -1), "LEFT"),
-#                 ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-#                 ("FONTSIZE", (0, 1), (-1, -1), 9),
-                
-#                 # Estilo general de la tabla
-#                 ("GRID", (0, 0), (-1, -1), 1, colors.black),
-#                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-#                 ("WORDWRAP", (0, 0), (-1, -1), True),  # Permitir que el texto se ajuste
-                
-#                 # Padding para mejorar legibilidad
-#                 ("LEFTPADDING", (0, 0), (-1, -1), 6),
-#                 ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-#                 ("TOPPADDING", (0, 0), (-1, -1), 4),
-#                 ("BOTTOMPADDING", (0, 1), (-1, -1), 4),
-#             ]
-#         )
-
-#         # 15. Aplicar estilo alternado de filas (filas pares con fondo gris claro)
-#         for i in range(1, len(data)):
-#             if i % 2 == 0:
-#                 table_style.add("BACKGROUND", (0, i), (-1, i), colors.lightgrey)
-
-#         # 16. Aplicar estilo a la tabla y agregarla a los elementos
-#         table.setStyle(table_style)
-#         elements.append(table)
-
-#         # 17. Agregar espacio antes del pie de página
-#         elements.append(Spacer(1, 30))
-
-#         # 18. Definir función para agregar encabezado y pie de página en cada página
-#         def add_page_elements(canvas, doc):
-#             """
-#             Función que agrega elementos comunes a todas las páginas:
-#             logo en la esquina superior derecha y pie de página.
-            
-#             Args:
-#                 canvas: Lienzo del PDF
-#                 doc: Documento PDF
-#             """
-#             # Guardar estado del lienzo
-#             canvas.saveState()
-
-#             # Agregar logo en la esquina superior derecha
-#             if os.path.exists(logo_path):
-#                 canvas.drawImage(
-#                     logo_path,
-#                     doc.width + doc.leftMargin - 150,  # Posición X en la esquina derecha
-#                     doc.height + doc.bottomMargin - 50,  # Posición Y
-#                     width=150,
-#                     height=50,
-#                     preserveAspectRatio=True,
-#                     mask="auto",
-#                 )
-
-#             # Agregar línea horizontal encima del pie de página
-#             canvas.setStrokeColor(colors.black)
-#             canvas.line(doc.leftMargin, 50, doc.width + doc.leftMargin, 50)
-
-#             # Agregar texto del pie de página debajo de la línea
-#             canvas.setFont("Helvetica", 8)
-            
-#             # Primera línea del pie de página
-#             # footer_text = "Trabajamos con la mejor calidad en la manufactura del hierro"
-#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 35, footer_text)
-            
-#             # Segunda línea del pie de página
-#             # footer_text2 = "Carrera 24 N°17.19 La Ceja Antioquia Celular: 3113148914"
-#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 25, footer_text2)
-            
-#             # # Tercera línea del pie de página
-#             # footer_text3 = "metalicas.fino@hotmail.com"
-#             # canvas.drawCentredString(doc.width / 2 + doc.leftMargin, 15, footer_text3)
-
-#             # Restaurar estado del lienzo
-#             canvas.restoreState()
-
-#         # 19. Construir el PDF con la función de encabezado y pie de página
-#         doc.build(
-#             elements, onFirstPage=add_page_elements, onLaterPages=add_page_elements
-#         )
-
-#         # 20. Obtener el contenido del buffer y cerrarlo
-#         pdf_value = buffer.getvalue()
-#         buffer.close()
-
-#         # 21. Crear respuesta HTTP con el PDF
-#         response = make_response(pdf_value)
-#         response.headers["Content-Type"] = "application/pdf"
-#         response.headers["Content-Disposition"] = (
-#             "attachment; filename=informe_trabajadores.pdf"
-#         )
-
-#         return response
-
-#     except Exception as e:
-#         # Manejar errores en la generación del PDF
-#         print(f"Error al generar PDF: {e}")
-#         return jsonify({"error": str(e)}), 500
+#     # ... (Lógica de generación de PDF aquí) ...
+#     pass
 
 
-#Descarga en CSV
-from flask import make_response, jsonify
-import csv
-from io import StringIO
-
-csv_calendario = Blueprint("csv_calendario", __name__)
-
-@csv_calendario.route("/generar_informe_csv/<int:id_calendario>")
-@login_required
-@role_required(1)
+@csv_calendario_bp.route("/generar_informe_csv/<int:id_calendario>")
+@login_required # Requiere inicio de sesión.
+@role_required(1) # Solo rol 1 (Admin) puede generar informes.
 def generar_informe_calendario_csv(id_calendario):
     """
-    Ruta que genera un informe CSV con la lista de trabajadores del calendario.
-    
-    Returns:
-        Response: Archivo CSV para descargar o mensaje de error
-    """
-    try:
-        # Conexión a la base de datos
-        cur = mysql.connection.cursor()
+    Genera un informe en formato CSV con los datos de las citas de un calendario específico.
 
-        # Consulta de datos
-        cur.execute(
+    Consulta la base de datos para obtener el nombre del calendario, municipio,
+    y detalles de cada cita (fecha, hora, paciente, procedimiento).
+    Luego, construye un archivo CSV en memoria y lo devuelve como una descarga.
+
+    Args:
+        id_calendario (int): El ID del calendario para el cual generar el informe.
+
+    Returns:
+        Response: Un objeto `Response` de Flask con el archivo CSV para descargar,
+                  o un JSON con un mensaje de error si no se encuentran datos o si ocurre una excepción.
+    """
+    conn = None
+    try:
+        conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor) # Usar DictCursor.
+
+        # Consulta para obtener los datos necesarios para el informe CSV.
+        conn.execute(
             """
-            SELECT cal.nombre_calendario,
-                   m.nombre AS nombre_municipio,
-                   c.fecha,
-                   c.hora,
-                   pa.nombre AS nombre_paciente,
+            SELECT cal.nombre_calendario, m.nombre AS nombre_municipio,
+                   c.fecha, c.hora,
+                   pa.nombre AS nombre_paciente, pa.primer_apellido AS apellido_paciente,
                    p.nombre AS nombre_procedimiento
             FROM calendarios cal 
             LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
             LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
             LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
-            LEFT JOIN pacientes pa ON c.id_paciente = pa.id
+            LEFT JOIN pacientes pa ON c.id_paciente = pa.id  -- Asumiendo que la FK en citas es id_paciente y PK en pacientes es id
             WHERE cal.id_calendario = %s
+            ORDER BY c.fecha, c.hora -- Ordenar por fecha y hora de la cita
             """,
             (id_calendario,),
         )
+        filas_datos = conn.fetchall() # Obtiene todas las filas.
 
-        # Obtener todos los resultados
-        filas = cur.fetchall()
-        cur.close()
+        if not filas_datos: # Si no hay datos para el calendario.
+            return jsonify({"error": "No se encontraron datos para el calendario especificado."}), 404
 
-        if not filas:
-            return jsonify({"error": "No se encontraron datos para el calendario"}), 404
+        # --- Creación del archivo CSV en memoria ---
+        buffer_csv = StringIO() # Buffer para escribir el CSV.
+        escritor_csv = csv.writer(buffer_csv)
 
-        # Crear archivo CSV en memoria
-        buffer = StringIO()
-        writer = csv.writer(buffer)
-
-        # Escribir encabezados
-        headers = [
-            "Calendario",
-            "Municipio",
-            "Fecha",
-            "Hora",
-            "Paciente",
-            "Procedimiento"
+        # Escribir los encabezados del CSV.
+        encabezados = [
+            "Nombre Calendario", "Municipio", "Fecha Cita", "Hora Cita",
+            "Nombre Paciente", "Apellido Paciente", "Procedimiento"
         ]
-        writer.writerow(headers)
+        escritor_csv.writerow(encabezados)
 
-        # Escribir filas
-        for fila in filas:
-            writer.writerow([
+        # Escribir las filas de datos en el CSV.
+        for fila in filas_datos:
+            # Formatear la fecha de la cita.
+            fecha_cita_formateada = fila["fecha"].strftime("%Y-%m-%d") if fila["fecha"] else ""
+            # Formatear la hora de la cita (si es timedelta, convertir a string HH:MM:SS).
+            hora_cita_str = str(fila["hora"]) if fila["hora"] else ""
+            if isinstance(fila["hora"], timedelta):
+                 total_seconds = int(fila["hora"].total_seconds())
+                 hours, remainder = divmod(total_seconds, 3600)
+                 minutes, seconds = divmod(remainder, 60)
+                 hora_cita_str = f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+            escritor_csv.writerow([
                 fila["nombre_calendario"],
                 fila["nombre_municipio"],
-                fila["fecha"].strftime("%Y-%m-%d") if fila["fecha"] else "",
-                fila["hora"],
+                fecha_cita_formateada,
+                hora_cita_str, # Usar la hora formateada.
                 fila["nombre_paciente"],
+                fila["apellido_paciente"], # Añadido apellido para más detalle.
                 fila["nombre_procedimiento"]
             ])
 
-        # Crear respuesta con el contenido del CSV
-        response = make_response(buffer.getvalue())
-        buffer.close()
-        response.headers["Content-Disposition"] = "attachment; filename=informe_calendario.csv"
-        response.headers["Content-Type"] = "text/csv"
+        # --- Preparación de la respuesta HTTP ---
+        contenido_csv = buffer_csv.getvalue()
+        buffer_csv.close() # Cierra el buffer.
 
-        return response
+        respuesta = make_response(contenido_csv)
+        # Define las cabeceras para la descarga del archivo.
+        respuesta.headers["Content-Disposition"] = f"attachment; filename=informe_calendario_{id_calendario}.csv"
+        respuesta.headers["Content-Type"] = "text/csv; charset=utf-8" # Especificar charset.
+
+        return respuesta
 
     except Exception as e:
-        print(f"Error al generar CSV: {e}")
-        return jsonify({"error": str(e)}), 500
+        # Manejo de errores en la generación del CSV.
+        print(f"Error al generar informe CSV para calendario ID {id_calendario}: {e}")
+        traceback.print_exc()
+        return jsonify({"error": f"Error interno al generar el informe CSV: {str(e)}"}), 500
+    finally:
+        if conn:
+            conn.close()
