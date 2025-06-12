@@ -27,7 +27,7 @@ def insert_gestiones():
                 return redirect("/gestionar")
 
             # tipo_id, num_id, proceso = registro
-            llave_compuesta = f"{registro["tipo_id"]}-{registro["num_id"]}-{registro["proceso"]}"
+            llave_compuesta = f"{registro['tipo_id']}-{registro['num_id']}-{registro['proceso']}"
 
             # Insertar en tabla gestion
             cur.execute(

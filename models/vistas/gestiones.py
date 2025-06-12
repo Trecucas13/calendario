@@ -37,7 +37,7 @@ def obtener_total_gestiones():
         response = requests.get('http://127.0.0.1:8000/registros/completo/')
         if response.status_code == 200:
             datos = response.json()
-            print(f"Datos recibidos: {len(datos)} registros")
+            # print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
             for item in datos:
                 if 'fecha_gestion' in item and item['fecha_gestion']:
@@ -62,7 +62,7 @@ def obtener_tipificaciones():
         response = requests.get('http://127.0.0.1:8000/tipificaciones/lista_tipificaciones/')
         if response.status_code == 200:
             datos = response.json()
-            print(f"Datos recibidos: {len(datos)} registros")
+            # print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
             # for item in datos:
             #     if 'fecha_gestion' in item and item['fecha_gestion']:
@@ -109,7 +109,7 @@ def obtener_gestiones_bd():
 def tabla_gestiones():
     historial = obtener_historico_gestiones()
     tipificaciones = obtener_tipificaciones()
-    print(historial)
+    # print(historial)
     return render_template("historico_gestiones.html", historico=historial, tipificaciones=tipificaciones)
 
     
@@ -121,7 +121,7 @@ gestion_bd = Blueprint('gestion_bd', __name__)
 @role_required([1 , 2])
 def tabla_gestiones():
     historial = obtener_gestiones_bd()
-    print(historial)
+    # print(historial)
     return render_template("gestion_bd.html", historico = historial)
 
 #Ruta para Gestionar
@@ -135,7 +135,7 @@ def tabla_gestiones():
     tipificaciones = obtener_tipificaciones()
     
     
-    print(tipificaciones)
+    # print(tipificaciones)
     return render_template("gestionar.html", gestiones=gestiones, tipificaciones=tipificaciones)
 
 
