@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Calendario</h1>
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Buscar...">
+            <select id="municipio">
+                <option value="">Seleccione Municipio</option>
+                <!-- Opciones de municipios -->
+            </select>
+            <select id="proceso">
+                <option value="">Seleccione Proceso</option>
+                <!-- Opciones de procesos -->
+            </select>
+            <select id="nombre">
+                <option value="">Seleccione Nombre</option>
+                <!-- Opciones de nombres -->
+            </select>
+            <select id="tipificacion">
+                <option value="">Seleccione Tipificación</option>
+                <!-- Opciones de tipificación -->
+            </select>
+        </div>
+        <table id="tablaCalendario">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Proceso</th>
+                    <th>Municipio</th>
+                    <th>Tipificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas de la tabla -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function eliminarTildes(texto) {
+          return texto
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        }
+  
+        const searchInput = document.getElementById("searchInput");
+        const tablaCalendario = document.getElementById("tablaCalendario");
+        const tipificacion = document.getElementById("tipificacion");
+        const filtroMunicipio = document.getElementById("municipio");
+        const filtroProceso = document.getElementById("proceso");
+        const filtroNombre = document.getElementById("nombre");
+        
+        function buscarYFiltrarTabla() {
+          const textoBusqueda = searchInput ? eliminarTildes(searchInput.value) : "";
+          const municipio = filtroMunicipio ? filtroMunicipio.options[filtroMunicipio.selectedIndex].text.trim().toLowerCase() : "";
+          const proceso = filtroProceso ? filtroProceso.options[filtroProceso.selectedIndex].text.trim().toLowerCase() : "";
+          const nombre = filtroNombre ? filtroNombre.options[filtroNombre.selectedIndex].text.trim().toLowerCase() : "";
+          const tipoTipificacion = tipificacion ? tipificacion.options[tipificacion.selectedIndex].text.trim().toLowerCase() : "";
+  
+          const filas = tablaCalendario.querySelectorAll("tbody tr");
+          filas.forEach((fila) => {
+            let mostrarFila = true;
+            const celdas = fila.querySelectorAll("td");
+            // Filtro por Municipio
+            if (filtroMunicipio && filtroMunicipio.value && municipio !== "municipio") {
+              const celdaMunicipio = celdas[2].textContent.trim().toLowerCase();
+              if (celdaMunicipio !== municipio) mostrarFila = false;
+            }
+            // Filtro por Proceso
+            if (filtroProceso && filtroProceso.value && proceso !== "proceso") {
+              const celdaProceso = celdas[1].textContent.trim().toLowerCase();
+              if (celdaProceso !== proceso) mostrarFila = false;
+            }
+            // Filtro por Nombre
+            if (filtroNombre && filtroNombre.value && nombre !== "nombre") {
+              const celdaNombre = celdas[0].textContent.trim().toLowerCase();
+              if (celdaNombre !== nombre) mostrarFila = false;
+            }
+            // Filtro por Tipificación (asumiendo columna 3)
+            if (tipificacion && tipificacion.value && tipoTipificacion !== "tipificacion") {
+              const celdaTipificacion = celdas[3].textContent.trim().toLowerCase();
+              if (celdaTipificacion !== tipoTipificacion) mostrarFila = false;
+            }
+            // Filtro de búsqueda
+            if (textoBusqueda) {
+              let contieneBusqueda = false;
+              celdas.forEach((celda) => {
+                const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+                if (textoCeldaSinTildes.includes(textoBusqueda)) {
+                  contieneBusqueda = true;
+                }
+              });
+              if (!contieneBusqueda) mostrarFila = false;
+            }
+            fila.style.display = mostrarFila ? "" : "none";
+          });
+        }
+  
+        if (searchInput) {
+          searchInput.addEventListener("input", buscarYFiltrarTabla);
+        }
+        if (filtroMunicipio) {
+          filtroMunicipio.addEventListener("change", buscarYFiltrarTabla);
+        }
+        if (filtroProceso) {
+          filtroProceso.addEventListener("change", buscarYFiltrarTabla);
+        }
+        if (filtroNombre) {
+          filtroNombre.addEventListener("change", buscarYFiltrarTabla);
+        }
+        // Agregar listener para tipificación
+        if (tipificacion) {
+          tipificacion.addEventListener("change", buscarYFiltrarTabla);
+        }
+      });
+    </script>
+</body>
+</html>

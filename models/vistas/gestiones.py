@@ -1,28 +1,38 @@
-from flask import Flask, Blueprint, render_template, flash
+from flask import Flask, Blueprint, render_template, flash, request
+import math
 from database.config import mysql
 from auth.decorators import *
 from auth.decorators import *
+from auth.decorators import login_required, role_required
 import requests
 from datetime import datetime
 
-#Ruta para hISTORICO DE GESTIONES
 vista_gestiones = Blueprint('vista_gestiones', __name__)
 
+
+def try_parse_date(date_string):
+    formats = [
+        '%Y-%m-%d %H:%M:%S',  # Current format
+        '%Y-%m-%dT%H:%M:%S'   # ISO format
+    ]
+    
+    for date_format in formats:
+        try:
+            return datetime.strptime(date_string, date_format)
+        except ValueError:
+            continue
+    return None
 
 def obtener_historico_gestiones():
     try:
         response = requests.get('http://127.0.0.1:8000/registros/listar_historico/')
         if response.status_code == 200:
             datos = response.json()
-            # print(f"Datos recibidos: {len(datos)} registros")
+            print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            # for item in datos:
-            #     if 'fecha_gestion' in item and item['fecha_gestion']:
-            #         try:
-            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-            #         except ValueError as e:
-            #             print(f"Error al convertir fecha: {e}")
-            #             item['fecha_gestion'] = None
+            for item in datos:
+                if 'fecha_gestion' in item and item['fecha_gestion']:
+                    item['fecha_gestion'] = try_parse_date(item['fecha_gestion'])
             return datos
         else:
             print(f"Error en la API: Status code {response.status_code}")
@@ -39,13 +49,13 @@ def obtener_total_gestiones():
             datos = response.json()
             # print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            for item in datos:
-                if 'fecha_gestion' in item and item['fecha_gestion']:
-                    try:
-                        item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-                    except ValueError as e:
-                        print(f"Error al convertir fecha: {e}")
-                        item['fecha_gestion'] = None
+            # for item in datos:
+            #     if 'fecha_gestion' in item and item['fecha_gestion']:
+            #         try:
+            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
+            #         except ValueError as e:
+            #             print(f"Error al convertir fecha: {e}")
+            #             item['fecha_gestion'] = None
             return datos
         else:
             print(f"Error en la API: Status code {response.status_code}")
@@ -86,13 +96,13 @@ def obtener_gestiones_bd():
             
             print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            # for item in datos:
-            #     if 'fecha_gestion' in item and item['fecha_gestion']:
-            #         try:
-            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-            #         except ValueError as e:
-            #             print(f"Error al convertir fecha: {e}")
-            #             item['fecha_gestion'] = None
+            for item in datos:
+                if 'fecha_gestion' in item and item['fecha_gestion']:
+                    try:
+                        item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
+                    except ValueError as e:
+                        print(f"Error al convertir fecha: {e}")
+                        item['fecha_gestion'] = None
             # print(datos)
             return datos
         else:
@@ -103,6 +113,21 @@ def obtener_gestiones_bd():
         return []
 
 
+
+# Agregar clase de paginación
+class Pagination:
+    def __init__(self, page, per_page, total):
+        self.page = page
+        self.per_page = per_page
+        self.total = total
+        self.pages = math.ceil(total / per_page)
+        self.has_prev = page > 1
+        self.has_next = page < self.pages
+        self.prev_num = page - 1 if self.has_prev else None
+        self.next_num = page + 1 if self.has_next else None
+    def iter_pages(self):
+        return range(1, self.pages + 1)
+
 @vista_gestiones.route("/Historico_gestiones")
 @login_required
 @role_required([1 , 2])
@@ -110,7 +135,15 @@ def tabla_gestiones():
     historial = obtener_historico_gestiones()
     tipificaciones = obtener_tipificaciones()
     # print(historial)
-    return render_template("historico_gestiones.html", historico=historial, tipificaciones=tipificaciones)
+    # Paginación
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total = len(historial)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_historial = historial[start:end]
+    pagination = Pagination(page, per_page, total)
+    return render_template("historico_gestiones.html", historico=paginated_historial, tipificaciones=tipificaciones, pagination=pagination)
 
     
 #Ruta para Gestion BD
@@ -121,8 +154,16 @@ gestion_bd = Blueprint('gestion_bd', __name__)
 @role_required([1 , 2])
 def tabla_gestiones():
     historial = obtener_gestiones_bd()
+    # Paginación
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total = len(historial)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_historial = historial[start:end]
+    pagination = Pagination(page, per_page, total)
     # print(historial)
-    return render_template("gestion_bd.html", historico = historial)
+    return render_template("gestion_bd.html", historico=paginated_historial, pagination=pagination)
 
 #Ruta para Gestionar
 gestionar = Blueprint('gestionar', __name__)
@@ -133,9 +174,16 @@ gestionar = Blueprint('gestionar', __name__)
 def tabla_gestiones():
     gestiones = obtener_total_gestiones()
     tipificaciones = obtener_tipificaciones()
-    
-    
+      # Paginación
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total = len(gestiones)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_historial = gestiones[start:end]
+    pagination = Pagination(page, per_page, total)
+    # print(gestiones)
     # print(tipificaciones)
-    return render_template("gestionar.html", gestiones=gestiones, tipificaciones=tipificaciones)
+    return render_template("gestionar.html", gestiones=paginated_historial, tipificaciones=tipificaciones, pagination=pagination)
 
 

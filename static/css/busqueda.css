@@ -1,0 +1,20 @@
+
+.filter {
+  display: flex;
+  flex-direction: row-reverse; /* Acomoda los elementos en columna */
+  gap: 16px; /* Espacio entre los elementos */
+  width: 100%; /* Ancho completo */
+  /* padding: 20px;  */
+  /* background-color: */
+  /* border-radius: 8px; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);  */
+  justify-content: center; /* Alinea los elementos al final */
+}
+
+
+.form-select {
+  display: flex;
+  flex-direction: column; /* Acomoda los elementos en columna */
+  gap: 8px; /* Espacio entre los elementos */
+  width: 100%; /* Ancho completo */
+}

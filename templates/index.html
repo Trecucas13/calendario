@@ -1,346 +1,460 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de calendarios</title>
+    <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
+    <link rel="stylesheet" href="../static/css/buttons.css" />
+    <!-- Agregar esto para Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="../static/css/busqueda.css"/>
+    <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de calendarios</title>
-  <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
-  <link rel="stylesheet" href="../static/css/buttons.css" />
-  <!-- Agregar esto para Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
-  
-</head>
+  <body>
+    {% extends "base.html" %} {% block content %}
 
-<body>
-  {% extends "base.html" %} {% block content %}
+    <div class="container-fluid">
+      {% if session['rol'] == 1 %}
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="title-header">
+          <i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios
+        </h2>
 
-  <div class="container-fluid">
-    {% if session['rol'] == 1 %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="title-header">
-        <i class="fas fa-calendar-alt me-2"></i>Gestión de Calendarios
-      </h2>
-      
-      <a class="add" href="/formulario">
-        <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
-      </a>
+        <a class="add" href="/formulario">
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Calendario
+        </a>
 
-      <button class="add" data-bs-toggle="modal" data-bs-target="#userModalProcedimiento">
-        <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
-      </button>
+        <button
+          class="add"
+          data-bs-toggle="modal"
+          data-bs-target="#userModalProcedimiento"
+        >
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Procedimiento
+        </button>
 
-      <button class="add" data-bs-toggle="modal" data-bs-target="#userModalMunicipio">
-        <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
-      </button>
-    </div>
-    {% endif %}
-
-    <div class="card shadow">
-      <div class="header">
-        <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
-          Calendarios Activos
-        </h5>
-
-        <!-- BUSCAR -->
-        <div class="search-group">
-          <i class="bi bi-search"></i>
-          <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
-        </div>
-
+        <button
+          class="add"
+          data-bs-toggle="modal"
+          data-bs-target="#userModalMunicipio"
+        >
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Municipio
+        </button>
       </div>
+      {% endif %}
 
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-hover" id="tablaCalendario">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Proceso</th>
-                <th>Municipio</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Datos dinámicos desde backend -->
-              {% for calendario in calendarios %}
-              <tr>
-                <td>{{ calendario.nombre_calendario }}</td>
-                <td>{{ calendario.nombreProcedimiento }}</td>
-                <td>{{ calendario.nombreMunicipio }}</td>
-                <td>
-                  <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
+      <div class="card shadow">
+        <div class="header">
+          <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
+            Calendarios Activos
+          </h5>
 
-                  <button type="button" class="redirigir"
-                    onclick="window.location.href='/calendario/{{calendario.id_calendario}}'">
-                    Ir
-                  </button>
-                  {% if session['rol'] == 1 %}
-                  <form action="/actualizarCalendario/{{calendario.id_calendario}}" method="GET"
-                    style="display: inline">
-                    <button type="submit" class="edit">
-                      <i class="fas fa-edit"></i>
+          <div class="filter">
+            <!-- FILTRO Municipio -->
+            <div class="filtros-container" style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+    <!-- Filtro Municipio -->
+    <div class="filtro-group" style="position: relative;">
+        <i class="bi bi-geo-alt" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 2;"></i>
+        <select class="form-select" id="filtroMunicipio" name="filtro_municipio" style="padding-left: 35px; border-radius: 20px; height: 38px; min-width: 180px; cursor: pointer;">
+            <option value="">Municipio</option>
+            {% for calendario in calendarios %}
+            <option value="{{ calendario.id_calendario }}" {% if request.args.get('filtro_nombre') == calendario.id_calendario|string %} selected {% endif %}>
+                {{ calendario.nombreMunicipio }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Filtro Proceso -->
+    <div class="filtro-group" style="position: relative;">
+        <i class="bi bi-list-task" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 2;"></i>
+        <select class="form-select" id="filtroProceso" name="filtro_proceso" style="padding-left: 35px; border-radius: 20px; height: 38px; min-width: 180px; cursor: pointer;">
+            <option value="">Proceso</option>
+            {% for calendario in calendarios %}
+            <option value="{{ calendario.id_calendario }}" {% if request.args.get('filtro_nombre') == calendario.id_calendario|string %} selected {% endif %}>
+                {{ calendario.nombreProcedimiento }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Filtro Nombre -->
+    <div class="filtro-group" style="position: relative;">
+        <i class="bi bi-person" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 2;"></i>
+        <select class="form-select" id="filtroNombre" name="filtro_nombre" style="padding-left: 35px; border-radius: 20px; height: 38px; min-width: 180px; cursor: pointer;">
+            <option value="">Nombre</option>
+            {% for calendario in calendarios %}
+            <option value="{{ calendario.id_calendario }}" {% if request.args.get('filtro_nombre') == calendario.id_calendario|string %} selected {% endif %}>
+                {{ calendario.nombre_calendario }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+ 
+
+            <!-- BUSCAR -->
+            <div class="search-group">
+              <i class="bi bi-search"></i>
+              <input
+                type="search"
+                name="q"
+                id="searchInput"
+                placeholder="Buscar"
+                value="{{ request.args.get('q', '') }}"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover" id="tablaCalendario">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Proceso</th>
+                  <th>Municipio</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Datos dinámicos desde backend -->
+                {% for calendario in calendarios %}
+                <tr>
+                  <td>{{ calendario.nombre_calendario }}</td>
+                  <td>{{ calendario.nombreProcedimiento }}</td>
+                  <td>{{ calendario.nombreMunicipio }}</td>
+                  <td>
+                    <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
+
+                    <button
+                      type="button"
+                      class="redirigir"
+                      onclick="window.location.href='/calendario/{{calendario.id_calendario}}'"
+                    >
+                      Ir
                     </button>
-                  </form>
+                    {% if session['rol'] == 1 %}
+                    <form
+                      action="/actualizarCalendario/{{calendario.id_calendario}}"
+                      method="GET"
+                      style="display: inline"
+                    >
+                      <button type="submit" class="edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </form>
 
-                  <button type="submit" class="eliminar" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
-                    data-user-id-delete="{{calendario.id_calendario}}"
-                    onclick="eliminar_calendario('{{calendario.id_calendario}}')">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-
-                  <a href="/generar_informe_csv/{{calendario.id_calendario}}">
-                    <button type="submit" class="download">
-                      <i class="fas fa-download me-2"></i>
+                    <button
+                      type="submit"
+                      class="eliminar"
+                      data-bs-toggle="modal"
+                      data-bs-target="#confirmDeleteModal"
+                      data-user-id-delete="{{calendario.id_calendario}}"
+                      onclick="eliminar_calendario('{{calendario.id_calendario}}')"
+                    >
+                      <i class="fas fa-trash-alt"></i>
                     </button>
-                  </a>
-                  {% endif %}
-                </td>
-              </tr>
 
-              {% endfor %}
-            </tbody>
-          </table>
+                    <a href="{{ url_for('datos_citas.exportar_registrosExcel') }}">
+                      <button type="submit" class="download">
+                        <i class="fas fa-download me-2"></i>
+                      </button>
+                    </a>
+                    {% endif %}
+                  </td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <script>
-    // ==================== FUNCIONES DE BÚSQUEDA ====================
+    <script>
+      // ==================== FUNCIONES DE BÚSQUEDA Y FILTRO ====================
+      document.addEventListener("DOMContentLoaded", function () {
+        function eliminarTildes(texto) {
+          return texto
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        }
 
-    /**
-     * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
-     * Permite buscar en todas las columnas de ambas tablas
-     */
-    document.addEventListener("DOMContentLoaded", function () {
-      /**
-       * Elimina tildes y acentos de un texto y lo convierte a minúsculas
-       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
-       * @param {string} texto - Texto a normalizar
-       * @returns {string} - Texto normalizado sin acentos y en minúsculas
-       */
-      function eliminarTildes(texto) {
-        return texto
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-      }
+        const searchInput = document.getElementById("searchInput");
+        const tablaCalendario = document.getElementById("tablaCalendario");
+        const filtroMunicipio = document.getElementById("filtroMunicipio");
+        const filtroProceso = document.getElementById("filtroProceso");
+        const filtroNombre = document.getElementById("filtroNombre");
 
-      // Obtener el input de búsqueda
-      const searchInput = document.getElementById("searchInput");
+        function buscarYFiltrarTabla() {
+          const textoBusqueda = searchInput ? eliminarTildes(searchInput.value) : "";
+          const municipio = filtroMunicipio ? filtroMunicipio.options[filtroMunicipio.selectedIndex].text.trim().toLowerCase() : "";
+          const proceso = filtroProceso ? filtroProceso.options[filtroProceso.selectedIndex].text.trim().toLowerCase() : "";
+          const nombre = filtroNombre ? filtroNombre.options[filtroNombre.selectedIndex].text.trim().toLowerCase() : "";
 
-      // Obtener la tabla de calendarios por su ID
-      const tablaCalendario = document.getElementById("tablaCalendario");
-
-      /*
-       * Filtra las filas de una tabla según el texto de búsqueda
-       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
-       * @param {HTMLElement} tabla - Tabla a filtrar
-       * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
-       */
-      function buscarEnTabla(tabla, textoBusqueda) {
-        // Eliminar tildes del texto de búsqueda para mejorar resultados
-        const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
-
-        // Obtener todas las filas del tbody, excluyendo el encabezado
-        const filas = tabla.querySelectorAll("tbody tr");
-
-        filas.forEach((fila) => {
-          // Flag para determinar si se muestra la fila
-          let mostrarFila = false;
-
-          // Obtener todas las celdas de la fila
-          const celdas = fila.querySelectorAll("td");
-
-          // Recorrer todas las celdas para buscar coincidencias
-          celdas.forEach((celda) => {
-            // Eliminar tildes del texto de la celda para comparación
-            const textoCeldaSinTildes = eliminarTildes(celda.textContent);
-
-            // Si el texto de la celda contiene el texto buscado, mostrar la fila
-            if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
-              mostrarFila = true;
+          const filas = tablaCalendario.querySelectorAll("tbody tr");
+          filas.forEach((fila) => {
+            let mostrarFila = true;
+            const celdas = fila.querySelectorAll("td");
+            // Filtro por Municipio
+            if (filtroMunicipio && filtroMunicipio.value && municipio !== "municipio") {
+              const celdaMunicipio = celdas[2].textContent.trim().toLowerCase();
+              if (celdaMunicipio !== municipio) mostrarFila = false;
             }
+            // Filtro por Proceso
+            if (filtroProceso && filtroProceso.value && proceso !== "proceso") {
+              const celdaProceso = celdas[1].textContent.trim().toLowerCase();
+              if (celdaProceso !== proceso) mostrarFila = false;
+            }
+            // Filtro por Nombre
+            if (filtroNombre && filtroNombre.value && nombre !== "nombre") {
+              const celdaNombre = celdas[0].textContent.trim().toLowerCase();
+              if (celdaNombre !== nombre) mostrarFila = false;
+            }
+            // Filtro de búsqueda
+            if (textoBusqueda) {
+              let contieneBusqueda = false;
+              celdas.forEach((celda) => {
+                const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+                if (textoCeldaSinTildes.includes(textoBusqueda)) {
+                  contieneBusqueda = true;
+                }
+              });
+              if (!contieneBusqueda) mostrarFila = false;
+            }
+            fila.style.display = mostrarFila ? "" : "none";
           });
+        }
 
-          // Mostrar u ocultar fila según resultado de la búsqueda
-          fila.style.display = mostrarFila ? "" : "none";
-        });
+        if (searchInput) {
+          searchInput.addEventListener("input", buscarYFiltrarTabla);
+        }
+        if (filtroMunicipio) {
+          filtroMunicipio.addEventListener("change", buscarYFiltrarTabla);
+        }
+        if (filtroProceso) {
+          filtroProceso.addEventListener("change", buscarYFiltrarTabla);
+        }
+        if (filtroNombre) {
+          filtroNombre.addEventListener("change", buscarYFiltrarTabla);
+        }
+      });
+    </script>
+    <!-- MODAL ELIMINAR CALENDARIO -->
+    <div
+      class="modal fade"
+      id="confirmDeleteModal"
+      tabindex="-1"
+      aria-labelledby="confirmDeleteModalLabel"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form
+            action="/eliminar_calendario"
+            method="POST"
+            style="display: inline"
+            id="deleteCalenForm"
+          >
+            <input type="hidden" name="id" id="deleteCalenId" />
+
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="confirmDeleteModalLabel">
+                <i class="fas fa-trash-alt me-2"></i>Confirmar Eliminación
+              </h5>
+              <button
+                type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              ¿Estás seguro de que deseas eliminar este calendario?
+              <span id="calenIdDisplay"></span>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-danger"
+                id="confirmDeleteBtn"
+              >
+                <i class="fas fa-trash-alt me-2"></i>Eliminar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function eliminar_calendario(calenId) {
+        // Set the user ID in the hidden input field
+        document.getElementById("deleteCalenId").value = calenId;
+
+        // Display the user ID in the confirmation message (optional)
+        // const userIdDisplay = document.getElementById('userIdDisplay');
+        // if (userIdDisplay) {
+        //     userIdDisplay.textContent = userId;
+        // }
+
+        // Show the modal (although this is already handled by data-bs-target)
+        // const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        // modal.show();
       }
-
-      // Configurar evento de búsqueda en tiempo real
-      if (searchInput) {
-        searchInput.addEventListener("input", function () {
-          const textoBusqueda = this.value;
-
-          // Buscar en tabla de calendarios
-          if (tablaCalendario) {
-            buscarEnTabla(tablaCalendario, textoBusqueda);
-          }
-        });
-      }
-    });
-  </script>
-  <!-- MODAL ELIMINAR CALENDARIO -->
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
-    aria-hidden="true" style="display: none;">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form action="/eliminar_calendario" method="POST" style="display: inline" id="deleteCalenForm">
-          <input type="hidden" name="id" id="deleteCalenId">
-
-          <div class="modal-header bg-danger text-white">
-            <h5 class="modal-title" id="confirmDeleteModalLabel">
-              <i class="fas fa-trash-alt me-2"></i>Confirmar Eliminación
+    </script>
+    <!-- MODAL AGREGAR MUNICIPIO -->
+    <div
+      class="modal fade"
+      id="userModalMunicipio"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header header-modal text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
             </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            ¿Estás seguro de que deseas eliminar este calendario? <span id="calenIdDisplay"></span>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
-            <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">
-              <i class="fas fa-trash-alt me-2"></i>Eliminar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function eliminar_calendario(calenId) {
-      // Set the user ID in the hidden input field
-      document.getElementById('deleteCalenId').value = calenId;
-
-      // Display the user ID in the confirmation message (optional)
-      // const userIdDisplay = document.getElementById('userIdDisplay');
-      // if (userIdDisplay) {
-      //     userIdDisplay.textContent = userId;
-      // }
-
-      // Show the modal (although this is already handled by data-bs-target)
-      // const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-      // modal.show();
-    }
-  </script>
-  <!-- MODAL AGREGAR MUNICIPIO -->
-  <div class="modal fade" id="userModalMunicipio" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header header-modal text-white">
-          <h5 class="modal-title" id="userModalLabel">
-            <i class="fas fa-user-plus me-2"></i>Nuevo Municipio
-          </h5>
-        </div>
-        <form action="/insertar-municipio" method="post">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-user me-2"></i>Nombre del municipio
-                </label>
-                <input type="text" class="form-control" name="nombre" required />
+          <form action="/insertar-municipio" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Nombre del municipio
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="modal-footer">
-            <button type="button" class="cancelar" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
+            <div class="modal-footer">
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
 
-            <button type="submit" class="guardar">
-              <i class="fas fa-save me-2"></i>Guardar
-            </button>
-          </div>
-        </form>
+              <button type="submit" class="guardar">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- MODAL AGREGAR PROCEDIMIENTO -->
-  <div class="modal fade" id="userModalProcedimiento" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header header-modal text-white">
-          <h5 class="modal-title" id="userModalLabel">
-            <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
-          </h5>
-        </div>
-        <form action="/insertar-procedimiento" method="post">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">
-                  <i class="fas fa-user me-2"></i>Nombre del procedimiento
-                </label>
-                <input type="text" class="form-control" name="nombre" required />
+    <!-- MODAL AGREGAR PROCEDIMIENTO -->
+    <div
+      class="modal fade"
+      id="userModalProcedimiento"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header header-modal text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Procedimiento
+            </h5>
+          </div>
+          <form action="/insertar-procedimiento" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Nombre del procedimiento
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="modal-footer">
-            <button type="button" class="cancelar" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
+            <div class="modal-footer">
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
 
-            <button type="submit" class="guardar">
-              <i class="fas fa-save me-2"></i>Guardar
-            </button>
-          </div>
-        </form>
+              <button type="submit" class="guardar">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  {% endblock %} {% block modals %}
-  <div class="modal fade" id="modalCalendario">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header header-modal text-white">
-          <h5 class="modal-title">Nuevo Calendario</h5>
-          <button type="button" class="" data-bs-dismiss="modal"></button>
-        </div>
-        <form action="/calendario/insertar" method="post">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre</label>
-                <input type="text" class="form-control" name="nombre" required />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Proceso</label>
-                <select class="form-select" name="proceso" required>
-                  <option value="proceso1">Proceso 1</option>
-                  <option value="proceso2">Proceso 2</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Municipio</label>
-                <select class="form-select" name="municipio" required>
-                  <option value="municipio1">Municipio 1</option>
-                  <option value="municipio2">Municipio 2</option>
-                </select>
+    {% endblock %} {% block modals %}
+    <div class="modal fade" id="modalCalendario">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header header-modal text-white">
+            <h5 class="modal-title">Nuevo Calendario</h5>
+            <button type="button" class="" data-bs-dismiss="modal"></button>
+          </div>
+          <form action="/calendario/insertar" method="post">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Proceso</label>
+                  <select class="form-select" name="proceso" required>
+                    <option value="proceso1">Proceso 1</option>
+                    <option value="proceso2">Proceso 2</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Municipio</label>
+                  <select class="form-select" name="municipio" required>
+                    <option value="municipio1">Municipio 1</option>
+                    <option value="municipio2">Municipio 2</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="cancelar" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancelar
-            </button>
-            <button type="submit" class="guardar">Guardar</button>
-          </div>
-        </form>
+            <div class="modal-footer">
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+              <button type="submit" class="guardar">Guardar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-
-  {% endblock %}
-</body>
-
+    {% endblock %}
+  </body>
 </html>

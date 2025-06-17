@@ -9,6 +9,7 @@ from models.vistas.usuarios import vista_usuarios
 from models.vistas.gestiones import vista_gestiones
 from models.vistas.gestiones import gestion_bd
 from models.vistas.gestiones import gestionar
+import math  # Necesario para math.ceil
 
 # from models.vistas.index import datos_citas
 
@@ -28,8 +29,13 @@ from models.actualizar.actualizarForm import actualizar_calendario
 from models.actualizar.actualizarPacientes import actualizar_pacientes
 # from models.vistas.citas import citas_bp
 
+from models.vistas.descargas import datos_citas
+from models.vistas.descarga_gestionados import datos_gestionados
+
 from auth.auth_login import auth
-from auth.decorators import *
+from auth.decorators import login_required, role_required
+
+
 
 app = Flask(__name__)
 db_conexion(app)
@@ -60,6 +66,8 @@ app.register_blueprint(actualizar_usuario)
 app.register_blueprint(actualizar_calendario)
 app.register_blueprint(actualizar_pacientes)
 
+app.register_blueprint(datos_gestionados)
+app.register_blueprint(datos_citas)
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -113,6 +121,30 @@ def formularioActualizar(id):
     # print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
     return render_template("formularios/actualizarform.html", form_id=form_id, calendario = calendario, municipios=municipios, procedimientos=procedimientos)
 
+# Clase de Paginación (asegúrate de que esté definida antes de usarla)
+class Pagination:
+    def __init__(self, page, per_page, total):
+        self.page = page
+        self.per_page = per_page
+        self.total = total
+        self.pages = math.ceil(total / per_page)
+        self.has_prev = page > 1
+        self.has_next = page < self.pages
+        self.prev_num = page - 1 if self.has_prev else None
+        self.next_num = page + 1 if self.has_next else None
+    
+    def iter_pages(self, left_edge=2, left_current=2, right_current=5, right_edge=2):
+        last = 0
+        for num in range(1, self.pages + 1):
+            if num <= left_edge or \
+               (num > self.page - left_current - 1 and num < self.page + right_current) or \
+               num > self.pages - right_edge:
+                if last + 1 != num:
+                    yield None
+                yield num
+                last = num
+
+
 
 def obtener_pacientes():
     conn = mysql.connection.cursor()
@@ -123,13 +155,24 @@ def obtener_pacientes():
     LEFT JOIN procedimientos pr ON c.id_procedimiento = pr.id_procedimiento
     """)
     pacientes = conn.fetchall()
+    print(pacientes)
 
     return pacientes
 
 @app.route("/pacientes")
 def pacientes():
     pacientes = obtener_pacientes()
-    return render_template("pacientes.html", pacientes=pacientes)
+    # Paginación
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total = len(pacientes)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_historial = pacientes[start:end]
+    pagination = Pagination(page, per_page, total)
+    return render_template("pacientes.html", 
+                     pacientes=paginated_historial, pagination=pagination)
+         
 
 
 # PROCEDIMIENTO

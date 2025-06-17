@@ -12,6 +12,7 @@ class GestionCreate(BaseModel):
 class GestionResponse(GestionCreate):
     id: str
     fecha_gestion: datetime
+    tipificacion: str
 
     class Config:
         from_attributes = True
@@ -19,6 +20,7 @@ class GestionResponse(GestionCreate):
 class GestionHistorico(BaseModel):
     tipo_id: str
     num_id: str
+    registro_id: int
     primer_nombre: str
     segundo_nombre: Optional[str]
     primer_apellido: str
@@ -30,6 +32,8 @@ class GestionHistorico(BaseModel):
     id_llamada: Optional[str]
     fecha_gestion: datetime
     usuario: str
+    motivo: Optional[str] = None
+    
     
 
     class Config:

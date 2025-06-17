@@ -14,6 +14,7 @@ def crear_gestion(db: Session, data: GestionCreate):
         tipificacion=data.tipificacion,
         comentario=data.comentario,
         id_llamada=data.id_llamada,
+        motivo=data.motivo,
         usuario=data.usuario,
         fecha_gestion=datetime.utcnow()
     )
@@ -81,13 +82,14 @@ def obtener_historico_gestiones(db: Session):
             "subregion": reg.subregion,
             "proceso": reg.proceso,
             "fecha_carga": reg.fecha_carga.strftime("%Y-%m-%d %H:%M:%S"),
-            "mejor_gestion": obtener_mejor_gestion_por_registro(db, g.registro_id),
+            "mejor_gestion": obtener_mejor_gestion_por_registro(db, g.registro_id)["tipificacion"],
             "tipificacion": g.tipificacion,
             "tipo_contacto": tip.tipo_contacto if tip else "Sin categorizar",
             "comentario": g.comentario,
             "id_llamada": g.id_llamada,
             "fecha_gestion": g.fecha_gestion,
             "asesor": g.usuario,
+            "motivo": g.motivo,
             "llave_compuesta": g.llave_compuesta,
             "tipo_gestion": "EFECTIVO" if tip and tip.tipo_contacto == "efectivo" else "no efectivo",
             "mes": reg.mes,
@@ -103,14 +105,17 @@ def obtener_total_mejor_gestiones(db: Session):
     registros = db.query(RegistroBase).all()
         
     for r in registros:
-        # Get all gestiones for this registro
         gestiones = db.query(Gestion).filter(Gestion.registro_id == r.id).all()
         
-        # If there are gestiones, get the latest one
         if gestiones:
             ultima_gestion = gestiones[-1]
             tip = db.query(Tipificacion).filter(Tipificacion.nombre == ultima_gestion.tipificacion).first()
-            
+            mg_result = obtener_mejor_gestion_por_registro(db, r.id)
+            if isinstance(mg_result, dict):
+                mg_tipificacion = mg_result.get("tipificacion", "Sin gestión")
+            else:
+                mg_tipificacion = mg_result
+
             resultado.append({
                 "tipo_id": r.tipo_id,
                 "num_id": r.num_id,
@@ -128,20 +133,20 @@ def obtener_total_mejor_gestiones(db: Session):
                 "municipio": r.municipio,
                 "subregion": r.subregion,
                 "fecha_carga": r.fecha_carga.strftime("%Y-%m-%d %H:%M:%S"),
-                "mejor_gestion": obtener_mejor_gestion_por_registro(db, r.id)["tipificacion"],
+                "mejor_gestion": mg_tipificacion,
                 "tipificacion": ultima_gestion.tipificacion,
                 "tipo_contacto": tip.tipo_contacto if tip else "sin categorizar",
                 "comentario": ultima_gestion.comentario,
                 "id_llamada": ultima_gestion.id_llamada,
-                "fecha_gestion": ultima_gestion.fecha_gestion,
+                "fecha_gestion": ultima_gestion.fecha_gestion.strftime("%Y-%m-%d %H:%M:%S") if ultima_gestion.fecha_gestion else "No existe",
                 "asesor": ultima_gestion.usuario,
                 "tipo_gestion": "efectivo" if tip and tip.tipo_contacto == "efectivo" else "no efectivo",
                 "mes": ultima_gestion.fecha_gestion.strftime("%B").capitalize(),
                 "cantidad_gestiones": len(gestiones)
             })
-            # print(resultado)
         else:
-            # If no gestiones, add registro with default values
+            mg_result = obtener_mejor_gestion_por_registro(db, r.id)
+            mg_tipificacion = mg_result if not isinstance(mg_result, dict) else mg_result.get("tipificacion", "Sin gestión")
             resultado.append({
                 "tipo_id": r.tipo_id,
                 "num_id": r.num_id,
@@ -159,7 +164,7 @@ def obtener_total_mejor_gestiones(db: Session):
                 "municipio": r.municipio,
                 "subregion": r.subregion,
                 "fecha_carga": r.fecha_carga.strftime("%Y-%m-%d %H:%M:%S"),
-                "mejor_gestion": obtener_mejor_gestion_por_registro(db, r.id),
+                "mejor_gestion": mg_tipificacion,
                 "tipificacion": "Sin gestión",
                 "tipo_contacto": "Sin gestión",
                 "comentario": "",

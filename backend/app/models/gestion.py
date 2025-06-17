@@ -13,4 +13,7 @@ class Gestion(Base):
     id_llamada = Column(String(100))
     fecha_gestion = Column(DateTime, default=datetime.utcnow)
     usuario = Column(String(100), nullable=True)
+    motivo = Column(String(100))
     llave_compuesta = Column(String(100), nullable=True)  # Llave compuesta para evitar duplicados
+    
+    
