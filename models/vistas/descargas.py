@@ -19,6 +19,7 @@ def exportar_registrosExcel():
         # Obtener los datos de la base de datos
         cur = mysql.connection.cursor()
         cur.execute("""SELECT
+                    cal.nombre_calendario,
                     c.fecha,
                     c.hora,
                     p.nombre,
@@ -30,6 +31,7 @@ def exportar_registrosExcel():
                     p.direccion
                     from citas c
                     JOIN pacientes p ON c.id_paciente = p.id
+                    JOIN calendarios cal ON c.id_calendario = cal.id_calendario
         """)
         # Modificar esta línea para obtener los registros como diccionario
         registros = cur.fetchall()
@@ -43,6 +45,7 @@ def exportar_registrosExcel():
 
         # Definir encabezados
         headers = [
+            "Nombre Calendario",
             "Fecha Cita", 
             "Hora Cita",
             "Nombre",

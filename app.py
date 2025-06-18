@@ -155,13 +155,21 @@ def obtener_pacientes():
     LEFT JOIN procedimientos pr ON c.id_procedimiento = pr.id_procedimiento
     """)
     pacientes = conn.fetchall()
-    print(pacientes)
+    # print(pacientes)
 
     return pacientes
+
+def procedimientos():
+    conn = mysql.connection.cursor()
+    conn.execute("SELECT * FROM procedimientos")
+    procedimientos = conn.fetchall()
+    conn.close()
+    return procedimientos
 
 @app.route("/pacientes")
 def pacientes():
     pacientes = obtener_pacientes()
+    procedimientos_list = procedimientos()
     # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -171,7 +179,8 @@ def pacientes():
     paginated_historial = pacientes[start:end]
     pagination = Pagination(page, per_page, total)
     return render_template("pacientes.html", 
-                     pacientes=paginated_historial, pagination=pagination)
+                     pacientes=paginated_historial, pagination=pagination,
+                     procedimientos=procedimientos_list)
          
 
 

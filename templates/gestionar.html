@@ -77,61 +77,50 @@
       const filtroNombre = document.getElementById("filtroNombre");
 
       function buscarYFiltrarTabla() {
-        const textoBusqueda = searchInput ? eliminarTildes(searchInput.value) : "";
-        const municipioFiltro = filtroMunicipio && filtroMunicipio.value ? eliminarTildes(filtroMunicipio.value) : "";
-        const procesoFiltro = filtroProceso && filtroProceso.value ? eliminarTildes(filtroProceso.value) : "";
-        const nombreFiltro = filtroNombre && filtroNombre.value ? eliminarTildes(filtroNombre.value) : "";
-        // Se obtiene el valor del select de tipificación
-        const tipificacionFiltro = filtroTipificacion && filtroTipificacion.value ? eliminarTildes(filtroTipificacion.value) : "";
+        const textoBusqueda = searchInput ? eliminarTildes(searchInput.value).trim() : "";
+        const municipioFiltro = filtroMunicipio && filtroMunicipio.value ? eliminarTildes(filtroMunicipio.value).trim() : "";
+        const procesoFiltro = filtroProceso && filtroProceso.value ? eliminarTildes(filtroProceso.value).trim() : "";
+        const nombreFiltro = filtroNombre && filtroNombre.value ? eliminarTildes(filtroNombre.value).trim() : "";
+        const tipificacionFiltro = filtroTipificacion && filtroTipificacion.value ? eliminarTildes(filtroTipificacion.value).trim() : "";
 
         const filas = tablaCalendario.querySelectorAll("tbody tr");
         filas.forEach((fila) => {
-          let mostrarFila = true;
-          const celdas = fila.querySelectorAll("td");
+            let mostrarFila = true;
+            const celdas = fila.querySelectorAll("td");
 
-          // Filtro por Municipio (ejemplo, columna 13 => índice 12)
-          if (municipioFiltro) {
+            // Extraer valores exactos de las celdas para cada filtro
             const celdaMunicipio = eliminarTildes(celdas[12].textContent.trim());
-            if (!celdaMunicipio.includes(municipioFiltro)) {
-              mostrarFila = false;
-            }
-          }
-          // Filtro por Proceso (ejemplo, columna 15 => índice 14)
-          if (procesoFiltro) {
             const celdaProceso = eliminarTildes(celdas[14].textContent.trim());
-            if (!celdaProceso.includes(procesoFiltro)) {
-              mostrarFila = false;
-            }
-          }
-          // Filtro por Nombre (ejemplo, columna 3 => índice 2)
-          if (nombreFiltro) {
             const celdaNombre = eliminarTildes(celdas[2].textContent.trim());
-            if (!celdaNombre.includes(nombreFiltro)) {
-              mostrarFila = false;
-            }
-          }
-          // Filtro por Tipificación (columna 16, índice 15)
-          if (tipificacionFiltro) {
             const celdaTipificacion = eliminarTildes(celdas[15].textContent.trim());
-            if (!celdaTipificacion.includes(tipificacionFiltro)) {
-              mostrarFila = false;
-            }
-          }
-          // Filtro de búsqueda global en todas las celdas
-          if (textoBusqueda) {
-            let contieneBusqueda = false;
-            celdas.forEach((celda) => {
-              const textoCeldaSinTildes = eliminarTildes(celda.textContent);
-              if (textoCeldaSinTildes.includes(textoBusqueda)) {
-                contieneBusqueda = true;
-              }
-            });
-            if (!contieneBusqueda) {
-              mostrarFila = false;
-            }
-          }
 
-          fila.style.display = mostrarFila ? "" : "none";
+            // Comparación estricta: se requiere coincidencia exacta
+            if (municipioFiltro && celdaMunicipio !== municipioFiltro) {
+                mostrarFila = false;
+            }
+            if (procesoFiltro && celdaProceso !== procesoFiltro) {
+                mostrarFila = false;
+            }
+            if (nombreFiltro && celdaNombre !== nombreFiltro) {
+                mostrarFila = false;
+            }
+            if (tipificacionFiltro && celdaTipificacion !== tipificacionFiltro) {
+                mostrarFila = false;
+            }
+            // Búsqueda global estricta: se requiere que alguna celda coincida exactamente
+            if (textoBusqueda) {
+                let coincideBusqueda = false;
+                celdas.forEach((celda) => {
+                    const textoCelda = eliminarTildes(celda.textContent.trim());
+                    if (textoCelda === textoBusqueda) {
+                        coincideBusqueda = true;
+                    }
+                });
+                if (!coincideBusqueda) {
+                    mostrarFila = false;
+                }
+            }
+            fila.style.display = mostrarFila ? "" : "none";
         });
       }
 

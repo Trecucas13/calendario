@@ -96,13 +96,13 @@ def obtener_gestiones_bd():
             
             print(f"Datos recibidos: {len(datos)} registros")
             # Convertir string a datetime
-            for item in datos:
-                if 'fecha_gestion' in item and item['fecha_gestion']:
-                    try:
-                        item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-                    except ValueError as e:
-                        print(f"Error al convertir fecha: {e}")
-                        item['fecha_gestion'] = None
+            # for item in datos:
+            #     if 'fecha_gestion' in item and item['fecha_gestion']:
+            #         try:
+            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
+            #         except ValueError as e:
+            #             print(f"Error al convertir fecha: {e}")
+            #             item['fecha_gestion'] = None
             # print(datos)
             return datos
         else:

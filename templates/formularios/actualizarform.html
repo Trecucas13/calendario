@@ -17,11 +17,11 @@
   <div class="container-2">
     <h1>Actualizar calendario</h1>
     <form id="formularioActualizarCalendario" method="POST" action="/actualizar_calendario">
-      <input type="hidden" id="calendario_id" name="calendario_id" value="{{calendario.id_calendario}}">
+      <input type="hidden" id="calendario_id" name="id_calendario" value="{{calendario.id_calendario}}">
 
       <div class="form-group">
         <label for="actualizarnombreCalendario">Nombre del Calendario:</label>
-        <input type="text" id="actualizarnombreCalendario" name="actualizarnombreCalendario" required
+        <input type="text" id="actualizarnombreCalendario" name="nombreCalendario" required
           value="{{calendario.nombre_calendario}}">
       </div>
 
@@ -29,7 +29,7 @@
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarmunicipio">Municipio:</label>
-            <select id="actualizarmunicipio" name="actualizarmunicipio" required>
+            <select id="actualizarmunicipio" name="id_municipio" required>
               <option value="">Seleccione un municipio</option>
               <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
               {% for municipio in municipios %}
@@ -45,7 +45,7 @@
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarprocedimiento">Procedimiento:</label>
-            <select id="actualizarprocedimiento" name="actualizarprocedimiento" required>
+            <select id="actualizarprocedimiento" name="procedimiento" required>
               <option value="">Seleccione un procedimiento</option>
               <!-- Opciones adicionales en caso de que no se carguen desde la base de datos -->
               {% for procedimiento in procedimientos %}
@@ -67,13 +67,13 @@
 
       <div class="form-group">
         <label for="fecha_inicio">Fecha de inicio</label>
-        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required
+        <input type="date" class="form-control" id="fecha_inicio" name="fechaInicio" required
           value="{{calendario.fecha_inicio}}">
       </div>
 
       <div class="form-group">
         <label for="fecha_fin">Fecha de fin</label>
-        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required
+        <input type="date" class="form-control" id="fecha_fin" name="fechaFin" required
           value="{{calendario.fecha_fin}}">
       </div>
 
@@ -81,21 +81,21 @@
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarhoraInicio">Hora de Inicio:</label>
-            <input type="time" id="actualizarhoraInicio" name="actualizarhoraInicio" required
+            <input type="time" id="actualizarhoraInicio" name="horaInicio" required
               value="{{calendario.hora_inicio}}">
           </div>
         </div>
         <div class="form-col">
           <div class="form-group">
             <label for="actualizarhoraFin">Hora de Fin:</label>
-            <input type="time" id="actualizarhoraFin" name="actualizarhoraFin" required value="{{calendario.hora_fin}}">
+            <input type="time" id="actualizarhoraFin" name="horaFin" required value="{{calendario.hora_fin}}">
           </div>
         </div>
       </div>
 
       <div class="form-group">
         <label for="actualizarespacioCitas">Espacio entre citas (minutos):</label>
-        <input type="number" id="actualizarespacioCitas" name="actualizarespacioCitas" min="5" max="120" step="5"
+        <input type="number" id="actualizarespacioCitas" name="espacioCitas" min="5" max="120" step="5"
           value="{{calendario.espacio_citas}}" required>
       </div>
 
@@ -104,20 +104,20 @@
         <div class="radio-group">
           {% if calendario.tiempo_fuera == 'si' %}
           <div class="radio-option">
-            <input type="radio" id="actualizartiempoFueraSi" name="actualizartiempoFuera" value="si" checked>
+            <input type="radio" id="actualizartiempoFueraSi" name="tiempoFuera" value="si" checked>
             <label for="actualizartiempoFueraSi">Sí</label>
           </div>
           <div class="radio-option">
-            <input type="radio" id="actualizartiempoFueraNo" name="actualizartiempoFuera" value="no">
+            <input type="radio" id="actualizartiempoFueraNo" name="tiempoFuera" value="no">
             <label for="actualizartiempoFueraNo">No</label>
           </div>
           {% else %}
           <div class="radio-option">
-            <input type="radio" id="actualizartiempoFueraSi" name="actualizartiempoFuera" value="si">
+            <input type="radio" id="actualizartiempoFueraSi" name="tiempoFuera" value="si">
             <label for="actualizartiempoFueraSi">Sí</label>
           </div>
           <div class="radio-option">
-            <input type="radio" id="actualizartiempoFueraNo" name="actualizartiempoFuera" value="no" checked>
+            <input type="radio" id="actualizartiempoFueraNo" name="tiempoFuera" value="no" checked>
             <label for="actualizartiempoFueraNo">No</label>
           </div>
           {% endif %}
@@ -131,14 +131,14 @@
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarinicioHoraDescanso">Inicio de Descanso:</label>
-              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso"
+              <input type="time" id="actualizarinicioHoraDescanso" name="inicioHoraDescanso"
                 value="{{calendario.inicio_hora_descanso}}">
             </div>
           </div>
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarfinHoraDescanso">Fin de Descanso:</label>
-              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso"
+              <input type="time" id="actualizarfinHoraDescanso" name="finHoraDescanso"
                 value="{{calendario.fin_hora_descanso}}">
             </div>
           </div>
@@ -150,13 +150,13 @@
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarinicioHoraDescanso">Inicio de Descanso:</label>
-              <input type="time" id="actualizarinicioHoraDescanso" name="actualizarinicioHoraDescanso">
+              <input type="time" id="actualizarinicioHoraDescanso" name="inicioHoraDescanso">
             </div>
           </div>
           <div class="form-col">
             <div class="form-group">
               <label for="actualizarfinHoraDescanso">Fin de Descanso:</label>
-              <input type="time" id="actualizarfinHoraDescanso" name="actualizarfinHoraDescanso">
+              <input type="time" id="actualizarfinHoraDescanso" name="finHoraDescanso">
             </div>
           </div>
         </div>
@@ -171,7 +171,7 @@
         >
           Cancelar
         </button>
-        <button type="submit" class="btn-crear">Crear Calendario</button>
+        <button type="submit" class="btn-crear">Actualizar Calendario</button>
       </div>
     </form>
   </div>

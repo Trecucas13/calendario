@@ -24,6 +24,7 @@ def update_paciente():
         telefono = request.form["telefono"]
         direccion = request.form["direccion"]
         fecha_nacimiento = request.form["fecha_nacimiento"]
+        procedimiento = request.form["examen_realizar"]
         
         # Iniciar conexión a la base de datos
         cur = mysql.connection.cursor() 
@@ -43,6 +44,14 @@ def update_paciente():
         # Ejecutar la consulta SQL
         cur.execute(sql, params)
         mysql.connection.commit()
+        
+        
+        cur.execute(""" UPDATE citas SET 
+                    id_procedimiento = %s
+                    WHERE id_paciente = %s """, (procedimiento, id_paciente))
+        mysql.connection.commit()
+        
+        
         
         # Mostrar mensaje de éxito
         flash("Usuario actualizado exitosamente", "success")
