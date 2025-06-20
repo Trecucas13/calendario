@@ -6,6 +6,7 @@ from auth.decorators import *
 from auth.decorators import login_required, role_required
 import requests
 from datetime import datetime
+from tiempo_funcion import benchmark_guardado
 
 vista_gestiones = Blueprint('vista_gestiones', __name__)
 
@@ -154,6 +155,7 @@ gestion_bd = Blueprint('gestion_bd', __name__)
 @role_required([1 , 2])
 def tabla_gestiones():
     historial = obtener_gestiones_bd()
+    # benchmark_guardado(lambda: obtener_gestiones_bd(), 100)
     # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 10
@@ -173,6 +175,7 @@ gestionar = Blueprint('gestionar', __name__)
 @role_required([1 , 2])
 def tabla_gestiones():
     gestiones = obtener_total_gestiones()
+    # benchmark_guardado(lambda: obtener_total_gestiones(), 1000)
     tipificaciones = obtener_tipificaciones()
       # Paginación
     page = request.args.get('page', 1, type=int)

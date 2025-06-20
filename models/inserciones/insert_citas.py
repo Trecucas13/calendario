@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, Blu
 from database.config import mysql
 import traceback
 from datetime import datetime
-
+from tiempo_funcion import benchmark_guardado
 
 insertar_citas = Blueprint('insertar_citas', __name__)
 
@@ -88,4 +88,5 @@ def insertar_cita():
     except Exception as e:
         traceback.print_exc()
         flash("Error al insertar la cita: " + str(e), "error")
+        # benchmark_guardado(lambda: insertar_cita, repeticiones=1000)
         return redirect(f'/calendario/{id_calendario}')

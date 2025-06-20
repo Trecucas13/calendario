@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for, session
 from database.config import mysql
 import traceback
+from tiempo_funcion import benchmark_guardado
 
 # Creación del Blueprint para las rutas de inserción de usuarios
 insertar_gestiones = Blueprint("insertar_gestiones", __name__)
@@ -60,6 +61,7 @@ def insert_gestiones():
             mysql.connection.commit()
             print("Gestión insertada exitosamente")
             flash("Gestión insertada exitosamente", "success")
+            # benchmark_guardado(lambda: cur.fetchall(), repeticiones=1000)  # Benchmarking de la inserción
 
         except KeyError as e:
             mysql.connection.rollback()
