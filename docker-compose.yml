@@ -1,0 +1,37 @@
+# Ayudara a levantar la app y la base de datos juntos
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: savia_app
+    ports:
+      - "5000:5000" 
+      - "3000:3000"
+    environment:
+      - FLASK_ENV=development
+      - MYSQL_HOST=localhost
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=
+      - MYSQL_DB=savia_salud
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: savia_salud
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

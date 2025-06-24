@@ -30,57 +30,42 @@ def insertar_cita():
 
             if paciente_existente:
                 id_paciente = paciente_existente["id"]
+            else:
+                try:
+                    conn.execute("""INSERT INTO pacientes (
+                        nombre,
+                        apellido,
+                        tipo_documento, 
+                        numero_documento, 
+                        telefono, 
+                        direccion, 
+                        fecha_nacimiento) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
+                        (nombre, apellido, tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento))
+                    mysql.connection.commit()
+                    id_paciente = conn.lastrowid
+                except Exception as e:
+                    if "Duplicate entry" in str(e):
+                        conn.execute("SELECT * FROM pacientes WHERE numero_documento = %s", (numero_documento,))
+                        paciente_existente = conn.fetchone()
+                        id_paciente = paciente_existente["id"]
+                    else:
+                        raise
 
-                conn.execute("""
-                    INSERT INTO citas (
-                    id_paciente,
-                    id_usuario,
-                    id_calendario,
-                    id_procedimiento,
-                    fecha,
-                    hora,
-                    estado
-                    )
-                    VALUES (%s, %s, %s, %s, %s)""",
-                    (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
-                mysql.connection.commit()
-                conn.close()
-
-                flash("Cita insertada correctamente", "success")
-                return redirect(f'/calendario/{id_calendario}')
-
-
-            # Si el paciente no existe, insertarlo en la tabla pacientes y luego insertar la cita
-            else:    
-                conn.execute("""INSERT INTO pacientes (
-                nombre,
-                apellido,
-                tipo_documento, 
-                numero_documento, 
-                telefono, 
-                direccion, 
-                fecha_nacimiento) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
-                (nombre, apellido, tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento))
-                mysql.connection.commit()
-
-                id_paciente = conn.lastrowid
-
-                conn.execute("""
-                    INSERT INTO citas (
+            conn.execute("""
+                INSERT INTO citas (
                     id_paciente, 
                     id_usuario,
                     id_calendario,
                     id_procedimiento,
                     fecha, 
                     hora
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                    (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)""",
+                (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
 
-                # flash("Cita insertada correctamente", "success")
-                mysql.connection.commit()
-                conn.close()
+            mysql.connection.commit()
+            conn.close()
 
             flash("Cita insertada correctamente", "success")
             return redirect(f'/calendario/{id_calendario}')
@@ -88,5 +73,4 @@ def insertar_cita():
     except Exception as e:
         traceback.print_exc()
         flash("Error al insertar la cita: " + str(e), "error")
-        # benchmark_guardado(lambda: insertar_cita, repeticiones=1000)
         return redirect(f'/calendario/{id_calendario}')

@@ -35,8 +35,6 @@ from models.vistas.descarga_gestionados import datos_gestionados
 from auth.auth_login import auth
 from auth.decorators import login_required, role_required
 
-
-
 app = Flask(__name__)
 db_conexion(app)
 
