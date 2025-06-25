@@ -1,37 +1,106 @@
-# Ayudara a levantar la app y la base de datos juntos
-version: "3.9"
 
 services:
-  app:
+  flask_app:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: savia_app
+      dockerfile: .dockerfile
+    container_name: savia_flask_services
+    command: python app.py
     ports:
-      - "5000:5000" 
-      - "3000:3000"
+      - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - MYSQL_HOST=localhost
+      - MYSQL_HOST=mysql  # Usar el nombre del servicio, no localhost
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=
+      - MYSQL_PASSWORD=rootpass
       - MYSQL_DB=savia_salud
     volumes:
-      - .:/app
+      - .:/backend
     depends_on:
-      - db
+      - mysql
+    networks:
+      - xampp-network  # Conectar a la misma red
 
-  db:
-    image: mysql:8.0
-    container_name: mysql_db
-    restart: always
+  fastapi_app:
+    build:
+      context: .
+      dockerfile: .dockerfile
+    container_name: savia_uvicorn_services
+    working_dir: /calendario/backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
     environment:
-      MYSQL_ROOT_PASSWORD:
+      - MYSQL_HOST=mysql  # Usar el nombre del servicio
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpass
+      - MYSQL_DB=savia_salud
+    volumes:
+      - ./calendario:/backend
+    depends_on:
+      - mysql
+    networks:
+      - xampp-network  # Conectar a la misma red
+
+  apache:
+    image: php:8.2-apache
+    container_name: xampp-apache
+    ports:
+      - "8080:80"        # Cambiado a 8080 para evitar conflicto
+      - "8443:443"       # Cambiado a 8443 para evitar conflicto
+    volumes:
+      - ./www:/var/www/html
+      - ./apache-config:/etc/apache2/sites-enabled
+      - ./php-config:/usr/local/etc/php/conf.d
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+    depends_on:
+      - mysql
+    networks:
+      - xampp-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: xampp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: savia_salud
     ports:
-      - "3306:3306"
+      - "3307:3306"      # Cambiado a 3307 para evitar conflicto
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
+      - ./mysql-config:/etc/mysql/conf.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - xampp-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: xampp-phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql     # Usar nombre del servicio
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpass
+    ports:
+      - "8081:80"        # Cambiado a 8081
+    networks:
+      - xampp-network
 
 volumes:
-  db_data:
+  mysql-data:
+  www:
+  apache-config:
+  php-config:
+  mysql-config:
+
+networks:
+  xampp-network:
+    driver: bridge
