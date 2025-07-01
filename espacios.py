@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask.blueprints import Blueprint
-from database.config import db_conexion, mysql
+from database.config import db_conexion, db
+from sqlalchemy import text
 
 app = Flask(__name__)
 db_conexion(app)
@@ -16,14 +17,15 @@ def verificar_espacio():
     if not id_calendario or not fecha or not hora:
         return jsonify({'error': 'Faltan parámetros'}), 400
 
-    conn = mysql.connection.cursor()
     query = """
         SELECT estado FROM citas 
-        WHERE id_calendario = %s AND fecha = %s AND hora = %s
+        WHERE id_calendario = :id_calendario AND fecha = :fecha AND hora = :hora
     """
-    conn.execute(query, (id_calendario, fecha, hora))
-    resultado = conn.fetchone()
-    conn.close()
+    resultado = db.session.execute(text(query), {
+        'id_calendario': id_calendario,
+        'fecha': fecha,
+        'hora': hora
+    }).fetchone()
 
     if resultado is None:
         estado = 'disponible'
@@ -45,24 +47,18 @@ def espacios_por_fecha():
     
     if not id_calendario or not fecha:
         return jsonify({'error': 'Faltan parámetros'}), 400
-        
-    conn = mysql.connection.cursor()
+    
     query = """
         SELECT hora, COALESCE(h.estado, 'disponible') as estado
         FROM citas h
-        WHERE h.id_calendario = %s
+        WHERE h.id_calendario = :id_calendario
         ORDER BY h.hora
     """
+    resultados = db.session.execute(text(query), {'id_calendario': id_calendario}).fetchall()
     
-        
-    conn.execute(query, (id_calendario,))
-    resultados = conn.fetchall()
-    conn.close()
-    
-    # Convert timedelta objects to string representation
     espacios = [{
-        'hora': str(r["hora"]) if r["hora"] else None,  # Convert timedelta to string
-        'estado': r["estado"]
+        'hora': str(r[0]) if r[0] else None,
+        'estado': r[1]
     } for r in resultados]
     
     return jsonify({
@@ -79,46 +75,38 @@ def reservar_cita():
     hora = request.args.get('hora')
     id_paciente = request.args.get('id_paciente')
     id_usuario = request.args.get('id_usuario') 
-    # documento_paciente = request.args.get('documento_paciente')
     
-    # Asignar un valor por defecto si no se proporciona
-    
-    # Validar datos requeridos
     if not id_calendario or not fecha or not hora:
         return jsonify({'error': 'Faltan parámetros'}), 400
     
-    # Verificar disponibilidad
-    conn = mysql.connection.cursor()
     query = """
         SELECT estado FROM citas
-        WHERE id_calendario = %s AND fecha = %s AND hora = %s
+        WHERE id_calendario = :id_calendario AND fecha = :fecha AND hora = :hora
     """
-    conn.execute(query, (id_calendario, fecha, hora))
-    resultado = conn.fetchone()
+    resultado = db.session.execute(text(query), {
+        'id_calendario': id_calendario,
+        'fecha': fecha,
+        'hora': hora
+    }).fetchone()
     
     if resultado is not None:
-        # estado_finañ
-        conn.close()
         return jsonify({'error': 'El espacio ya no está disponible'}), 409
     
-    
-    resultado = "ocupado"
-    # Crear la cita
+    resultado_estado = "ocupado"
     query = """
         INSERT INTO citas (id_calendario, fecha, hora, id_paciente, estado, id_usuario)
-        VALUES (%s, %s, %s, %s, %s, %s )
+        VALUES (:id_calendario, :fecha, :hora, :id_paciente, :estado, :id_usuario)
     """
-    conn.execute(query, (
-        id_calendario, 
-        fecha, 
-        hora,
-        id_paciente,
-        resultado,  # Estado inicial de la cita
-        id_usuario
-    ))
-    mysql.connection.commit()
-    id_cita = conn.lastrowid
-    conn.close()
+    result = db.session.execute(text(query), {
+        'id_calendario': id_calendario,
+        'fecha': fecha,
+        'hora': hora,
+        'id_paciente': id_paciente,
+        'estado': resultado_estado,
+        'id_usuario': id_usuario
+    })
+    db.session.commit()
+    id_cita = result.lastrowid if hasattr(result, 'lastrowid') else None
     
     return jsonify({
         'mensaje': 'Cita agendada exitosamente',

@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 import traceback
 
 # Creación del Blueprint para las rutas de inserción de usuarios
@@ -13,9 +14,6 @@ def insert_pacientes():
     """
     # Solo procesar si es una solicitud POST
     if request.method == "POST":
-        # Inicializar el cursor para la conexión a la base de datos
-        cur = mysql.connection.cursor()
-        
         try:
             # Obtener datos del formulario - corregido para usar 'nombre' en lugar de 'nombreCompleto'
             nombre = request.form["nombre"]
@@ -29,8 +27,8 @@ def insert_pacientes():
             print("Datos recibidos: ", request.form)
 
             # Insertar el nuevo usuario en la base de datos
-            cur.execute(
-                """INSERT INTO pacientes(
+            db.session.execute(
+                text("""INSERT INTO pacientes(
                     nombre,
                     apellido,
                     tipo_documento,
@@ -39,48 +37,39 @@ def insert_pacientes():
                     direccion,
                     fecha_nacimiento
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    nombre,
-                    apellido,
-                    tipo_documento,
-                    numero_documento,
-                    telefono,
-                    direccion,
-                    fecha_nacimiento
-                ), 
+                    VALUES (:nombre, :apellido, :tipo_documento, :numero_documento, :telefono, :direccion, :fecha_nacimiento)
+                """),
+                {
+                    "nombre": nombre,
+                    "apellido": apellido,
+                    "tipo_documento": tipo_documento,
+                    "numero_documento": numero_documento,
+                    "telefono": telefono,
+                    "direccion": direccion,
+                    "fecha_nacimiento": fecha_nacimiento
+                },
             )
 
-            # Confirmar los cambios en la base de datos
-            mysql.connection.commit()
+            db.session.commit()
             flash("Paciente insertado exitosamente", "success")
 
         except KeyError as e:
-            # Manejar errores de campos faltantes en el formulario
-            mysql.connection.rollback()  # Revertir cambios en caso de error
+            db.session.rollback()  # Revertir cambios en caso de error
             flash(f"Error: Campo requerido no encontrado: {str(e)}", "error")
             print(f"Error: Campo requerido no encontrado: {str(e)}")  # Log para depuración
             print(traceback.format_exc())  # Mostrar el stack trace completo
 
         except ValueError as e:
-            # Manejar errores de tipo de datos
-            mysql.connection.rollback()  # Revertir cambios en caso de error
+            db.session.rollback()  # Revertir cambios en caso de error
             flash(f"Error en tipos de datos: {str(e)}", "error")
             print(f"Error en tipos de datos: {str(e)}")  # Log para depuración
             print(traceback.format_exc())  # Mostrar el stack trace completo
 
         except Exception as e:
-            # Manejar otros errores inesperados
-            mysql.connection.rollback()  # Revertir cambios en caso de error
+            db.session.rollback()  # Revertir cambios en caso de error
             flash(f"Error al insertar: {str(e)}", "error")
             print(f"Error al insertar: {str(e)}")  # Log para depuración
             print(traceback.format_exc())  # Mostrar el stack trace completo
-
-        finally:
-            # Cerrar el cursor si fue creado
-            if cur:
-                cur.close()
 
     # Redirigir al usuario a la página de usuarios
     return redirect("/pacientes")

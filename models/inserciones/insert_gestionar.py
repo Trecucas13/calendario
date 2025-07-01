@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for, session
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 import traceback
 from tiempo_funcion import benchmark_guardado
 
@@ -10,7 +11,6 @@ insertar_gestiones = Blueprint("insertar_gestiones", __name__)
 def insert_gestiones():
     if request.method == "POST":
         nombre_asesor = session.get("nombre")
-        cur = mysql.connection.cursor()
         try:
             # Datos del formulario
             tipificacion = request.form["tipificacion"]
@@ -23,8 +23,7 @@ def insert_gestiones():
             print("Datos recibidos:", tipificacion, idLlamada, comentario, registro_id, motivo)
             
             # Obtener datos del registro_base
-            cur.execute("SELECT tipo_id, num_id, proceso FROM registro_base WHERE id = %s", (registro_id,))
-            registro = cur.fetchone()
+            registro = db.session.execute(text("SELECT tipo_id, num_id, proceso FROM registro_base WHERE id = :registro_id"), {"registro_id": registro_id}).fetchone()
 
             if not registro:
                 flash("No se encontró el registro en registro_base", "error")
@@ -33,20 +32,20 @@ def insert_gestiones():
             llave_compuesta = f"{registro['tipo_id']}-{registro['num_id']}-{registro['proceso']}"
 
             if not motivo:
-                cur.execute(
-                    """INSERT INTO gestion (
+                db.session.execute(
+                    text("""INSERT INTO gestion (
                         registro_id,
                         tipificacion,
                         id_llamada,
                         comentario,
                         usuario,
                         llave_compuesta
-                    ) VALUES (%s, %s, %s, %s, %s, %s)""",
-                    (registro_id, tipificacion, idLlamada, comentario, nombre_asesor, llave_compuesta)
+                    ) VALUES (:registro_id, :tipificacion, :idLlamada, :comentario, :nombre_asesor, :llave_compuesta)"""),
+                    {"registro_id": registro_id, "tipificacion": tipificacion, "idLlamada": idLlamada, "comentario": comentario, "nombre_asesor": nombre_asesor, "llave_compuesta": llave_compuesta}
                 )
             else:
-                cur.execute(
-                    """INSERT INTO gestion (
+                db.session.execute(
+                    text("""INSERT INTO gestion (
                         registro_id,
                         tipificacion,
                         id_llamada,
@@ -54,32 +53,29 @@ def insert_gestiones():
                         usuario,
                         motivo,
                         llave_compuesta
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                    (registro_id, tipificacion, idLlamada, comentario, nombre_asesor, motivo, llave_compuesta)
+                    ) VALUES (:registro_id, :tipificacion, :idLlamada, :comentario, :nombre_asesor, :motivo, :llave_compuesta)"""),
+                    {"registro_id": registro_id, "tipificacion": tipificacion, "idLlamada": idLlamada, "comentario": comentario, "nombre_asesor": nombre_asesor, "motivo": motivo, "llave_compuesta": llave_compuesta}
                 )
 
-            mysql.connection.commit()
+            db.session.commit()
             print("Gestión insertada exitosamente")
             flash("Gestión insertada exitosamente", "success")
             # benchmark_guardado(lambda: cur.fetchall(), repeticiones=1000)  # Benchmarking de la inserción
 
         except KeyError as e:
-            mysql.connection.rollback()
+            db.session.rollback()
             flash(f"Error: Campo requerido no encontrado: {str(e)}", "error")
             print(f"Error: Campo requerido no encontrado: {str(e)}")
             print(traceback.format_exc())
         except ValueError as e:
-            mysql.connection.rollback()
+            db.session.rollback()
             flash(f"Error en tipos de datos: {str(e)}", "error")
             print(f"Error en tipos de datos: {str(e)}")
             print(traceback.format_exc())
         except Exception as e:
-            mysql.connection.rollback()
+            db.session.rollback()
             flash(f"Error al insertar: {str(e)}", "error")
             print(f"Error al insertar: {str(e)}")
             print(traceback.format_exc())
-        finally:
-            if cur:
-                cur.close()
 
     return redirect("/gestionar")

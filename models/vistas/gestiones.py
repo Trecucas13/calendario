@@ -1,7 +1,6 @@
 from flask import Flask, Blueprint, render_template, flash, request
 import math
-from database.config import mysql
-from auth.decorators import *
+from database.config import db
 from auth.decorators import *
 from auth.decorators import login_required, role_required
 import requests

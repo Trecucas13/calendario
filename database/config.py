@@ -1,54 +1,38 @@
 # Importación de módulos necesarios
 import os
-from flask_mysqldb import MySQL
+from flask_sqlalchemy import SQLAlchemy
 
 
-# Inicialización del objeto MySQL
-mysql = MySQL()
+# Inicialización del objeto SQLAlchemy
+db = SQLAlchemy()
 
 
 def db_conexion(app):
     """
-    Configura la conexión a la base de datos MySQL para la aplicación Flask.
+    Configura la conexión a la base de datos PostgreSQL para la aplicación Flask.
     Utiliza variables de entorno para la configuración, con valores por defecto si no están definidas.
     """
     # Configuración básica de conexión
-    # HOST: Dirección del servidor MySQL (por defecto: localhost)
-    app.config["MYSQL_HOST"] = os.getenv("MYSQL_HOST", "mysql")
-    # USER: Usuario de MySQL (por defecto: root)
-    app.config["MYSQL_USER"] = os.getenv("MYSQL_USER", "root")
-    # PASSWORD: Contraseña del usuario MySQL (por defecto: vacío)
-    app.config["MYSQL_PASSWORD"] = os.getenv("MYSQL_PASSWORD", "rootpass")
-    # DB: Nombre de la base de datos a utilizar (por defecto: kliiker)
-    app.config["MYSQL_DB"] = os.getenv("MYSQL_DB", "savia_salud")
+    # HOST: Dirección del servidor PostgreSQL (por defecto: localhost)
+    db_host = os.getenv("POSTGRES_HOST", "database-savia.cla22m8co2v1.us-east-1.rds.amazonaws.com")
+    # USER: Usuario de PostgreSQL (por defecto: postgres)
+    db_user = os.getenv("POSTGRES_USER", "postgres")
+    # PASSWORD: Contraseña del usuario PostgreSQL (por defecto: postgres)
+    db_password = os.getenv("POSTGRES_PASSWORD", "89.J(GIidcx2^P9G")
+    # DB: Nombre de la base de datos a utilizar (por defecto: savia_salud)
+    db_name = os.getenv("POSTGRES_DB", "postgres")
+    # Puerto de conexión PostgreSQL (por defecto: 5432)
+    db_port = os.getenv("POSTGRES_PORT", "5432")
 
-    # Configuración avanzada de MySQL
-    # Puerto de conexión MySQL (por defecto: 3306)
-    app.config["MYSQL_PORT"] = int(os.getenv("MYSQL_PORT", 3306))
-    # Socket Unix para conexiones locales
-    app.config["MYSQL_UNIX_SOCKET"] = None
-    # Tiempo máximo de espera para la conexión en segundos
-    app.config["MYSQL_CONNECT_TIMEOUT"] = int(os.getenv("MYSQL_CONNECT_TIMEOUT", 10))
-    # Archivo de configuración MySQL adicional
-    app.config["MYSQL_READ_DEFAULT_FILE"] = None
-    # Soporte para caracteres Unicode
-    app.config["MYSQL_USE_UNICODE"] = True
-    # Codificación de caracteres (utf8mb4 soporta emojis y caracteres especiales)
-    app.config["MYSQL_CHARSET"] = "utf8mb4"
-    # Modo SQL personalizado
-    app.config["MYSQL_SQL_MODE"] = None
-    # Tipo de cursor (DictCursor retorna resultados como diccionarios)
-    app.config["MYSQL_CURSORCLASS"] = "DictCursor"
-    # Desactivar autocommit para control manual de transacciones
-    app.config["MYSQL_AUTOCOMMIT"] = False
-    # Modo SSL para conexiones seguras
-    app.config["MYSQL_SSL_MODE"] = os.getenv("MYSQL_SSL_MODE", None)
+    # Construcción de la URI de conexión para SQLAlchemy
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    )
+    # Desactivar el seguimiento de modificaciones para mejorar el rendimiento
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Clave secreta para sesiones y tokens CSRF (por defecto: 1234567890)
     app.secret_key = os.getenv("SECRET_KEY", "1234567890")
 
-    # Inicialización de la extensión MySQL con la configuración establecida
-    mysql.init_app(app)
-
-
-mysql = MySQL()
+    # Inicialización de la extensión SQLAlchemy con la configuración establecida
+    db.init_app(app)

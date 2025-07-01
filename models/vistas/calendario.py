@@ -1,10 +1,9 @@
 from flask import Flask, render_template, Blueprint, flash, redirect, url_for, request, session, make_response
-from database.config import mysql
+from database.config import db
 from datetime import datetime, timedelta
 from calendar import monthrange
 from flask import Flask, Blueprint, render_template, jsonify
 from auth.decorators import *
-from flask_mysqldb import MySQLdb, cursors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # Estilos para el PDF
 from reportlab.lib.enums import TA_CENTER, TA_LEFT  # Alineación de texto
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer  # Componentes para el PDF
@@ -12,6 +11,7 @@ from reportlab.lib.pagesizes import A3, landscape  # Tamaños de página
 from reportlab.lib import colors  # Colores para el PDF
 from io import BytesIO  # Para manejar el PDF en memoria
 from datetime import datetime  # Para fechas y horas
+from sqlalchemy import text  # Para consultas SQL
 import os  # Para manejo de rutas de archivos
 import traceback
 
@@ -23,25 +23,23 @@ calendarios_creados = Blueprint('calendarios_creados', __name__)
 
 def datos_calendario():
     try:
-        # Use DictCursor instead of dictionary=True
-        # id_usuario = session.get('id')
-        conn = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        conn.execute("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio FROM calendarios c
-                        JOIN procedimientos p ON c.id_procedimiento = p.id_procedimiento
-                        JOIN municipios m ON c.id_municipio = m.id_municipio
-                        """)
-        datos = conn.fetchall()
-        conn.close()
-
-        # Formatear las fechas antes de devolver los datos
+        datos = db.session.execute(
+            text("""SELECT c.*, p.nombre AS nombreProcedimiento, m.nombre AS nombreMunicipio FROM calendarios c
+            JOIN procedimientos p ON c.id_procedimiento = p.id_procedimiento
+            JOIN municipios m ON c.id_municipio = m.id_municipio
+            """)
+        ).mappings().fetchall()
+        print(datos)
+        # Convertir RowMapping a dict y formatear fechas
+        calendarios = []
         for calendario in datos:
-            if 'fecha_inicio' in calendario and calendario['fecha_inicio']:
-                calendario['fecha_inicio'] = calendario['fecha_inicio'].strftime('%Y-%m-%d')
-            if 'fecha_fin' in calendario and calendario['fecha_fin']:
-                calendario['fecha_fin'] = calendario['fecha_fin'].strftime('%Y-%m-%d')
-
-        # return redirect(url_for("index"))
-        return datos
+            calendario_dict = dict(calendario)
+            if 'fecha_inicio' in calendario_dict and calendario_dict['fecha_inicio']:
+                calendario_dict['fecha_inicio'] = calendario_dict['fecha_inicio'].strftime('%Y-%m-%d')
+            if 'fecha_fin' in calendario_dict and calendario_dict['fecha_fin']:
+                calendario_dict['fecha_fin'] = calendario_dict['fecha_fin'].strftime('%Y-%m-%d')
+            calendarios.append(calendario_dict)
+        return calendarios
     except Exception as e:
         error = traceback.format_exc()
         print(error)
@@ -50,10 +48,7 @@ def datos_calendario():
 
 def obtener_procedimientos():
     try:
-        conn = mysql.connection.cursor()
-        conn.execute("SELECT * FROM procedimientos")
-        procedimientos = conn.fetchall()
-        conn.close()
+        procedimientos = db.session.execute("SELECT * FROM procedimientos").fetchall()
         return procedimientos
     except Exception as e:
         error = traceback.format_exc()
@@ -113,46 +108,45 @@ def generar_semanas(fecha_inicio, fecha_fin):
 @role_required([1, 2])
 def calendario(id_calendario):
     try:
-        conn = mysql.connection.cursor()
-        conn.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id_calendario,))
-        calendario = conn.fetchone()
+        # Migración a SQLAlchemy
+        calendario_result = db.session.execute(
+            text("SELECT * FROM calendarios WHERE id_calendario = :id_calendario"),
+            {"id_calendario": id_calendario}
+        ).mappings().fetchone()
 
-        conn.execute("SELECT * FROM citas WHERE id_calendario = %s", (id_calendario,))
-        citas = conn.fetchall()
-        # print(citas)
-        conn.close()  
-        
-        
-        inicio_hora = calendario['hora_inicio']
-        fin_hora = calendario['hora_fin']
-        intervalo = timedelta(minutes = calendario['espacio_citas'])
-    
-        
+        citas = db.session.execute(
+            text("SELECT * FROM citas WHERE id_calendario = :id_calendario"),
+            {"id_calendario": id_calendario}
+        ).mappings().fetchall()
+
+        if not calendario_result:
+            flash("Calendario no encontrado", "error")
+            return redirect(url_for("index"))
+
+        inicio_hora = calendario_result['hora_inicio']
+        fin_hora = calendario_result['hora_fin']
+        intervalo = timedelta(minutes=calendario_result['espacio_citas'])
+
         horarios = []
         hora_actual = inicio_hora
-    
         while hora_actual <= fin_hora:
             horarios.append(hora_actual)
-            hora_actual += intervalo
-        
-        
-        
-        # citas = obtener_citas(id_calendario)
-        # horario = horario_tabla()
+            hora_actual = (datetime.combine(datetime.today(), hora_actual) + intervalo).time()
+
         semanas = generar_semanas(
-            calendario['fecha_inicio'], 
-            calendario['fecha_fin']
+            calendario_result['fecha_inicio'],
+            calendario_result['fecha_fin']
         )
-        
-        return render_template("calendario2.html", 
-                            calendario=calendario, 
-                            horarios = horarios,
-                            citas=citas,
-                            semanas=semanas,
-                            procedimientos = obtener_procedimientos(),
-                            meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                            dias_semana=['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom'])
+
+        return render_template("calendario2.html",
+                              calendario=calendario_result,
+                              horarios=horarios,
+                              citas=citas,
+                              semanas=semanas,
+                              procedimientos=obtener_procedimientos(),
+                              meses=['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                              dias_semana=['Lun', 'Mar', 'Mié', 'Jue', 'Vir', 'Sáb', 'Dom'])
     except Exception as e:
         error = traceback.format_exc()
         print(error)
@@ -530,40 +524,30 @@ def generar_informe_calendario_csv(id_calendario):
         Response: Archivo CSV para descargar o mensaje de error
     """
     try:
-        # Conexión a la base de datos
-        cur = mysql.connection.cursor()
-
-        # Consulta de datos
-        cur.execute(
-            """
-            SELECT cal.nombre_calendario,
-                   m.nombre AS nombre_municipio,
-                   c.fecha,
-                   c.hora,
-                   pa.nombre AS nombre_paciente,
-                   p.nombre AS nombre_procedimiento
-            FROM calendarios cal 
-            LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
-            LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
-            LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
-            LEFT JOIN pacientes pa ON c.id_paciente = pa.id
-            WHERE cal.id_calendario = %s
-            """,
-            (id_calendario,),
-        )
-
-        # Obtener todos los resultados
-        filas = cur.fetchall()
-        cur.close()
+        # Migración a SQLAlchemy
+        filas = db.session.execute(
+            text("""
+                SELECT cal.nombre_calendario,
+                       m.nombre AS nombre_municipio,
+                       c.fecha,
+                       c.hora,
+                       pa.nombre AS nombre_paciente,
+                       p.nombre AS nombre_procedimiento
+                FROM calendarios cal 
+                LEFT JOIN municipios m ON cal.id_municipio = m.id_municipio
+                LEFT JOIN procedimientos p ON cal.id_procedimiento = p.id_procedimiento
+                LEFT JOIN citas c ON cal.id_calendario = c.id_calendario
+                LEFT JOIN pacientes pa ON c.id_paciente = pa.id
+                WHERE cal.id_calendario = :id_calendario
+            """),
+            {"id_calendario": id_calendario}
+        ).mappings().fetchall()
 
         if not filas:
             return jsonify({"error": "No se encontraron datos para el calendario"}), 404
 
-        # Crear archivo CSV en memoria
         buffer = StringIO()
         writer = csv.writer(buffer)
-
-        # Escribir encabezados
         headers = [
             "Calendario",
             "Municipio",
@@ -573,8 +557,6 @@ def generar_informe_calendario_csv(id_calendario):
             "Procedimiento"
         ]
         writer.writerow(headers)
-
-        # Escribir filas
         for fila in filas:
             writer.writerow([
                 fila["nombre_calendario"],
@@ -584,15 +566,11 @@ def generar_informe_calendario_csv(id_calendario):
                 fila["nombre_paciente"],
                 fila["nombre_procedimiento"]
             ])
-
-        # Crear respuesta con el contenido del CSV
         response = make_response(buffer.getvalue())
         buffer.close()
         response.headers["Content-Disposition"] = "attachment; filename=informe_calendario.csv"
         response.headers["Content-Type"] = "text/csv"
-
         return response
-
     except Exception as e:
         print(f"Error al generar CSV: {e}")
         return jsonify({"error": str(e)}), 500

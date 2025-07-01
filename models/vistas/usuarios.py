@@ -1,14 +1,12 @@
 from flask import Flask, Blueprint, render_template, request
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 from auth.decorators import *
 import math  # Necesario para math.ceil
 
 def datos_usuarios():
     try:
-        conn = mysql.connection.cursor()
-        conn.execute("SELECT * FROM usuarios")
-        datos = conn.fetchall()
-        conn.close()
+        datos = db.session.execute(text("SELECT * FROM usuarios")).fetchall()
         return datos
     except Exception as e:
         print(f"Error: {e}")

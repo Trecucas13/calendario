@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
 from jinja2 import Template
-from database.config import db_conexion, mysql
+from database.config import db_conexion, db  # Cambia mysql por db
+from sqlalchemy import text
 from espacios import espacios_api
 from models.vistas.calendario import tabla_calendarios
 from models.vistas.calendario import calendarios_creados
@@ -76,18 +77,13 @@ def login():
 @role_required([1, 2])
 def index():
     calendarios = datos_calendario()
+    print(calendarios)
     return render_template("index.html", calendarios=calendarios)
 
 
 def datos_municipio():
-    conn = mysql.connection.cursor()
-    conn.execute("SELECT * FROM municipios")
-    municipios = conn.fetchall()
-
-    conn.execute("SELECT * FROM procedimientos")
-    procedimientos = conn.fetchall()
-    conn.close()
-
+    municipios = db.session.execute(text("SELECT * FROM municipios")).fetchall()
+    procedimientos = db.session.execute(text("SELECT * FROM procedimientos")).fetchall()
     return {"municipios": municipios, "procedimientos": procedimientos}
 
 
@@ -105,19 +101,20 @@ def formulario():
 @login_required
 @role_required([1, 2])
 def formularioActualizar(id):
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM calendarios WHERE id_calendario = %s", (id,))
-    calendario = cursor.fetchone()
-    
-    cursor.execute("SELECT * FROM municipios")
-    municipios = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM procedimientos")
-    procedimientos = cursor.fetchall()
-    cursor.close()
+    calendario = db.session.execute(
+        text("SELECT * FROM calendarios WHERE id_calendario = :id"), {"id": id}
+    ).fetchone()
+    municipios = db.session.execute(text("SELECT * FROM municipios")).fetchall()
+    procedimientos = db.session.execute(text("SELECT * FROM procedimientos")).fetchall()
     form_id = id
     # print(form_id)  # Agrega esta línea para imprimir el valor de form_id en el servido
-    return render_template("formularios/actualizarform.html", form_id=form_id, calendario = calendario, municipios=municipios, procedimientos=procedimientos)
+    return render_template(
+        "formularios/actualizarform.html",
+        form_id=form_id,
+        calendario=calendario,
+        municipios=municipios,
+        procedimientos=procedimientos,
+    )
 
 # Clase de Paginación (asegúrate de que esté definida antes de usarla)
 class Pagination:
@@ -145,23 +142,17 @@ class Pagination:
 
 
 def obtener_pacientes():
-    conn = mysql.connection.cursor()
-    conn.execute("""SELECT p.*, c.fecha, c.hora, c.id, c.id_calendario, c.id_procedimiento, 
-    pr.nombre AS nombre_procedimiento
-    FROM pacientes p 
-    LEFT JOIN citas c ON p.id = c.id_paciente
-    LEFT JOIN procedimientos pr ON c.id_procedimiento = pr.id_procedimiento
-    """)
-    pacientes = conn.fetchall()
-    # print(pacientes)
-
+    pacientes = db.session.execute(text("""
+        SELECT p.*, c.fecha, c.hora, c.id, c.id_calendario, c.id_procedimiento, 
+        pr.nombre AS nombre_procedimiento
+        FROM pacientes p 
+        LEFT JOIN citas c ON p.id = c.id_paciente
+        LEFT JOIN procedimientos pr ON c.id_procedimiento = pr.id_procedimiento
+    """)).fetchall()
     return pacientes
 
 def procedimientos():
-    conn = mysql.connection.cursor()
-    conn.execute("SELECT * FROM procedimientos")
-    procedimientos = conn.fetchall()
-    conn.close()
+    procedimientos = db.session.execute(text("SELECT * FROM procedimientos")).fetchall()
     return procedimientos
 
 @app.route("/pacientes")
@@ -194,11 +185,8 @@ def obtener_procedimiento():
 def insertar_municipio():
     if request.method == "POST":
         nombre = request.form["nombre"]
-        print(nombre)
-        conn = mysql.connection.cursor()
-        conn.execute("INSERT INTO municipios (nombre) VALUES (%s)", (nombre,))
-        mysql.connection.commit()
-        conn.close()
+        db.session.execute(text("INSERT INTO municipios (nombre) VALUES (:nombre)"), {"nombre": nombre})
+        db.session.commit()
         flash("Municipio agregado correctamente", "success")
         return redirect('/index')
 
@@ -206,11 +194,8 @@ def insertar_municipio():
 def insertar_procedimiento():
     if request.method == "POST":
         nombre = request.form["nombre"]
-        print(nombre)
-        conn = mysql.connection.cursor()
-        conn.execute("INSERT INTO procedimientos (nombre) VALUES (%s)", (nombre,))
-        mysql.connection.commit()
-        conn.close()
+        db.session.execute(text("INSERT INTO procedimientos (nombre) VALUES (:nombre)"), {"nombre": nombre})
+        db.session.commit()
         flash("Procedimiento agregado correctamente", "success")
         return redirect('/index')
 

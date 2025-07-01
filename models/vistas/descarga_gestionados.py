@@ -3,7 +3,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from io import BytesIO
 from flask import send_file
 from flask import Blueprint, jsonify
-from database.config import mysql
+from database.config import db
 from auth.decorators import login_required, role_required
 
 
@@ -17,8 +17,7 @@ def exportar_registros_excel():
     """
     try:
         # Obtener los datos de la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("""SELECT
+        registros = db.session.execute("""SELECT
                     g.fecha_gestion,
                     r.tipo_id, 
                     r.num_id, 
@@ -32,9 +31,7 @@ def exportar_registros_excel():
                     r.direccion
                     FROM registro_base r
                     JOIN gestion g ON r.id = g.registro_id
-        """)
-        registros = cur.fetchall()
-        cur.close()
+        """).fetchall()
 
         # Crear un nuevo libro de Excel
         wb = Workbook()

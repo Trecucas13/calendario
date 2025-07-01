@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for, jsonify
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 import traceback
 
 # Creación del Blueprint para actualizar usuarios
@@ -16,31 +17,26 @@ def obtener_usuario(id):
     Returns:
         Response: Datos del usuario en formato JSON
     """
-    cur = None
     try:
-        cur = mysql.connection.cursor(dictionary=True)
-        cur.execute("""
-            SELECT id, documento, nombre, rol
-            FROM usuarios 
-            WHERE id = %s
-        """, (id,))
-        usuario = cur.fetchone()
-        
+        usuario = db.session.execute(
+            text("""
+                SELECT id, documento, nombre, rol
+                FROM usuarios 
+                WHERE id = :id
+            """), {"id": id}
+        ).fetchone()
         if usuario:
+            # Acceso por índice, ya que fetchone() devuelve una tupla
             return jsonify({
-                'id': usuario['id'],
-                'documento': usuario['documento'],
-                'nombre': usuario['nombre'],
-                'rol': usuario['rol']
+                'id': usuario[0],
+                'documento': usuario[1],
+                'nombre': usuario[2],
+                'rol': usuario[3]
             }), 200
         else:
             return jsonify({'error': 'Usuario no encontrado'}), 404
-            
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    finally:
-        if cur:
-            cur.close()
 
 @actualizar_usuario.route("/actualizar_usuario", methods=["POST"])
 def update_usuario():
@@ -48,43 +44,37 @@ def update_usuario():
     Función que maneja la actualización de datos de un usuario en la base de datos.
     No actualiza la contraseña.
     """
-    cur = None
-    
     try:
         # Obtener datos del formulario
         id_usuario = request.form["id"]
         documento = request.form["documento"]
         nombre = request.form["nombre"]
         rol = request.form["rol"]
-        
-        # Iniciar conexión a la base de datos
-        cur = mysql.connection.cursor() 
-        
+
         # Actualizar usuario sin modificar la contraseña
-        sql = """UPDATE usuarios SET 
-                 documento = %s,
-                 nombre = %s,
-                 rol = %s
-                 WHERE id = %s"""
-        params = (documento, nombre, rol, id_usuario)
-        
-        # Ejecutar la consulta SQL
-        cur.execute(sql, params)
-        mysql.connection.commit()
-        
+        sql = text("""UPDATE usuarios SET 
+                 documento = :documento,
+                 nombre = :nombre,
+                 rol = :rol
+                 WHERE id = :id_usuario""")
+        params = {
+            "documento": documento,
+            "nombre": nombre,
+            "rol": rol,
+            "id_usuario": id_usuario
+        }
+
+        db.session.execute(sql, params)
+        db.session.commit()
+
         # Mostrar mensaje de éxito
         flash("Usuario actualizado exitosamente", "success")
-    
+
     except Exception as e:
         # Capturar cualquier error
+        db.session.rollback()
         flash(f"Error al actualizar: {str(e)}", "error")
         traceback.print_exc()
-        if mysql.connection:
-            mysql.connection.rollback()
-    finally:
-        # Cerrar el cursor si fue creado
-        if cur:
-            cur.close()
-    
+
     # Redireccionar a la página de listado de usuarios
     return redirect(url_for("vista_usuarios.tabla_usuarios"))

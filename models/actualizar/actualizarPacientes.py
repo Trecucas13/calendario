@@ -1,5 +1,6 @@
 from flask import Blueprint, flash, render_template, request, redirect, url_for, jsonify
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 import traceback
 
 # Creación del Blueprint para actualizar usuarios
@@ -12,8 +13,6 @@ def update_paciente():
     Función que maneja la actualización de datos de un usuario en la base de datos.
     No actualiza la contraseña.
     """
-    cur = None
-    
     try:
         # Obtener datos del formulario
         id_paciente = request.form["id"]
@@ -26,46 +25,33 @@ def update_paciente():
         fecha_nacimiento = request.form["fecha_nacimiento"]
         procedimiento = request.form["examen_realizar"]
         
-        # Iniciar conexión a la base de datos
-        cur = mysql.connection.cursor() 
-        
         # Actualizar usuario sin modificar la contraseña
-        sql = """UPDATE pacientes SET 
-                 nombre = %s,
-                 apellido = %s,
-                 tipo_documento = %s,
-                 numero_documento = %s,
-                 telefono = %s,
-                 direccion = %s,
-                 fecha_nacimiento = %s
-                 WHERE id = %s"""
-        params = (nombre, apellido, tipo_documento, documento, telefono, direccion, fecha_nacimiento, id_paciente)
+        sql = text("""UPDATE pacientes SET 
+                 nombre = :nombre,
+                 apellido = :apellido,
+                 tipo_documento = :tipo_documento,
+                 numero_documento = :documento,
+                 telefono = :telefono,
+                 direccion = :direccion,
+                 fecha_nacimiento = :fecha_nacimiento
+                 WHERE id = :id_paciente""")
+        db.session.execute(sql, {
+            "nombre": nombre,
+            "apellido": apellido,
+            "tipo_documento": tipo_documento,
+            "documento": documento,
+            "telefono": telefono,
+            "direccion": direccion,
+            "fecha_nacimiento": fecha_nacimiento,
+            "id_paciente": id_paciente
+        })
+        db.session.commit()
         
-        # Ejecutar la consulta SQL
-        cur.execute(sql, params)
-        mysql.connection.commit()
-        
-        
-        cur.execute(""" UPDATE citas SET 
-                    id_procedimiento = %s
-                    WHERE id_paciente = %s """, (procedimiento, id_paciente))
-        mysql.connection.commit()
-        
-        
-        
-        # Mostrar mensaje de éxito
-        flash("Usuario actualizado exitosamente", "success")
-    
+        flash("Paciente actualizado exitosamente", "success")
     except Exception as e:
-        # Capturar cualquier error
-        flash(f"Error al actualizar: {str(e)}", "error")
-        traceback.print_exc()
-        if mysql.connection:
-            mysql.connection.rollback()
-    finally:
-        # Cerrar el cursor si fue creado
-        if cur:
-            cur.close()
+        db.session.rollback()
+        flash(f"Error al actualizar paciente: {str(e)}", "error")
+        print(traceback.format_exc())
     
     # Redireccionar a la página de listado de usuarios
     return redirect("/pacientes")

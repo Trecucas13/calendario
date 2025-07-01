@@ -1,6 +1,7 @@
 # Importación de módulos necesarios
 from flask import request, redirect, url_for, Blueprint, session, render_template, flash
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text
 from auth.decorators import *
 
 # Creación del Blueprint para la autenticación
@@ -30,42 +31,28 @@ def auth_login():
         password = request.form["password"]
 
         # Consulta a la base de datos para verificar las credenciales
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "SELECT * FROM usuarios WHERE documento = %s AND password = %s",
-            (documento, password),
-        )
-        user = cur.fetchone()
-
-        # Código comentado para consultar acceso al sistema
-        # cur.execute(
-        #     "SELECT accesoSistema FROM empleado WHERE idEmpleado = %s",
-        #     (user["idEmpleado"])
-        # )
-        # acceso = cur.fetchone()
-
-        cur.close()
+        user = db.session.execute(
+            text("SELECT * FROM usuarios WHERE documento = :documento AND password = :password"),
+            {"documento": documento, "password": password},
+        ).fetchone()
 
         # Si el usuario existe en la base de datos
         if user:
             # Establece las variables de sesión con la información del usuario
             session["logueado"] = True
-            session["id"] = user["id"]
-            session["documento"] = user["documento"]
-            session["rol"] = user["rol"]
-            session["nombre"] = user["nombre"]
-
-            # session["nombre"] = user.get("nombre", "Usuario")  # Manejo de nombre por si no existe
-            # session["accesoSistema"] = acceso["accesoSistema"]
+            session["id"] = user[0]
+            session["documento"] = user[1]
+            session["rol"] = user[4]
+            session["nombre"] = user[3]
 
             # Redirección según el rol y estado del usuario
-            if user["rol"] == 1:  # Administrador
+            if user[4] == 1:  # Administrador
                     return redirect(url_for("index"))
 
-            elif user["rol"] == 2:  # Usuario regular
+            elif user[4] == 2:  # Usuario regular
                     return redirect(url_for("index"))
                     
-            elif user["rol"] is None:
+            elif user[4] is None:
                 flash("Usuario no registrado")
                 return redirect(url_for("auth_login.login"))
         else:

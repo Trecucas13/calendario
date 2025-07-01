@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, session
-from database.config import mysql
+from database.config import db
 import traceback
 from datetime import datetime
 from tiempo_funcion import benchmark_guardado
+from sqlalchemy import text
 
 insertar_citas = Blueprint('insertar_citas', __name__)
 
@@ -23,16 +24,13 @@ def insertar_cita():
             examen = request.form["examen"]
             usuario_actual = session.get('id')
 
-            conn = mysql.connection.cursor()
-
-            conn.execute("SELECT * FROM pacientes WHERE numero_documento = %s", (numero_documento,))
-            paciente_existente = conn.fetchone()
+            paciente_existente = db.session.execute(text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"), {"numero_documento": numero_documento}).fetchone()
 
             if paciente_existente:
                 id_paciente = paciente_existente["id"]
             else:
                 try:
-                    conn.execute("""INSERT INTO pacientes (
+                    db.session.execute(text("""INSERT INTO pacientes (
                         nombre,
                         apellido,
                         tipo_documento, 
@@ -40,37 +38,35 @@ def insertar_cita():
                         telefono, 
                         direccion, 
                         fecha_nacimiento) 
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
-                        (nombre, apellido, tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento))
-                    mysql.connection.commit()
-                    id_paciente = conn.lastrowid
+                        VALUES (:nombre, :apellido, :tipo_documento, :numero_documento, :telefono, :direccion, :fecha_nacimiento)"""),
+                        {"nombre": nombre, "apellido": apellido, "tipo_documento": tipo_documento, "numero_documento": numero_documento, "telefono": telefono, "direccion": direccion, "fecha_nacimiento": fecha_nacimiento})
+                    db.session.commit()
+
+                    paciente_existente = db.session.execute(text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"), {"numero_documento": numero_documento}).fetchone()
+                    id_paciente = paciente_existente["id"]
                 except Exception as e:
-                    if "Duplicate entry" in str(e):
-                        conn.execute("SELECT * FROM pacientes WHERE numero_documento = %s", (numero_documento,))
-                        paciente_existente = conn.fetchone()
-                        id_paciente = paciente_existente["id"]
-                    else:
-                        raise
+                    db.session.rollback()
+                    flash(f"Error al insertar paciente: {str(e)}", "error")
+                    return redirect(url_for('insertar_citas.insertar_cita'))
 
-            conn.execute("""
+            db.session.execute(text("""
                 INSERT INTO citas (
+                    id_calendario, 
                     id_paciente, 
-                    id_usuario,
-                    id_calendario,
-                    id_procedimiento,
                     fecha, 
-                    hora
-                )
-                VALUES (%s, %s, %s, %s, %s, %s)""",
-                (id_paciente, usuario_actual, id_calendario, examen, fecha, hora))
+                    hora, 
+                    id_procedimiento, 
+                    usuario_actual, 
+                    examen
+                ) 
+                VALUES (:id_calendario, :id_paciente, :fecha, :hora, :examen, :usuario_actual, :examen)"""),
+                {"id_calendario": id_calendario, "id_paciente": id_paciente, "fecha": fecha, "hora": hora, "examen": examen, "usuario_actual": usuario_actual})
 
-            mysql.connection.commit()
-            conn.close()
-
-            flash("Cita insertada correctamente", "success")
+            db.session.commit()
+            flash("Cita insertada exitosamente", "success")
             return redirect(f'/calendario/{id_calendario}')
 
     except Exception as e:
-        traceback.print_exc()
-        flash("Error al insertar la cita: " + str(e), "error")
+        db.session.rollback()
+        flash(f"Error al insertar cita: {str(e)}", "error")
         return redirect(f'/calendario/{id_calendario}')

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, redirect, url_for, flash
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text  # Importa text para consultas SQL
 
 delete_usuarios= Blueprint('delete_usuarios', __name__)
 
@@ -10,24 +11,19 @@ def delete_usuario():
         if not id:
             flash('ID de usuario no proporcionado', 'error')
             return redirect(url_for('vista_usuarios.tabla_usuarios'))  # Redirigir a la lista de usuarios
-        #     return 'ID de usuario no proporcionado', 400
         
-        cursor = mysql.connection.cursor()
+        db.session.execute(text("DELETE FROM citas WHERE id_usuario = :id"), {"id": id})
+        db.session.commit()
         
-        cursor.execute("DELETE FROM citas WHERE id_usuario = %s", (id,))
-        mysql.connection.commit()
+        db.session.execute(text("DELETE FROM calendarios WHERE id_usuario = :id"), {"id": id})
+        db.session.commit()
         
-        cursor.execute("DELETE FROM calendarios WHERE id_usuario = %s", (id,))
-        mysql.connection.commit()
-        # usuario = cursor.fetchone()
-        
-        cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
-        mysql.connection.commit()
-        cursor.close()
+        db.session.execute(text("DELETE FROM usuarios WHERE id = :id"), {"id": id})
+        db.session.commit()
         
         return redirect(url_for('vista_usuarios.tabla_usuarios'))  # Redirigir a la lista de usuarios
         
     except Exception as e:
         print(f"Error al eliminar usuario: {e}")
-        mysql.connection.rollback()
+        db.session.rollback()
         return 'Error al eliminar usuario', 500

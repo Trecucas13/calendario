@@ -3,7 +3,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from io import BytesIO
 from flask import send_file
 from flask import Blueprint, jsonify
-from database.config import mysql
+from database.config import db
 from auth.decorators import login_required, role_required
 
 
@@ -17,8 +17,7 @@ def exportar_registrosExcel():
     """
     try:
         # Obtener los datos de la base de datos
-        cur = mysql.connection.cursor()
-        cur.execute("""SELECT
+        registros = db.session.execute("""SELECT
                     cal.nombre_calendario,
                     c.fecha,
                     c.hora,
@@ -32,11 +31,8 @@ def exportar_registrosExcel():
                     from citas c
                     JOIN pacientes p ON c.id_paciente = p.id
                     JOIN calendarios cal ON c.id_calendario = cal.id_calendario
-        """)
-        # Modificar esta línea para obtener los registros como diccionario
-        registros = cur.fetchall()
+        """).fetchall()
         print(f"Registros obtenidos: {registros}")  # Para ver cuántos registros se obtienen
-        cur.close()
 
         # Crear un nuevo libro de Excel
         wb = Workbook()

@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from auth.decorators import * 
-from database.config import mysql
+from database.config import db
+from sqlalchemy import text  # <-- Agrega esta importación
 import traceback
 
 actualizar_calendario = Blueprint("actualizar_calendario", __name__)
@@ -33,48 +34,42 @@ def update_calendario():
         inicio_hora_descanso = request.form['inicioHoraDescanso']
         fin_hora_descanso = request.form['finHoraDescanso']
 
-        sql = """UPDATE calendarios SET 
-                nombre_calendario = %s,
-                id_municipio = %s,
-                id_procedimiento = %s,
-                fecha_inicio = %s,
-                fecha_fin = %s,
-                hora_inicio = %s,
-                hora_fin = %s,
-                espacio_citas = %s,
-                tiempo_fuera = %s,
-                inicio_hora_descanso = %s,
-                fin_hora_descanso = %s
-                WHERE id_calendario = %s"""
-        params = (nombre_calendario, id_municipio, id_procedimiento, 
-                  fecha_inicio, fecha_fin, hora_inicio, hora_fin, espacio_citas, tiempo_fuera,
-                  inicio_hora_descanso, fin_hora_descanso, id_calendario)
-
-        # Ejecutar la consulta SQL
-        cur = mysql.connection.cursor()
-        cur.execute(sql, params)
-        mysql.connection.commit()
+        sql = text("""UPDATE calendarios SET 
+                nombre_calendario = :nombre_calendario,
+                id_municipio = :id_municipio,
+                id_procedimiento = :id_procedimiento,
+                fecha_inicio = :fecha_inicio,
+                fecha_fin = :fecha_fin,
+                hora_inicio = :hora_inicio,
+                hora_fin = :hora_fin,
+                espacio_citas = :espacio_citas,
+                tiempo_fuera = :tiempo_fuera,
+                inicio_hora_descanso = :inicio_hora_descanso,
+                fin_hora_descanso = :fin_hora_descanso
+                WHERE id_calendario = :id_calendario""")
+        db.session.execute(sql, {
+            "nombre_calendario": nombre_calendario,
+            "id_municipio": id_municipio,
+            "id_procedimiento": id_procedimiento,
+            "fecha_inicio": fecha_inicio,
+            "fecha_fin": fecha_fin,
+            "hora_inicio": hora_inicio,
+            "hora_fin": hora_fin,
+            "espacio_citas": espacio_citas,
+            "tiempo_fuera": tiempo_fuera,
+            "inicio_hora_descanso": inicio_hora_descanso,
+            "fin_hora_descanso": fin_hora_descanso,
+            "id_calendario": id_calendario
+        })
+        db.session.commit()
 
         # Mostrar mensaje de éxito
         flash("Calendario actualizado exitosamente", "success")
 
-    except ValueError as e:
-        # Capturar errores de tipo de datos
-        error = traceback.format_exc()
-        print(f"Error en tipos de datos: {str(e)}")
-        print(f"Detalles del error: {error}")
-        flash(f"Error en tipos de datos: {str(e)}", "error")
-        mysql.connection.rollback()  # Revertir cambios en caso de error
     except Exception as e:
-        error = traceback.format_exc()
-        print(f"Error en tipos de datos: {str(e)}")
-        print(f"Detalles del error: {error}")
-        # Capturar cualquier otro error
-        flash(f"Error al actualizar: {str(e)}", "error")
-        mysql.connection.rollback()  # Revertir cambios en caso de error
-    finally:
-        # Cerrar el cursor si fue creado
-        cur.close() if 'cur' in locals() else None
+        db.session.rollback()
+        flash(f"Error al actualizar calendario: {str(e)}", "error")
+        print(traceback.format_exc())
 
     # Redireccionar a la página de listado de clientes
     return redirect(url_for("index"))
