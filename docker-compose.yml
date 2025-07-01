@@ -1,4 +1,3 @@
-
 services:
   flask_app:
     build:
@@ -10,7 +9,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - MYSQL_HOST=mysql  # Usar el nombre del servicio, no localhost
+      - MYSQL_HOST=mysql # Usar el nombre del servicio, no localhost
       - MYSQL_USER=root
       - MYSQL_PASSWORD=rootpass
       - MYSQL_DB=savia_salud
@@ -19,7 +18,7 @@ services:
     depends_on:
       - mysql
     networks:
-      - xampp-network  # Conectar a la misma red
+      - xampp-network # Conectar a la misma red
 
   fastapi_app:
     build:
@@ -27,11 +26,11 @@ services:
       dockerfile: .dockerfile
     container_name: savia_uvicorn_services
     working_dir: /calendario/backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
-      - MYSQL_HOST=mysql  # Usar el nombre del servicio
+      - MYSQL_HOST=mysql # Usar el nombre del servicio
       - MYSQL_USER=root
       - MYSQL_PASSWORD=rootpass
       - MYSQL_DB=savia_salud
@@ -40,14 +39,14 @@ services:
     depends_on:
       - mysql
     networks:
-      - xampp-network  # Conectar a la misma red
+      - xampp-network # Conectar a la misma red
 
   apache:
     image: php:8.2-apache
     container_name: xampp-apache
     ports:
-      - "8080:80"        # Cambiado a 8080 para evitar conflicto
-      - "8443:443"       # Cambiado a 8443 para evitar conflicto
+      - "8080:80" # Cambiado a 8080 para evitar conflicto
+      - "8443:443" # Cambiado a 8443 para evitar conflicto
     volumes:
       - ./www:/var/www/html
       - ./apache-config:/etc/apache2/sites-enabled
@@ -67,7 +66,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: savia_salud
     ports:
-      - "3307:3306"      # Cambiado a 3307 para evitar conflicto
+      - "3307:3306" # Cambiado a 3307 para evitar conflicto
     volumes:
       - mysql-data:/var/lib/mysql
       - ./mysql-config:/etc/mysql/conf.d
@@ -85,12 +84,12 @@ services:
     depends_on:
       - mysql
     environment:
-      PMA_HOST: mysql     # Usar nombre del servicio
+      PMA_HOST: mysql # Usar nombre del servicio
       PMA_PORT: 3306
       PMA_USER: root
       PMA_PASSWORD: rootpass
     ports:
-      - "8081:80"        # Cambiado a 8081
+      - "8081:80" # Cambiado a 8081
     networks:
       - xampp-network
 

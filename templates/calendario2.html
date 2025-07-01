@@ -9,14 +9,17 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
+    <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
   </head>
 
   <body>
     <div class="container">
       <!-- Sección de información de citas -->
       <div class="info-section">
-        <div class="title" style="display: flex; justify-content: space-between;"> 
+        <div
+          class="title"
+          style="display: flex; justify-content: space-between"
+        >
           <h2>CALENDARIO DE CITAS</h2>
           <button
             type="button"
@@ -25,14 +28,14 @@
           >
             <i class="fas fa-times me-2"></i>Volver
           </button>
-
-          
         </div>
         {% if calendario and calendario|length > 0 %}
         <div class="selection-area">
-          <div class="selection-group  text primary ">
+          <div class="selection-group text primary">
             <label>Calendario</label>
-            <option style="font-size: 22px;">{{ calendario.nombre_calendario }}</option>
+            <option style="font-size: 22px">
+              {{ calendario.nombre_calendario }}
+            </option>
           </div>
 
           <div class="selection-group">
@@ -102,11 +105,66 @@
 
             <div class="calendar-footer">
               <div class="legend">
-                <button class="" style="background-color: #03a591; color: white; border: none; border-radius: 10px; padding: 5px;">Hoy</button>
-                <button class="" style="background-color: #9e9e9e; color: white; border: none; border-radius: 10px; padding: 5px;">Descanso</button>
-                <button class="" style="background-color: #4caf50; color: white; border: none; border-radius: 10px; padding: 5px;">Disponible</button>
-                <button class="" style="background-color: #f44336; color: white; border: none; border-radius: 10px; padding: 5px;">Ocupado</button>
-                <button class="" style="background-color: #2196f3; color: white; border: none; border-radius: 10px; padding: 5px;">Reserva Temporal</button>
+                <button
+                  class=""
+                  style="
+                    background-color: #03a591;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                  "
+                >
+                  Hoy
+                </button>
+                <button
+                  class=""
+                  style="
+                    background-color: #9e9e9e;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                  "
+                >
+                  Descanso
+                </button>
+                <button
+                  class=""
+                  style="
+                    background-color: #4caf50;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                  "
+                >
+                  Disponible
+                </button>
+                <button
+                  class=""
+                  style="
+                    background-color: #f44336;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                  "
+                >
+                  Ocupado
+                </button>
+                <button
+                  class=""
+                  style="
+                    background-color: #2196f3;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                  "
+                >
+                  Reserva Temporal
+                </button>
               </div>
             </div>
           </div>
@@ -462,7 +520,7 @@
               {% endfor %}
           ];
 
-        
+
         // Obtener información del calendario actual
         const horaInicioDescanso = "{{ calendario.inicio_hora_descanso }}";
         const horaFinDescanso = "{{ calendario.fin_hora_descanso }}";
@@ -500,7 +558,7 @@
                     break;
                 }
             }
-    
+
             // Actualizar el estado y el botón según condiciones
             if (esHoraDescanso) {
                 estadoCell.innerText = "Descanso";
@@ -520,7 +578,7 @@
             }
         });
       }
-      
+
       // Función para verificar si una hora está dentro del período de descanso
       function esHorarioDescanso(hora, inicioDescanso, finDescanso) {
           // Si no hay horario de descanso configurado, retornar falso
@@ -570,7 +628,7 @@
               alert("Por favor, complete todos los campos requeridos antes de reservar temporalmente.");
               return;
           }
-  
+
           // Guardar los datos del formulario
           const datosFormulario = {
               id: document.getElementById('id-calendario').value,
@@ -585,17 +643,17 @@
               apellido: document.getElementById('apellido').value,
               examen: document.getElementById('examen').value
           };
-  
+
           // Ocultar el modal de cita
           document.getElementById('modal-cita').style.display = 'none';
-  
+
           // Cambiar el estado en la UI para la hora seleccionada
           const filas = document.querySelectorAll('.schedule-row');
           filas.forEach(fila => {
               const hora = fila.querySelector('.time-cell').innerText;
               const boton = fila.querySelector('.assign-btn');
               const estadoCell = fila.querySelector('.location-cell');
-  
+
               if (hora === datosFormulario.hora_cita) {
                   estadoCell.innerText = "Reservado temporalmente";
                   boton.innerText = "Reservado temporalmente";
@@ -603,24 +661,24 @@
                   boton.disabled = true;
               }
           });
-  
+
           // Guardar la reserva en localStorage para que persista (duración 5 minutos)
           saveReservaTemporal(datosFormulario, 5 * 60);
           // Iniciar el contador regresivo desde 5 minutos (300 segundos)
           startCountdown(5 * 60, datosFormulario);
       }
-  
+
       // ==========================================================================
       // NUEVAS FUNCIONES PARA MANTENER LA RESERVA TEMPORAL CON localStorage
       // ==========================================================================
-  
+
       // Guarda la reserva temporal junto con el tiempo de expiración (en milisegundos)
       function saveReservaTemporal(datos, duration) {
           const expireTimestamp = Date.now() + duration * 1000;
           datos.expire = expireTimestamp;
           localStorage.setItem('reservaTemporal', JSON.stringify(datos));
       }
-  
+
       // Verifica si existe una reserva temporal activa y la aplica
       function checkReservaTemporal() {
           const stored = localStorage.getItem('reservaTemporal');
@@ -647,7 +705,7 @@
               }
           }
       }
-  
+
       // Inicia el contador regresivo y maneja la expiración
       function startCountdown(seconds, reserva) {
           let contadorContainer = document.getElementById('contador-temporal');
@@ -657,7 +715,7 @@
               contadorContainer.className = 'contador-flotante';
               contadorContainer.innerHTML = `<p>Reserva temporal: <span id="contador-tiempo">${formatTime(seconds)}</span></p>`;
               document.body.appendChild(contadorContainer);
-            
+
               const estiloContador = document.createElement('style');
               estiloContador.textContent = `
                   .contador-flotante {
@@ -675,7 +733,7 @@
               `;
               document.head.appendChild(estiloContador);
           }
-        
+
           const intervalo = setInterval(function() {
               seconds--;
               if (seconds >= 0) {
@@ -684,7 +742,7 @@
               if (seconds < 0) {
                   clearInterval(intervalo);
                   contadorContainer.remove();
-  
+
                   // Restaura el estado de la fila reservada
                   const filas = document.querySelectorAll('.schedule-row');
                   filas.forEach(fila => {
@@ -698,10 +756,10 @@
                           boton.disabled = false;
                       }
                   });
-  
+
                   localStorage.removeItem('reservaTemporal');
                   alert("El tiempo de reserva temporal ha expirado. Por favor, complete su reserva.");
-  
+
                   // Opcional: Mostrar nuevamente el modal con los datos guardados
                   document.getElementById('modal-cita').style.display = 'flex';
                   document.getElementById('id-calendario').value = reserva.id;
@@ -720,7 +778,7 @@
               }
           }, 1000);
       }
-        
+
       function formatTime(seconds) {
           const minutes = Math.floor(seconds / 60);
           const secs = seconds % 60;

@@ -26,7 +26,7 @@ def try_parse_date(date_string):
 
 def obtener_historico_gestiones():
     try:
-        response = requests.get('http://127.0.0.1:8000/registros/listar_historico/')
+        response = requests.get('http://fastapi_app:8000/registros/listar_historico/')
         if response.status_code == 200:
             datos = response.json()
             print(f"Datos recibidos: {len(datos)} registros")
@@ -45,7 +45,7 @@ def obtener_historico_gestiones():
 
 def obtener_total_gestiones():
     try:
-        response = requests.get('http://127.0.0.1:8000/registros/completo/')
+        response = requests.get('http://fastapi_app:8000/registros/completo/')
         if response.status_code == 200:
             datos = response.json()
             # print(f"Datos recibidos: {len(datos)} registros")
@@ -70,7 +70,7 @@ def obtener_total_gestiones():
 
 def obtener_tipificaciones():
     try:
-        response = requests.get('http://127.0.0.1:8000/tipificaciones/lista_tipificaciones/')
+        response = requests.get('http://fastapi_app:8000/tipificaciones/lista_tipificaciones/')
         if response.status_code == 200:
             datos = response.json()
             # print(f"Datos recibidos: {len(datos)} registros")
@@ -91,7 +91,7 @@ def obtener_tipificaciones():
 
 def obtener_gestiones_bd():
     try:
-        response = requests.get('http://127.0.0.1:8000/gestiones/gestion_bd/')
+        response = requests.get('http://fastapi_app:8000/gestiones/gestion_bd/')
         if response.status_code == 200:
             datos = response.json()
             
@@ -104,7 +104,7 @@ def obtener_gestiones_bd():
             #         except ValueError as e:
             #             print(f"Error al convertir fecha: {e}")
             #             item['fecha_gestion'] = None
-            # print(datos)
+            print(datos)
             return datos
         else:
             print(f"Error en la API: Status code {response.status_code}")
