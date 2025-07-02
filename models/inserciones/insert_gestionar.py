@@ -20,16 +20,20 @@ def insert_gestiones():
             motivo = request.form.get("motivo")
             
             # Debug: imprimir datos recibidos
-            print("Datos recibidos:", tipificacion, idLlamada, comentario, registro_id, motivo)
+            # print("Datos recibidos:", tipificacion, idLlamada, comentario, registro_id, motivo)
             
             # Obtener datos del registro_base
-            registro = db.session.execute(text("SELECT tipo_id, num_id, proceso FROM registro_base WHERE id = :registro_id"), {"registro_id": registro_id}).fetchone()
+            registro = db.session.execute(
+                text("SELECT tipo_id, num_id, proceso FROM registro_base WHERE id = :registro_id"),
+                {"registro_id": registro_id}
+            ).mappings().fetchone()
 
             if not registro:
                 flash("No se encontró el registro en registro_base", "error")
                 return redirect("/gestionar")
 
             llave_compuesta = f"{registro['tipo_id']}-{registro['num_id']}-{registro['proceso']}"
+            print("Llave compuesta:", llave_compuesta)  # Debug: imprimir llave compuesta
 
             if not motivo:
                 db.session.execute(
@@ -41,7 +45,14 @@ def insert_gestiones():
                         usuario,
                         llave_compuesta
                     ) VALUES (:registro_id, :tipificacion, :idLlamada, :comentario, :nombre_asesor, :llave_compuesta)"""),
-                    {"registro_id": registro_id, "tipificacion": tipificacion, "idLlamada": idLlamada, "comentario": comentario, "nombre_asesor": nombre_asesor, "llave_compuesta": llave_compuesta}
+                    {
+                        "registro_id": registro_id,
+                        "tipificacion": tipificacion,
+                        "idLlamada": idLlamada,
+                        "comentario": comentario,
+                        "nombre_asesor": nombre_asesor,
+                        "llave_compuesta": llave_compuesta
+                    }
                 )
             else:
                 db.session.execute(
@@ -54,11 +65,19 @@ def insert_gestiones():
                         motivo,
                         llave_compuesta
                     ) VALUES (:registro_id, :tipificacion, :idLlamada, :comentario, :nombre_asesor, :motivo, :llave_compuesta)"""),
-                    {"registro_id": registro_id, "tipificacion": tipificacion, "idLlamada": idLlamada, "comentario": comentario, "nombre_asesor": nombre_asesor, "motivo": motivo, "llave_compuesta": llave_compuesta}
+                    {
+                        "registro_id": registro_id,
+                        "tipificacion": tipificacion,
+                        "idLlamada": idLlamada,
+                        "comentario": comentario,
+                        "nombre_asesor": nombre_asesor,
+                        "motivo": motivo,
+                        "llave_compuesta": llave_compuesta
+                    }
                 )
 
             db.session.commit()
-            print("Gestión insertada exitosamente")
+            # print("Gestión insertada exitosamente")
             flash("Gestión insertada exitosamente", "success")
             # benchmark_guardado(lambda: cur.fetchall(), repeticiones=1000)  # Benchmarking de la inserción
 

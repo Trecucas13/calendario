@@ -5,6 +5,7 @@ from flask import send_file
 from flask import Blueprint, jsonify
 from database.config import db
 from auth.decorators import login_required, role_required
+from sqlalchemy import text  # Importar text
 
 
 datos_gestionados = Blueprint('datos_gestionados', __name__)
@@ -17,21 +18,22 @@ def exportar_registros_excel():
     """
     try:
         # Obtener los datos de la base de datos
-        registros = db.session.execute("""SELECT
-                    g.fecha_gestion,
-                    r.tipo_id, 
-                    r.num_id, 
-                    r.primer_nombre, 
-                    r.segundo_nombre,
-                    r.primer_apellido,
-                    r.segundo_apellido,
-                    r.fecha,
-                    r.edad,
-                    r.telefonos,
-                    r.direccion
-                    FROM registro_base r
-                    JOIN gestion g ON r.id = g.registro_id
-        """).fetchall()
+        registros = db.session.execute(text("""
+            SELECT
+                g.fecha_gestion,
+                r.tipo_id, 
+                r.num_id, 
+                r.primer_nombre, 
+                r.segundo_nombre,
+                r.primer_apellido,
+                r.segundo_apellido,
+                r.fecha,
+                r.edad,
+                r.telefonos,
+                r.direccion
+            FROM registro_base r
+            INNER JOIN gestion g ON r.id = g.registro_id
+        """)).fetchall()
 
         # Crear un nuevo libro de Excel
         wb = Workbook()
@@ -44,7 +46,7 @@ def exportar_registros_excel():
             "Tipo Documento",
             "Número Documento",
             "Primer Nombre",
-            "Segundo Aombre",   
+            "Segundo Nombre",   
             "Primer Apellido",
             "Segundo Apellido",
             "Fecha Nacimiento",
@@ -65,9 +67,9 @@ def exportar_registros_excel():
             cell.alignment = Alignment(horizontal="center")
 
         # Agregar datos
-        for row, registro in enumerate(registros, 2):
-            for col, value in enumerate(registro.values(), 1):
-                cell = ws.cell(row=row, column=col, value=value)
+        for row_idx, registro in enumerate(registros, 2):
+            for col_idx, value in enumerate(registro, 1):
+                cell = ws.cell(row=row_idx, column=col_idx, value=value)
                 cell.alignment = Alignment(horizontal="center")
 
         # Ajustar ancho de columnas

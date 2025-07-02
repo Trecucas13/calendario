@@ -4,13 +4,15 @@ from sqlalchemy import text
 from auth.decorators import *
 import math  # Necesario para math.ceil
 
-def datos_usuarios():
+def datos_usuarios(page=1, per_page=10):
     try:
-        datos = db.session.execute(text("SELECT * FROM usuarios")).fetchall()
-        return datos
+        offset = (page - 1) * per_page
+        datos = db.session.execute(text("SELECT * FROM usuarios LIMIT :limit OFFSET :offset"), {"limit": per_page, "offset": offset}).fetchall()
+        total = db.session.execute(text("SELECT COUNT(*) FROM usuarios")).scalar()
+        return datos, total
     except Exception as e:
         print(f"Error: {e}")
-        return []
+        return [], 0
 
 vista_usuarios = Blueprint('vista_usuarios', __name__)
 
@@ -42,19 +44,10 @@ class Pagination:
 @login_required
 @role_required(1)
 def tabla_usuarios():
-    usuarios = datos_usuarios()
-    
-    # Configuración de paginación
     page = request.args.get('page', 1, type=int)
     per_page = 10
-    total = len(usuarios)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_usuarios = usuarios[start:end]
-    
-    # Crear objeto de paginación (asegúrate de usar 'pagination' sin tilde)
+    usuarios, total = datos_usuarios(page, per_page)
     pagination = Pagination(page=page, per_page=per_page, total=total)
-    
     return render_template("usuarios.html", 
-                         usuarios=paginated_usuarios,
-                         pagination=pagination)  # <-- ¡Sin tilde aquí!
+                         usuarios=usuarios,
+                         pagination=pagination)

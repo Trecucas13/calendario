@@ -1,120 +1,383 @@
-from flask import Flask, Blueprint, render_template, flash, request
+from flask import Blueprint, render_template, flash, request
 import math
 from database.config import db
 from auth.decorators import *
 from auth.decorators import login_required, role_required
-import requests
+from sqlalchemy import text
 from datetime import datetime
-from tiempo_funcion import benchmark_guardado
 
 vista_gestiones = Blueprint('vista_gestiones', __name__)
-
 
 def try_parse_date(date_string):
     formats = [
         '%Y-%m-%d %H:%M:%S',  # Current format
         '%Y-%m-%dT%H:%M:%S'   # ISO format
     ]
-    
     for date_format in formats:
         try:
             return datetime.strptime(date_string, date_format)
-        except ValueError:
+        except Exception:
             continue
     return None
 
+# ===================== CONSULTAS ENRIQUECIDAS =====================
 def obtener_historico_gestiones():
-    try:
-        response = requests.get('http://fastapi_app:8000/registros/listar_historico/')
-        if response.status_code == 200:
-            datos = response.json()
-            print(f"Datos recibidos: {len(datos)} registros")
-            # Convertir string a datetime
-            for item in datos:
-                if 'fecha_gestion' in item and item['fecha_gestion']:
-                    item['fecha_gestion'] = try_parse_date(item['fecha_gestion'])
-            return datos
-        else:
-            print(f"Error en la API: Status code {response.status_code}")
-            return []
-    except Exception as e:
-        print(f"Error en la conexión: {e}")
-        return []
-
+    sql = text("""
+        SELECT 
+            g.id AS gestion_id,
+            g.tipificacion,
+            g.comentario,
+            g.id_llamada,
+            g.fecha_gestion,
+            g.usuario AS asesor,
+            g.registro_id,
+            g.llave_compuesta,
+            g.motivo,
+            r.id AS registro_id,
+            r.tipo_id,
+            r.num_id,
+            r.primer_nombre,
+            r.segundo_nombre,
+            r.primer_apellido,
+            r.segundo_apellido,
+            r.fecha,
+            r.edad,
+            r.estado_afiliacion,
+            r.regimen_afiliacion,
+            r.telefonos,
+            r.direccion,
+            r.municipio,
+            r.subregion,
+            r.proceso,
+            r.fecha_carga,
+            -- Mejor gestión (por menor ranking)
+            COALESCE(
+                (
+                    SELECT g2.tipificacion
+                    FROM gestion g2
+                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
+                    WHERE g2.registro_id = r.id
+                    ORDER BY t2.ranking ASC
+                    LIMIT 1
+                ),
+                'Sin gestión'
+            ) AS mejor_gestion,
+            -- Mes de la última gestión
+            (
+                SELECT TO_CHAR(g3.fecha_gestion, 'Month')
+                FROM gestion g3
+                WHERE g3.registro_id = r.id
+                ORDER BY g3.fecha_gestion DESC
+                LIMIT 1
+            ) AS mes_gestion,
+            -- Cantidad de gestiones
+            (
+                SELECT COUNT(*)
+                FROM gestion g4
+                WHERE g4.registro_id = r.id
+            ) AS cantidad_gestiones,
+            -- Tipo de gestión (efectivo/no efectivo)
+            (
+                SELECT CASE WHEN t3.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
+                FROM gestion g5
+                JOIN tipificacion t3 ON t3.nombre = g5.tipificacion
+                WHERE g5.registro_id = r.id
+                ORDER BY g5.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_gestion
+        FROM gestion g
+        JOIN registro_base r ON r.id = g.registro_id
+        ORDER BY g.fecha_gestion DESC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
 
 def obtener_total_gestiones():
-    try:
-        response = requests.get('http://fastapi_app:8000/registros/completo/')
-        if response.status_code == 200:
-            datos = response.json()
-            # print(f"Datos recibidos: {len(datos)} registros")
-            # Convertir string a datetime
-            # for item in datos:
-            #     if 'fecha_gestion' in item and item['fecha_gestion']:
-            #         try:
-            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-            #         except ValueError as e:
-            #             print(f"Error al convertir fecha: {e}")
-            #             item['fecha_gestion'] = None
-            return datos
-        else:
-            print(f"Error en la API: Status code {response.status_code}")
-            return []
-    except Exception as e:
-        print(f"Error en la conexión: {e}")
-        return []
-
-
-
+    sql = text("""
+        SELECT 
+            r.id AS registro_id,
+            r.tipo_id,
+            r.num_id,
+            r.primer_nombre,
+            r.segundo_nombre,
+            r.primer_apellido,
+            r.segundo_apellido,
+            r.fecha,
+            r.edad,
+            r.estado_afiliacion,
+            r.regimen_afiliacion,
+            r.proceso,
+            r.telefonos,
+            r.direccion,
+            r.municipio,
+            r.subregion,
+            r.fecha_carga,
+            -- Mejor gestión (por menor ranking)
+            COALESCE(
+                (
+                    SELECT g2.tipificacion
+                    FROM gestion g2
+                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
+                    WHERE g2.registro_id = r.id
+                    ORDER BY t2.ranking ASC
+                    LIMIT 1
+                ),
+                'Sin gestión'
+            ) AS mejor_gestion,
+            -- Última gestión
+            (
+                SELECT g3.tipificacion
+                FROM gestion g3
+                WHERE g3.registro_id = r.id
+                ORDER BY g3.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipificacion,
+            (
+                SELECT t3.tipo_contacto
+                FROM gestion g4
+                JOIN tipificacion t3 ON t3.nombre = g4.tipificacion
+                WHERE g4.registro_id = r.id
+                ORDER BY g4.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_contacto,
+            (
+                SELECT g5.comentario
+                FROM gestion g5
+                WHERE g5.registro_id = r.id
+                ORDER BY g5.fecha_gestion DESC
+                LIMIT 1
+            ) AS comentario,
+            (
+                SELECT g6.id_llamada
+                FROM gestion g6
+                WHERE g6.registro_id = r.id
+                ORDER BY g6.fecha_gestion DESC
+                LIMIT 1
+            ) AS id_llamada,
+            (
+                SELECT g7.fecha_gestion
+                FROM gestion g7
+                WHERE g7.registro_id = r.id
+                ORDER BY g7.fecha_gestion DESC
+                LIMIT 1
+            ) AS fecha_gestion,
+            (
+                SELECT g8.usuario
+                FROM gestion g8
+                WHERE g8.registro_id = r.id
+                ORDER BY g8.fecha_gestion DESC
+                LIMIT 1
+            ) AS asesor,
+            (
+                SELECT CASE WHEN t4.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
+                FROM gestion g9
+                JOIN tipificacion t4 ON t4.nombre = g9.tipificacion
+                WHERE g9.registro_id = r.id
+                ORDER BY g9.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_gestion,
+            (
+                SELECT TO_CHAR(g10.fecha_gestion, 'Month')
+                FROM gestion g10
+                WHERE g10.registro_id = r.id
+                ORDER BY g10.fecha_gestion DESC
+                LIMIT 1
+            ) AS mes_gestion,
+            (
+                SELECT COUNT(*)
+                FROM gestion g11
+                WHERE g11.registro_id = r.id
+            ) AS cantidad_gestiones
+        FROM registro_base r
+        ORDER BY r.fecha_carga DESC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
 
 def obtener_tipificaciones():
-    try:
-        response = requests.get('http://fastapi_app:8000/tipificaciones/lista_tipificaciones/')
-        if response.status_code == 200:
-            datos = response.json()
-            # print(f"Datos recibidos: {len(datos)} registros")
-            # Convertir string a datetime
-            # for item in datos:
-            #     if 'fecha_gestion' in item and item['fecha_gestion']:
-            #         try:
-            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-            #         except ValueError as e:
-            #             print(f"Error al convertir fecha: {e}")
-            #             item['fecha_gestion'] = None
-        return datos
-    except Exception as e:
-        print(f"Error en la conexión: {e}")
-        return []
-
-
+    sql = text("""
+        SELECT id, nombre, ranking, tipo_contacto
+        FROM tipificacion
+        ORDER BY ranking ASC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
 
 def obtener_gestiones_bd():
-    try:
-        response = requests.get('http://fastapi_app:8000/gestiones/gestion_bd/')
-        if response.status_code == 200:
-            datos = response.json()
-            
-            print(f"Datos recibidos: {len(datos)} registros")
-            # Convertir string a datetime
-            # for item in datos:
-            #     if 'fecha_gestion' in item and item['fecha_gestion']:
-            #         try:
-            #             item['fecha_gestion'] = datetime.strptime(item['fecha_gestion'], '%Y-%m-%d %H:%M:%S')
-            #         except ValueError as e:
-            #             print(f"Error al convertir fecha: {e}")
-            #             item['fecha_gestion'] = None
-            print(datos)
-            return datos
-        else:
-            print(f"Error en la API: Status code {response.status_code}")
-            return []
-    except Exception as e:
-        print(f"Error en la conexión: {e}")
-        return []
+    sql = text("""
+        SELECT 
+            g.id AS gestion_id,
+            g.tipificacion,
+            g.comentario,
+            g.id_llamada,
+            g.fecha_gestion,
+            g.usuario AS asesor,
+            g.registro_id,
+            g.llave_compuesta,
+            g.motivo,
+            r.tipo_id,
+            r.num_id,
+            r.primer_nombre,
+            r.segundo_nombre,
+            r.primer_apellido,
+            r.segundo_apellido,
+            r.fecha,
+            r.edad,
+            r.estado_afiliacion,
+            r.regimen_afiliacion,
+            r.telefonos,
+            r.direccion,
+            r.municipio,
+            r.subregion,
+            r.proceso,
+            r.fecha_carga,
+            -- Mejor gestión (por menor ranking)
+            COALESCE(
+                (
+                    SELECT g2.tipificacion
+                    FROM gestion g2
+                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
+                    WHERE g2.registro_id = r.id
+                    ORDER BY t2.ranking ASC
+                    LIMIT 1
+                ),
+                'Sin gestión'
+            ) AS mejor_gestion,
+            -- Mes de la última gestión
+            (
+                SELECT TO_CHAR(g3.fecha_gestion, 'Month')
+                FROM gestion g3
+                WHERE g3.registro_id = r.id
+                ORDER BY g3.fecha_gestion DESC
+                LIMIT 1
+            ) AS mes_gestion,
+            -- Cantidad de gestiones
+            (
+                SELECT COUNT(*)
+                FROM gestion g4
+                WHERE g4.registro_id = r.id
+            ) AS cantidad_gestiones,
+            -- Tipo de gestión (efectivo/no efectivo)
+            (
+                SELECT CASE WHEN t3.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
+                FROM gestion g5
+                JOIN tipificacion t3 ON t3.nombre = g5.tipificacion
+                WHERE g5.registro_id = r.id
+                ORDER BY g5.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_gestion
+        FROM gestion g
+        JOIN registro_base r ON r.id = g.registro_id
+        ORDER BY g.fecha_gestion DESC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
+
+def obtener_total_mejor_gestiones():
+    sql = text("""
+        SELECT
+            r.id AS registro_id,
+            r.tipo_id,
+            r.num_id,
+            r.primer_nombre,
+            r.segundo_nombre,
+            r.primer_apellido,
+            r.segundo_apellido,
+            r.fecha,
+            r.edad,
+            r.estado_afiliacion,
+            r.regimen_afiliacion,
+            r.proceso,
+            r.telefonos,
+            r.direccion,
+            r.municipio,
+            r.subregion,
+            r.fecha_carga,
+            -- Mejor gestión (por menor ranking)
+            COALESCE(
+                (
+                    SELECT g2.tipificacion
+                    FROM gestion g2
+                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
+                    WHERE g2.registro_id = r.id
+                    ORDER BY t2.ranking ASC
+                    LIMIT 1
+                ),
+                'Sin gestión'
+            ) AS mejor_gestion,
+            -- Última gestión
+            (
+                SELECT g3.tipificacion
+                FROM gestion g3
+                WHERE g3.registro_id = r.id
+                ORDER BY g3.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipificacion,
+            (
+                SELECT t3.tipo_contacto
+                FROM gestion g4
+                JOIN tipificacion t3 ON t3.nombre = g4.tipificacion
+                WHERE g4.registro_id = r.id
+                ORDER BY g4.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_contacto,
+            (
+                SELECT g5.comentario
+                FROM gestion g5
+                WHERE g5.registro_id = r.id
+                ORDER BY g5.fecha_gestion DESC
+                LIMIT 1
+            ) AS comentario,
+            (
+                SELECT g6.id_llamada
+                FROM gestion g6
+                WHERE g6.registro_id = r.id
+                ORDER BY g6.fecha_gestion DESC
+                LIMIT 1
+            ) AS id_llamada,
+            (
+                SELECT g7.fecha_gestion
+                FROM gestion g7
+                WHERE g7.registro_id = r.id
+                ORDER BY g7.fecha_gestion DESC
+                LIMIT 1
+            ) AS fecha_gestion,
+            (
+                SELECT g8.usuario
+                FROM gestion g8
+                WHERE g8.registro_id = r.id
+                ORDER BY g8.fecha_gestion DESC
+                LIMIT 1
+            ) AS asesor,
+            (
+                SELECT CASE WHEN t4.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
+                FROM gestion g9
+                JOIN tipificacion t4 ON t4.nombre = g9.tipificacion
+                WHERE g9.registro_id = r.id
+                ORDER BY g9.fecha_gestion DESC
+                LIMIT 1
+            ) AS tipo_gestion,
+            (
+                SELECT TO_CHAR(g10.fecha_gestion, 'Month')
+                FROM gestion g10
+                WHERE g10.registro_id = r.id
+                ORDER BY g10.fecha_gestion DESC
+                LIMIT 1
+            ) AS mes_gestion,
+            (
+                SELECT COUNT(*)
+                FROM gestion g11
+                WHERE g11.registro_id = r.id
+            ) AS cantidad_gestiones
+        FROM registro_base r
+        ORDER BY r.fecha_carga DESC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
 
 
-
-# Agregar clase de paginación
+# ================== RUTAS ==================
+# Clase de paginación igual que antes
 class Pagination:
     def __init__(self, page, per_page, total):
         self.page = page
@@ -132,39 +395,30 @@ class Pagination:
 @login_required
 @role_required([1 , 2])
 def tabla_gestiones():
-    historial = obtener_historico_gestiones()
-    tipificaciones = obtener_tipificaciones()
-    # print(historial)
-    # Paginación
     page = request.args.get('page', 1, type=int)
     per_page = 10
+    historial = obtener_historico_gestiones()
+    tipificaciones = obtener_tipificaciones()
     total = len(historial)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_historial = historial[start:end]
+    # Pagina en Python
+    historial_paginado = historial[(page-1)*per_page : page*per_page]
     pagination = Pagination(page, per_page, total)
-    return render_template("historico_gestiones.html", historico=paginated_historial, tipificaciones=tipificaciones, pagination=pagination)
+    return render_template("historico_gestiones.html", historico=historial_paginado, tipificaciones=tipificaciones, pagination=pagination)
 
-    
 #Ruta para Gestion BD
 gestion_bd = Blueprint('gestion_bd', __name__)
 
 @gestion_bd.route("/gestion_bd")
 @login_required
 @role_required([1 , 2])
-def tabla_gestiones():
-    historial = obtener_gestiones_bd()
-    # benchmark_guardado(lambda: obtener_gestiones_bd(), 100)
-    # Paginación
+def tabla_gestiones_bd():
     page = request.args.get('page', 1, type=int)
     per_page = 10
+    historial = obtener_total_mejor_gestiones()
     total = len(historial)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_historial = historial[start:end]
+    historial_paginado = historial[(page-1)*per_page : page*per_page]
     pagination = Pagination(page, per_page, total)
-    # print(historial)
-    return render_template("gestion_bd.html", historico=paginated_historial, pagination=pagination)
+    return render_template("gestion_bd.html", historico=historial_paginado, pagination=pagination)
 
 #Ruta para Gestionar
 gestionar = Blueprint('gestionar', __name__)
@@ -172,20 +426,15 @@ gestionar = Blueprint('gestionar', __name__)
 @gestionar.route("/gestionar")
 @login_required
 @role_required([1 , 2])
-def tabla_gestiones():
-    gestiones = obtener_total_gestiones()
-    # benchmark_guardado(lambda: obtener_total_gestiones(), 1000)
-    tipificaciones = obtener_tipificaciones()
-      # Paginación
+def tabla_gestionar():
     page = request.args.get('page', 1, type=int)
     per_page = 10
+    gestiones = obtener_total_gestiones()
+    tipificaciones = obtener_tipificaciones()
     total = len(gestiones)
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_historial = gestiones[start:end]
+    gestiones_paginado = gestiones[(page-1)*per_page : page*per_page]
     pagination = Pagination(page, per_page, total)
-    # print(gestiones)
-    # print(tipificaciones)
-    return render_template("gestionar.html", gestiones=paginated_historial, tipificaciones=tipificaciones, pagination=pagination)
+    return render_template("gestionar.html", gestiones=gestiones_paginado, tipificaciones=tipificaciones, pagination=pagination)
+
 
 

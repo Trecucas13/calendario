@@ -83,7 +83,7 @@
                 {% for pacientes in pacientes %}
                 <tr
                   class=""
-                  data-user-id="{{ pacientes.id }}"
+                  data-user-id="{{ pacientes.id_paciente }}"
                 >
                   <td class="">{{ pacientes.nombre }}</td>
                   <td class="">
@@ -125,7 +125,7 @@
                         class="edit"
                         data-bs-toggle="modal"
                         data-bs-target="#ActualizaruserModal"
-                        onclick="mostrarModalActualizarDatos('{{pacientes.id}}', '{{pacientes.nombre}}', '{{pacientes.apellido}}', '{{pacientes.tipo_documento}}', '{{pacientes.numero_documento}}', '{{pacientes.telefono}}', '{{pacientes.direccion}}', '{{pacientes.fecha_nacimiento}}', '{{pacientes.examen_realizar}}')"
+                        onclick="mostrarModalActualizarDatos('{{pacientes.id_paciente}}', '{{pacientes.nombre}}', '{{pacientes.apellido}}', '{{pacientes.tipo_documento}}', '{{pacientes.numero_documento}}', '{{pacientes.telefono}}', '{{pacientes.direccion}}', '{{pacientes.fecha_nacimiento}}', '{{pacientes.examen_realizar}}')"
                       >
                         <i class="fas fa-edit"></i>
                       </button>
@@ -462,7 +462,7 @@
                   />
                 </div>
 
-                <div class="col-md-12">
+                <!-- <div class="col-md-12">
                   <label class="form-label">
                     <i class="fas fa-user-tag me-2"></i>Procedimiento
                   </label>
@@ -478,7 +478,7 @@
 
                     {% endfor %}
                   </select>
-                </div>
+                </div> -->
               </div>
             </div>
 
@@ -509,24 +509,36 @@
         fecha_nacimiento,
         examen_realizar
       ) {
-        // Obtener el modal
-        const modal = document.getElementById("modalActualizarDatos");
-        // Establecer los valores en los campos del formulario
+        // Debug: mostrar el id recibido
+        console.log('ID recibido para actualizar:', userID);
+        document.getElementById("actualizarId").value = userID;
         document.getElementById("actualizarNombre").value = nombre;
         document.getElementById("actualizarApellido").value = apellido;
         document.getElementById("actualizarTipo").value = tipo_documento;
         document.getElementById("actualizarDocumento").value = documento;
         document.getElementById("actualizarTelefono").value = telefono;
         document.getElementById("actualizarDireccion").value = direccion;
-        document.getElementById("actualizarFecha_nacimiento").value =
-          fecha_nacimiento;
-        document.getElementById("actualizarExamen").value = examen_realizar;
-
-        console.log(documento);
-        document.getElementById("actualizarId").value = userID;
-        // Mostrar el modal
-        modal.style.display = "block";
+        document.getElementById("actualizarFecha_nacimiento").value = fecha_nacimiento;
+        // document.getElementById("actualizarExamen").value = examen_realizar;
       }
+
+      // Limpiar el modal al cerrarlo para evitar valores residuales
+      document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('ActualizaruserModal');
+        if (modal) {
+          modal.addEventListener('hidden.bs.modal', function () {
+            document.getElementById("actualizarId").value = '';
+            document.getElementById("actualizarNombre").value = '';
+            document.getElementById("actualizarApellido").value = '';
+            document.getElementById("actualizarTipo").value = '';
+            document.getElementById("actualizarDocumento").value = '';
+            document.getElementById("actualizarTelefono").value = '';
+            document.getElementById("actualizarDireccion").value = '';
+            document.getElementById("actualizarFecha_nacimiento").value = '';
+            // document.getElementById("actualizarExamen").value = '';
+          });
+        }
+      });
 
       // ==================== FUNCIONES DE BÚSQUEDA ====================
 

@@ -23,8 +23,13 @@ def insertar_cita():
             fecha_nacimiento = request.form["fecha_nacimiento"]
             examen = request.form["examen"]
             usuario_actual = session.get('id')
-
-            paciente_existente = db.session.execute(text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"), {"numero_documento": numero_documento}).fetchone()
+        
+            # print("Datos recibidos:", id_calendario, nombre, apellido, fecha, hora, tipo_documento, numero_documento, telefono, direccion, fecha_nacimiento, examen)
+            # print("Usuario actual:", usuario_actual)
+            paciente_existente = db.session.execute(
+                text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"),
+                {"numero_documento": numero_documento}
+            ).mappings().fetchone()
 
             if paciente_existente:
                 id_paciente = paciente_existente["id"]
@@ -42,25 +47,37 @@ def insertar_cita():
                         {"nombre": nombre, "apellido": apellido, "tipo_documento": tipo_documento, "numero_documento": numero_documento, "telefono": telefono, "direccion": direccion, "fecha_nacimiento": fecha_nacimiento})
                     db.session.commit()
 
-                    paciente_existente = db.session.execute(text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"), {"numero_documento": numero_documento}).fetchone()
+                    paciente_existente = db.session.execute(
+                        text("SELECT * FROM pacientes WHERE numero_documento = :numero_documento"),
+                        {"numero_documento": numero_documento}
+                    ).mappings().fetchone()
                     id_paciente = paciente_existente["id"]
                 except Exception as e:
                     db.session.rollback()
+                    print(traceback.format_exc())
                     flash(f"Error al insertar paciente: {str(e)}", "error")
-                    return redirect(url_for('insertar_citas.insertar_cita'))
+                    return redirect(f'/calendario/{id_calendario}')
 
             db.session.execute(text("""
                 INSERT INTO citas (
                     id_calendario, 
+                    id_usuario,
                     id_paciente, 
-                    fecha, 
-                    hora, 
                     id_procedimiento, 
-                    usuario_actual, 
-                    examen
+                    fecha, 
+                    hora,
+                    estado
                 ) 
-                VALUES (:id_calendario, :id_paciente, :fecha, :hora, :examen, :usuario_actual, :examen)"""),
-                {"id_calendario": id_calendario, "id_paciente": id_paciente, "fecha": fecha, "hora": hora, "examen": examen, "usuario_actual": usuario_actual})
+                VALUES (:id_calendario, :id_usuario, :id_paciente, :id_procedimiento, :fecha, :hora, :estado)"""),
+                {
+                    "id_calendario": id_calendario,
+                    "id_usuario": usuario_actual,
+                    "id_paciente": id_paciente,
+                    "id_procedimiento": examen,
+                    "fecha": fecha,
+                    "hora": hora,
+                    "estado": True  # o False según tu lógica
+                })
 
             db.session.commit()
             flash("Cita insertada exitosamente", "success")
@@ -68,5 +85,6 @@ def insertar_cita():
 
     except Exception as e:
         db.session.rollback()
+        print(traceback.format_exc())
         flash(f"Error al insertar cita: {str(e)}", "error")
         return redirect(f'/calendario/{id_calendario}')

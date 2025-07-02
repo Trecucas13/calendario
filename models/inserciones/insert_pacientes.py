@@ -24,7 +24,7 @@ def insert_pacientes():
             direccion = request.form["direccion"]
             fecha_nacimiento = request.form["fecha_nacimiento"]
            
-            print("Datos recibidos: ", request.form)
+            # print("Datos recibidos: ", request.form)
 
             # Insertar el nuevo usuario en la base de datos
             db.session.execute(

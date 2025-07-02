@@ -143,7 +143,7 @@ class Pagination:
 
 def obtener_pacientes():
     pacientes = db.session.execute(text("""
-        SELECT p.*, c.fecha, c.hora, c.id, c.id_calendario, c.id_procedimiento, 
+        SELECT p.*, p.id as id_paciente , c.fecha, c.hora, c.id, c.id_calendario, c.id_procedimiento, 
         pr.nombre AS nombre_procedimiento
         FROM pacientes p 
         LEFT JOIN citas c ON p.id = c.id_paciente
@@ -158,6 +158,7 @@ def procedimientos():
 @app.route("/pacientes")
 def pacientes():
     pacientes = obtener_pacientes()
+    print(pacientes)
     procedimientos_list = procedimientos()
     # Paginación
     page = request.args.get('page', 1, type=int)

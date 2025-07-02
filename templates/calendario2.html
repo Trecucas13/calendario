@@ -88,14 +88,8 @@
               <div class="days">
                 {% for semana in semanas %} {% for dia in semana %}
                 <div
-                  class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas %}available-day{% endif %} {% if not dia.dentro_rango %}disabled{% endif %}"
-                  {%
-                  if
-                  dia.dentro_rango
-                  %}onclick="abrirHorario('{{dia.fecha_completa}}')"
-                  {%
-                  endif
-                  %}
+                  class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas and not dia.es_domingo %}available-day{% endif %} {% if not dia.dentro_rango or dia.es_domingo %}disabled{% endif %}"
+                  {% if dia.dentro_rango and not dia.es_domingo %}onclick="abrirHorario('{{dia.fecha_completa}}')"{% endif %}
                 >
                   {{ dia.dia }}
                 </div>

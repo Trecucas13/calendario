@@ -63,7 +63,7 @@
             <option value="">Municipio</option>
             {% for calendario in calendarios %}
             <option value="{{ calendario.id_calendario }}" {% if request.args.get('filtro_nombre') == calendario.id_calendario|string %} selected {% endif %}>
-                {{ calendario.nombreMunicipio }}
+                {{ calendario.nombremunicipio }}
             </option>
             {% endfor %}
         </select>
@@ -76,7 +76,7 @@
             <option value="">Proceso</option>
             {% for calendario in calendarios %}
             <option value="{{ calendario.id_calendario }}" {% if request.args.get('filtro_nombre') == calendario.id_calendario|string %} selected {% endif %}>
-                {{ calendario.nombreProcedimiento }}
+                {{ calendario.nombreprocedimiento }}
             </option>
             {% endfor %}
         </select>
@@ -126,8 +126,8 @@
                 {% for calendario in calendarios %}
                 <tr>
                   <td>{{ calendario.nombre_calendario }}</td>
-                  <td>{{ calendario.nombreProcedimiento }}</td>
-                  <td>{{ calendario.nombreMunicipio }}</td>
+                  <td>{{ calendario.nombreprocedimiento }}</td>
+                  <td>{{ calendario.nombremunicipio }}</td>
                   <td>
                     <!-- <a href="/calendario/{{calendario.id_calendario}}">Ir</a> -->
 

@@ -16,6 +16,11 @@ def update_paciente():
     try:
         # Obtener datos del formulario
         id_paciente = request.form["id"]
+        if not id_paciente or id_paciente == "None":
+            flash("ID de paciente no proporcionado. No se puede actualizar.", "error")
+            print("ID de paciente no proporcionado. No se puede actualizar.")
+            return redirect("/pacientes")
+        id_paciente = int(id_paciente)
         nombre = request.form["nombre"]
         apellido = request.form["apellido"]
         tipo_documento = request.form["tipo_documento"]
@@ -23,8 +28,9 @@ def update_paciente():
         telefono = request.form["telefono"]
         direccion = request.form["direccion"]
         fecha_nacimiento = request.form["fecha_nacimiento"]
-        procedimiento = request.form["examen_realizar"]
+        # examen_realizar = request.form["examen_realizar"]
         
+        # print("Datos recibidos:", id_paciente, nombre, apellido, tipo_documento, documento, telefono, direccion, fecha_nacimiento)
         # Actualizar usuario sin modificar la contraseña
         sql = text("""UPDATE pacientes SET 
                  nombre = :nombre,
@@ -35,7 +41,7 @@ def update_paciente():
                  direccion = :direccion,
                  fecha_nacimiento = :fecha_nacimiento
                  WHERE id = :id_paciente""")
-        db.session.execute(sql, {
+        result = db.session.execute(sql, {
             "nombre": nombre,
             "apellido": apellido,
             "tipo_documento": tipo_documento,
@@ -45,6 +51,7 @@ def update_paciente():
             "fecha_nacimiento": fecha_nacimiento,
             "id_paciente": id_paciente
         })
+        print(f"Filas actualizadas: {result.rowcount}")
         db.session.commit()
         
         flash("Paciente actualizado exitosamente", "success")
