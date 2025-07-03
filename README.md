@@ -151,3 +151,68 @@ El inicio de sesión se realiza a través de la ruta `/` (que renderiza `login.h
 
 Este proyecto fue desarrollado por el equipo de practicantes de **Andes BPO**.
 Para soporte técnico o consultas adicionales, por favor, contactar a través de los canales establecidos por la organización.
+
+## Endpoints Clave
+
+A continuación, se describen los endpoints más relevantes de la aplicación, divididos entre el Frontend (Flask) y el Backend (FastAPI).
+
+### Frontend (Aplicación Flask - `http://localhost:5000`)
+
+La aplicación Flask maneja la interfaz de usuario y las interacciones directas. Muchos endpoints sirven vistas HTML, mientras que otros manejan la lógica de formularios o descargas.
+
+**Autenticación y Vistas Principales:**
+
+| Método | Ruta                               | Descripción                                                                 | Requiere Login | Roles Permitidos (ej.) |
+|--------|------------------------------------|-----------------------------------------------------------------------------|----------------|------------------------|
+| GET    | `/`                                | Página de inicio de sesión.                                                 | No             | N/A                    |
+| POST   | `/login`                           | Procesa las credenciales de inicio de sesión.                               | No             | N/A                    |
+| GET    | `/logout`                          | Cierra la sesión del usuario.                                               | Sí             | Todos                  |
+| GET    | `/index`                           | Dashboard principal, muestra información general y calendarios.             | Sí             | 1, 2                   |
+| GET    | `/formulario`                      | Muestra el formulario para la creación de nuevos calendarios.               | Sí             | 1, 2                   |
+| GET    | `/actualizarCalendario/<int:id>`   | Muestra el formulario para actualizar un calendario específico.             | Sí             | 1, 2                   |
+| GET    | `/pacientes`                       | Muestra la lista de pacientes registrados con paginación.                   | Sí             | 1, 2                   |
+| GET    | `/calendario/<int:id_calendario>`  | Muestra la vista detallada de un calendario, incluyendo citas y horarios.   | Sí             | 1, 2                   |
+| GET    | `/usuarios`                        | Muestra la lista de usuarios del sistema (gestión de usuarios).             | Sí             | 1                      |
+| GET    | `/Historico_gestiones`             | Muestra el historial completo de gestiones realizadas.                      | Sí             | 1, 2                   |
+| GET    | `/gestion_bd`                      | Vista de la base de datos de gestiones, mostrando la "mejor gestión".       | Sí             | 1, 2                   |
+| GET    | `/gestionar`                       | Interfaz para realizar y registrar nuevas gestiones sobre pacientes/casos.  | Sí             | 1, 2                   |
+
+**Operaciones y Funcionalidades (principalmente POST o descargas GET):**
+
+| Método | Ruta                                      | Descripción                                                              | Requiere Login | Roles Permitidos (ej.) |
+|--------|-------------------------------------------|--------------------------------------------------------------------------|----------------|------------------------|
+| POST   | `/crear_calendario`                       | Procesa la creación de un nuevo calendario.                              | Sí             | 1, 2                   |
+| POST   | `/actualizar_calendario/<int:id>`         | Procesa la actualización de un calendario existente.                     | Sí             | 1, 2                   |
+| POST   | `/delete_calendario/<int:id>`             | Elimina un calendario específico.                                        | Sí             | 1, 2                   |
+| POST   | `/insertar_usuario`                       | Registra un nuevo usuario en el sistema.                                 | Sí             | 1                      |
+| POST   | `/actualizar_usuario/<documento>`         | Actualiza la información de un usuario existente.                        | Sí             | 1                      |
+| POST   | `/delete_usuario/<documento>`             | Elimina un usuario del sistema.                                          | Sí             | 1                      |
+| POST   | `/insertar_citas`                         | Registra nuevas citas en un calendario.                                  | Sí             | 1, 2                   |
+| POST   | `/insertar_pacientes`                     | Registra nuevos pacientes en el sistema.                                 | Sí             | 1, 2                   |
+| POST   | `/actualizar_pacientes/<int:id>`          | Actualiza la información de un paciente.                                 | Sí             | 1, 2                   |
+| POST   | `/insertar_gestiones`                     | Registra nuevas gestiones realizadas.                                    | Sí             | 1, 2                   |
+| POST   | `/insertar-municipio`                     | Agrega un nuevo municipio a la base de datos.                            | Sí             | 1, 2                   |
+| POST   | `/insertar-procedimiento`                 | Agrega un nuevo procedimiento a la base de datos.                        | Sí             | 1, 2                   |
+| GET    | `/generar_informe_csv/<int:id_calendario>`| Descarga un informe en formato CSV de un calendario específico.          | Sí             | 1                      |
+| GET    | `/descargar_excel_citas`                  | Descarga un archivo Excel con el listado de citas.                       | Sí             | 1, 2                   |
+| GET    | `/descargar_excel_gestiones`              | Descarga un archivo Excel con el listado de gestiones.                   | Sí             | 1, 2                   |
+
+*Nota: Los roles permitidos son ejemplos basados en los decoradores `@role_required` encontrados. La lógica exacta puede variar.*
+
+### Backend (API FastAPI - `http://localhost:8000`)
+
+El backend FastAPI expone una API para la gestión de datos más complejos y procesos de carga masiva. La documentación interactiva completa está disponible en `http://localhost:8000/docs`.
+
+| Método | Ruta                             | Descripción                                              |
+|--------|----------------------------------|----------------------------------------------------------|
+| GET    | `/registros/`                      | Lista todos los registros base individuales.             |
+| POST   | `/registros/`                      | Crea un nuevo registro base (paciente).                  |
+| POST   | `/registros/cargar_archivo/`       | Permite la carga masiva de registros desde archivo Excel o CSV. |
+| GET    | `/registros/completo/`             | Lista los registros base enriquecidos con su mejor gestión. |
+| POST   | `/gestiones/`                      | Crea una nueva gestión asociada a un registro.           |
+| GET    | `/gestiones/historico/`            | Lista el histórico completo de todas las gestiones.      |
+| POST   | `/tipificaciones/`                 | Crea una nueva tipificación base para las gestiones.     |
+| POST   | `/tipificaciones/cargar_multiples/`| Permite la carga masiva de tipificaciones.               |
+| GET    | `/tipificaciones/`                 | Lista todas las tipificaciones base existentes.          |
+
+Para más detalles sobre los parámetros de solicitud y los esquemas de respuesta de la API FastAPI, consulte la [documentación de Swagger UI](http://localhost:8000/docs).
