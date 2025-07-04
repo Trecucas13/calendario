@@ -111,7 +111,7 @@ def reservar_cita():
     return jsonify({
         'mensaje': 'Cita agendada exitosamente',
         'id_cita': id_cita,
-        'estado': 'ocupado'
+        'estado': false
     }), 201
 
 if __name__ == '__main__':
