@@ -49,7 +49,7 @@ def espacios_por_fecha():
         return jsonify({'error': 'Faltan parámetros'}), 400
     
     query = """
-        SELECT hora, COALESCE(h.estado, 'disponible') as estado
+        SELECT hora, COALESCE(h.estado, true) as estado
         FROM citas h
         WHERE h.id_calendario = :id_calendario
         ORDER BY h.hora
