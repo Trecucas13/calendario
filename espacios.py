@@ -74,7 +74,8 @@ def reservar_cita():
     fecha = request.args.get('fecha')
     hora = request.args.get('hora')
     id_paciente = request.args.get('id_paciente')
-    id_usuario = request.args.get('id_usuario') 
+    id_usuario = request.args.get('id_usuario')
+    id_procedimiento = request.args.get('id_procedimiento')
     
     if not id_calendario or not fecha or not hora:
         return jsonify({'error': 'Faltan parámetros'}), 400
@@ -94,8 +95,8 @@ def reservar_cita():
     
     resultado_estado = "false"
     query = """
-        INSERT INTO citas (id_calendario, fecha, hora, id_paciente, estado, id_usuario)
-        VALUES (:id_calendario, :fecha, :hora, :id_paciente, :estado, :id_usuario)
+        INSERT INTO citas (id_calendario, fecha, hora, id_paciente, estado, id_usuario, id_procedimiento)
+        VALUES (:id_calendario, :fecha, :hora, :id_paciente, :estado, :id_usuario, :id_procedimiento)
     """
     result = db.session.execute(text(query), {
         'id_calendario': id_calendario,
@@ -103,7 +104,8 @@ def reservar_cita():
         'hora': hora,
         'id_paciente': id_paciente,
         'estado': resultado_estado,
-        'id_usuario': id_usuario
+        'id_usuario': id_usuario,
+        'id_procedimiento': id_procedimiento
     })
     db.session.commit()
     id_cita = result.lastrowid if hasattr(result, 'lastrowid') else None
