@@ -92,7 +92,7 @@ def reservar_cita():
     if resultado is not None:
         return jsonify({'error': 'El espacio ya no está disponible'}), 409
     
-    resultado_estado = "ocupado"
+    resultado_estado = false
     query = """
         INSERT INTO citas (id_calendario, fecha, hora, id_paciente, estado, id_usuario)
         VALUES (:id_calendario, :fecha, :hora, :id_paciente, :estado, :id_usuario)
