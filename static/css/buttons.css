@@ -1,0 +1,135 @@
+.title-header {
+    color: #03a591;
+}
+
+.header {
+    padding: 20px;
+    background-color: #d4edea;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    /* margin-bottom: 5px; */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.header-modal{
+    background-color: #d4edea;
+    
+}
+.header-modal h5{
+    color: #214c5a;
+}
+
+.add {
+    background-color: #d4edea;
+    border-radius: 10px;
+    border: none;
+    padding: 10px;
+    color: black;
+    text-decoration: none; 
+}
+
+
+.redirigir {
+    border: none;
+    border-radius: 5px;
+    /* padding: 10px; */
+    background-color: #d4edea;
+    color: black;
+    max-width: 30px;
+    width: 100%;
+    /* max-height: 50px; */
+    /* height: 100%; */
+    /* font-size: 18px; */
+    cursor: pointer;
+    /* size: 30px;   */
+}
+
+.edit {
+    background-color: yellow;
+    border-radius: 10px;
+    border: none;
+    max-width: 30px;
+    width: 100%;
+}
+
+.eliminar {
+    background-color: red;
+    border-radius: 10px;
+    border: none;
+    max-width: 30px;
+    width: 100%;
+}
+.download  {
+    background-color: d4edea;
+    border-radius: 10px;
+    border: none;
+    max-width: 30px;
+    width: 100%;
+}
+
+.cancelar{
+    background-color: red;
+    border-radius: 10px;
+    border: none;
+    padding: 5px;
+    color: white;
+}
+
+.guardar{
+    background-color: green;
+    border-radius: 10px;
+    border: none;
+    padding: 5px;
+    color: white;
+}
+
+/* Estilos para el buscador */
+.search-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 300px;
+    width: 100%;
+}
+
+.search-group i {
+    position: absolute;
+    left: 12px;
+    color: #03a591;
+    font-size: 16px;
+}
+
+.search-group input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #d4edea;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.search-group input:focus {
+    outline: none;
+    border-color: #03a591;
+    box-shadow: 0 0 0 2px rgba(3, 165, 145, 0.2);
+}
+
+.search-group input::placeholder {
+    color: #aaa;
+}
+
+/* Estilos responsivos para el buscador */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .search-group {
+        max-width: 100%;
+    }
+}

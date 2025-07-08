@@ -1,0 +1,510 @@
+/* Estilos para los slots según su estado */
+.slot.ocupado {
+    background-color: #ff5252; /* Rojo para ocupado */
+    color: white;
+}
+
+.slot.ocupado-temp {
+    background-color: #4285f4; /* Azul para ocupado temporalmente */
+    color: white;
+    position: relative;
+}
+
+/* Estilo para el contador de tiempo */
+.slot-contador {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    font-size: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+
+/* Estilo para la información del paciente */
+.slot-info {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Mejoras visuales para el calendario */
+.calendario-table {
+    width: 95%;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 2px;
+    font-size: 14px;
+}
+
+.slot-cell {
+    padding: 0;
+    height: 60px; /* Celdas más altas */
+    width: 120px; /* Celdas más anchas */
+    vertical-align: top;
+}
+
+.slot {
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease; /* Transición más suave */
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Sombra sutil */
+}
+
+.slot.disponible {
+    background-color: rgba(76, 175, 80, 0.4); /* Verde con opacidad reducida */
+    border: 1px solid rgba(76, 175, 80, 0.6);
+}
+
+.slot.disponible:hover {
+    background-color: rgb(76, 175, 79);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Sombra más pronunciada al hover */
+}
+
+.time-cell {
+    font-weight: bold;
+    text-align: right;
+    padding-right: 10px;
+    width: 80px;
+}
+
+.header-cell {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.day-of-week {
+    font-weight: bold;
+    color: #555;
+}
+
+.day-of-month {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 4px 0;
+}
+
+.month {
+    color: #777;
+}
+
+/* Mejora para la leyenda */
+.calendario-leyenda {
+    margin: 0;
+    width: 100%;
+    height: auto; /* Altura automática para adaptarse al contenido */
+    min-height: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px 8px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease; /* Animación para mostrar/ocultar */
+}
+
+/* Añadir espacio al final del contenido para que no quede oculto por el footer fijo */
+body {
+    padding-bottom: 120px; /* Un poco más que la altura del footer */
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    animation: fadeIn 0.5s ease-in-out; /* Animación de aparición */
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 4px;
+    transition: transform 0.2s ease; /* Animación al hacer hover */
+}
+
+.color-box:hover {
+    transform: scale(1.2);
+}
+
+.color-box.disponible {
+    background-color: rgba(76, 175, 80, 0.4);
+    border: 1px solid rgba(76, 175, 80, 0.6);
+}
+
+/* Mejora para los modales */
+.modal {
+    transition: opacity 0.3s ease; /* Animación de aparición del modal */
+}
+
+.modal-content {
+    width: 500px;
+    max-width: 90%;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Animación de entrada */
+    animation: modalIn 0.3s forwards;
+}
+
+@keyframes modalIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px; /* Padding más grande */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Animación de focus */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    outline: none;
+}
+
+/* Botones con animación */
+button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* Diseño responsivo */
+@media (max-width: 1200px) {
+    .calendario-table {
+        width: 100%;
+        font-size: 13px;
+    }
+    
+    .slot-cell {
+        width: 100px;
+        height: 50px;
+    }
+}
+
+@media (max-width: 992px) {
+    .calendario-table {
+        font-size: 12px;
+    }
+    
+    .slot-cell {
+        width: 90px;
+        height: 45px;
+    }
+    
+    .day-of-month {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendario-table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+    
+    .calendario-grid {
+        overflow-x: auto;
+        padding-bottom: 15px;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .left-controls {
+        margin-bottom: 10px;
+    }
+    
+    .calendario-leyenda {
+        height: auto;
+        padding: 10px 5px;
+    }
+    
+    .leyenda-item {
+        margin: 5px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .slot-cell {
+        width: 70px;
+        height: 40px;
+    }
+    
+    .slot {
+        padding: 4px;
+        font-size: 11px;
+    }
+    
+    .time-cell {
+        width: 60px;
+        font-size: 11px;
+    }
+    
+    .header-cell {
+        padding: 5px;
+    }
+    
+    .day-of-month {
+        font-size: 14px;
+        margin: 2px 0;
+    }
+    
+    .day-of-week, .month {
+        font-size: 11px;
+    }
+    
+    .modal-content {
+        width: 95%;
+    }
+}
+   /* Estilos adicionales para corregir la visualización del calendario */
+   #calendarioNombre {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.calendario-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.header-cell {
+    padding: 10px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.header-cell.empty {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    width: 80px; /* Ancho fijo para la columna de horas */
+}
+
+.time-cell {
+    width: 80px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    font-weight: bold;
+}
+
+.slot-cell {
+    height: 60px;
+    border: 1px solid #dee2e6;
+    padding: 0;
+    position: relative;
+}
+
+.slot {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.slot.disponible {
+    background-color: #28a745;
+    color: white;
+}
+
+.slot.ocupado {
+    background-color: #dc3545;
+    color: white;
+}
+
+.slot.ocupado-temp {
+    background-color: #007bff;
+    color: white;
+}
+
+.slot.descanso {
+    background-color: #6c757d;
+    color: white;
+}
+
+.slot.tiempo-fuera {
+    background-color: #ffc107;
+    color: black;
+}
+
+.day-of-week {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.day-of-month {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.month {
+    font-size: 0.8em;
+}
+
+.hour {
+    font-size: 0.9em;
+}
+
+/* Asegurar que las celdas de tiempo sean visibles */
+tr:hover .time-cell {
+    background-color: #e9ecef;
+}
+/* Estilos para el menú desplegable de exportación */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.show {
+    display: block;
+}
+/* Estilos para el menú desplegable de exportación */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.show {
+    display: block;
+}
+
+/* Estilos para el menú desplegable de exportación */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.show {
+    display: block;
+}

@@ -1,0 +1,53 @@
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: .dockerfile
+    container_name: savia_flask_services
+    command: python app.py
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - MYSQL_HOST=postgresql # Usar el nombre del servicio, no localhost
+      - MYSQL_USER=postgres
+      - MYSQL_PASSWORD=89.J(GIidcx2^P9G
+      - MYSQL_DB=postgres
+    volumes:
+      - .:/backend
+    depends_on:
+      - postgresql
+
+  fastapi_app:
+    build:
+      context: .
+      dockerfile: .dockerfile
+    container_name: savia_uvicorn_services
+    working_dir: /calendario/backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=postgresql # Usar el nombre del servicio
+      - MYSQL_USER=postgres
+      - MYSQL_PASSWORD=89.J(GIidcx2^P9G
+      - MYSQL_DB=postgres
+    volumes:
+      - ./calendario:/backend
+    depends_on:
+      - postgresql
+
+  postgresql:
+    image: postgres:16
+    container_name: savia_postgres_services
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=89.J(GIidcx2^P9G
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

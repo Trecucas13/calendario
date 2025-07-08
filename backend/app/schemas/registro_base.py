@@ -1,0 +1,79 @@
+from pydantic import BaseModel
+from typing import Optional
+from datetime import date, datetime
+
+# ✅ Schema para creación individual
+class RegistroBaseCreate(BaseModel):
+    tipo_id: str
+    num_id: int
+    primer_nombre: str
+    segundo_nombre: Optional[str] = None
+    primer_apellido: str
+    segundo_apellido: Optional[str] = None
+    fecha: date
+    edad: int
+    estado_afiliacion: str
+    regimen_afiliacion: str
+    telefonos: str
+    direccion: str
+    municipio: str
+    subregion: str
+    proceso: str
+    tipo_gestion: Optional[str] = None
+    usuario: Optional[str] = None  # Usuario que realizó la gestión
+    fecha_gestion: Optional[datetime] = None
+
+    
+
+# ✅ Schema para respuesta individual
+class RegistroBaseResponse(RegistroBaseCreate):
+    id: Optional[int] = None        
+    registro_id: Optional[int] = None# overridden to allow missing value
+    subregion: Optional[str] = None       # overridden to allow missing value
+    proceso: Optional[str] = None         # overridden to allow missing value
+    fecha_carga: Optional[datetime] = None  # Fecha de carga del registro
+    comentario: Optional[str] = None        # Comentario opcional
+    mes: Optional[str] = None               # Mes del registro
+    id_llamada: Optional[str] = None        # ID de llamada opcional
+    cantidad_gestiones: Optional[int] = None  # Cantidad de gestiones asociadas
+    mejor_gestion: Optional[str] = None     # Mejor gestión asociada
+    tipificacion: Optional[str] = None      # Tipificación asociada
+    asesor: Optional[str] = None            # Asesor asociado
+    tipo_gestion: Optional[str] = None
+    usuario: Optional[str] = None           # Usuario que realizó la gestión
+    fecha_gestion: Optional[datetime] = None
+    motivo: Optional[str] = None            # Motivo de la gestión
+
+    class Config:
+        from_attributes = True
+
+# ✅ Schema extendido con mejor gestión
+class MejorGestion(BaseModel):
+    tipificacion: str
+    tipo_contacto: str
+    usuario: str
+    fecha_gestion: str
+    mes: str
+    cantidad: int
+
+class RegistroConGestion(BaseModel):
+    id: int
+    tipo_id: int
+    num_id: str
+    primer_nombre: str
+    segundo_nombre: Optional[str]
+    primer_apellido: str
+    segundo_apellido: Optional[str]
+    fecha: date
+    edad: int
+    estado_afiliacion: str
+    regimen_afiliacion: str
+    telefonos: str
+    direccion: str
+    municipio: str
+    subregion: str
+    proceso: str
+    mejor_gestion: MejorGestion
+
+    class Config:
+        from_attributes = True

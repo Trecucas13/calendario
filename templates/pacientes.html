@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pacientes</title>
+    <link rel="stylesheet" href="../static/css/buttons.css" />
+    <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  </head>
+
+  <style>
+  .pagination-custom .page-item.active .page-link {
+    background-color: #20c997;
+    border-color: #20c997;
+    color: white;
+  }
+</style>  
+
+  <body>
+    {% extends 'base.html' %} {% block content %}
+    <!-- <div class="py-3" style="display: block; overflow: auto;"> -->
+    <div class="container-fluid">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3"
+      >
+        <h2 class="title-header">
+          <i class="fas fa-users-cog me-2"></i>Gestión de Pacientes
+        </h2>
+        <button class="add" data-bs-toggle="modal" data-bs-target="#userModal">
+          <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+        </button>
+      </div>
+
+      <!-- Tabla de pacientes -->
+      <div class="card shadow">
+        <div class="header">
+          <h4 class="mb-3 mb-md-0 fw-semibold text-dark">
+            <i class="me-2 text-primary"></i>Pacientes Registrados
+          </h4>
+
+          <!-- BUSCAR -->
+          <div class="search-group">
+            <i class="bi bi-search"></i>
+            <input
+              type="search"
+              name="q"
+              id="searchInput"
+              placeholder="Buscar"
+              value="{{ request.args.get('q', '') }}"
+            />
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div
+            class="table-responsive rounded-bottom-4"
+            style="max-height: 70vh; overflow-y: auto"
+          >
+            <table
+              class="table table-hover"
+              style="white-space: nowrap"
+              id="tablaPacientes"
+            >
+              <thead class="">
+                <tr>
+                  <th class="">Nombre</th>
+                  <th class="">Apellido</th>
+                  <th class="">Tipo doc.</th>
+                  <th class="">Documento</th>
+                  <th class="">Teléfono</th>
+                  <th class="">Dirección</th>
+                  <th class="">Fecha Nacimiento</th>
+                  <th class="">Procedimiento</th>
+                  <th class="">Fecha Examen</th>
+                  <th class="">Hora Examen</th>
+                  <th class="">Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for pacientes in pacientes %}
+                <tr
+                  class=""
+                  data-user-id="{{ pacientes.id_paciente }}"
+                >
+                  <td class="">{{ pacientes.nombre }}</td>
+                  <td class="">
+                    {{ pacientes.apellido }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.tipo_documento }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.numero_documento }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.telefono }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.direccion }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.fecha_nacimiento }}
+                  </td>
+                  <td class="">
+                    <span
+         
+                      class="badge bg-primary rounded-pill text-wrap"
+                      style="font-size: 0.8em"
+                    >
+                      {{ pacientes.nombre_procedimiento }}
+                    </span>
+                  </td>
+                  <td class="">
+                    {{ pacientes.fecha }}
+                  </td>
+                  <td class="">
+                    {{ pacientes.hora }}
+                  </td>
+                  <td class="">
+                    <div class="d-flex gap-2 justify-content-end">
+                      <button
+                        class="edit"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ActualizaruserModal"
+                        onclick="mostrarModalActualizarDatos('{{pacientes.id_paciente}}', '{{pacientes.nombre}}', '{{pacientes.apellido}}', '{{pacientes.tipo_documento}}', '{{pacientes.numero_documento}}', '{{pacientes.telefono}}', '{{pacientes.direccion}}', '{{pacientes.fecha_nacimiento}}', '{{pacientes.examen_realizar}}')"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+  <div class="text-muted small">
+    Mostrando <span class="fw-semibold" style="color: #20c997;">{{ pagination.page }}</span> de 
+    <span class="fw-semibold" style="color: #20c997;">{{ pagination.pages }}</span> páginas
+  </div>
+  
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mb-0 pagination-custom">
+      <!-- Flecha Atrás -->
+      <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+        <a class="page-link rounded-start" href="?page={{ pagination.prev_num }}" aria-label="Previous">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      
+      <!-- Números de página -->
+      {% set left_range = [pagination.page - 1, 1]|max %}
+      {% set right_range = [pagination.page + 1, pagination.pages]|min %}
+      
+      {% if left_range > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1">1</a>
+        </li>
+        {% if left_range > 2 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+        {% endif %}
+      {% endif %}
+      
+      {% for page_num in range(left_range, right_range + 1) %}
+        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+      {% endfor %}
+      
+      {% if right_range < pagination.pages %}
+        {% if right_range < pagination.pages - 1 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+        {% endif %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.pages }}">{{ pagination.pages }}</a>
+        </li>
+      {% endif %}
+      
+      <!-- Flecha Adelante -->
+      <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+        <a class="page-link rounded-end" href="?page={{ pagination.next_num }}" aria-label="Next">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  
+  <div class="text-muted small">
+    <span class="fw-semibold" style="color: #20c997;">{{ pagination.total }}</span> registros totales
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- </div> -->
+
+    <!-- MODAL NUEVO PACIENTE-->
+    <div
+      class="modal fade"
+      id="userModal"
+      tabindex="-1"
+      aria-labelledby="userModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header header-modal text-white">
+            <h5 class="modal-title" id="userModalLabel">
+              <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form
+            action="{{url_for('insertar_pacientes.insert_pacientes')}}"
+            method="post"
+          >
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Nombre
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Apellido
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="apellido"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Tipo documento
+                  </label>
+                  <select class="form-select" name="tipo_documento" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Cedúla ciudadana">Cedúla ciudadana</option>
+                    <option value="Tarjeta identidad">
+                      Tarjeta de identidad
+                    </option>
+                    <option value="Cedúla ciudadana">Cedúla extranjera</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Documento
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="numero_documento"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Teléfono
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="telefono"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Dirección
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="direccion"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Fecha nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="fecha_nacimiento"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="cancelar"
+                data-bs-dismiss="modal"
+              >
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+
+              <button type="submit" class="guardar">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ACTUALIZAR PACIENTE -->
+    <div
+      class="modal fade"
+      id="ActualizaruserModal"
+      tabindex="-1"
+      aria-labelledby="ActualizaruserModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header header-modal text-white">
+            <h5 class="modal-title" id="ActualizaruserModalLabel">
+              <i class="fas fa-user-edit me-2"></i>Actualizar Paciente
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form
+            action="{{url_for('actualizar_pacientes.update_paciente')}}"
+            method="post"
+          >
+            <div class="modal-body">
+              <div class="row g-3">
+                <input type="hidden" name="id" id="actualizarId" />
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Nombre
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nombre"
+                    id="actualizarNombre"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Apellido
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="apellido"
+                    id="actualizarApellido"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Tipo documento
+                  </label>
+                  <select
+                    class="form-select"
+                    name="tipo_documento"
+                    id="actualizarTipo"
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="Cedúla ciudadana">Cedúla ciudadana</option>
+                    <option value="Tarjeta identidad">
+                      Tarjeta de identidad
+                    </option>
+                    <option value="Cedúla ciudadana">Cedúla extranjera</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Documento
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="documento"
+                    id="actualizarDocumento"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Teléfono
+                  </label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="telefono"
+                    id="actualizarTelefono"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Dirección
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="direccion"
+                    id="actualizarDireccion"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Fecha nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="fecha_nacimiento"
+                    id="actualizarFecha_nacimiento"
+                    required
+                  />
+                </div>
+
+                <!-- <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Procedimiento
+                  </label>
+                  <select
+                    class="form-select"
+                    name="examen_realizar"
+                    id="actualizarExamen"
+                    required
+                  >
+                    <option value="">Seleccionar</option>
+                    {% for examen in procedimientos %}
+                    <option value="{{ examen.id_procedimiento}}">{{ examen.nombre }}</option>
+
+                    {% endfor %}
+                  </select>
+                </div> -->
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="cancelar" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Cancelar
+              </button>
+
+              <button type="submit" class="guardar">
+                <i class="fas fa-save me-2"></i>Guardar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Función para mostrar el modal de actualización de datos
+      function mostrarModalActualizarDatos(
+        userID,
+        nombre,
+        apellido,
+        tipo_documento,
+        documento,
+        telefono,
+        direccion,
+        fecha_nacimiento,
+        examen_realizar
+      ) {
+        // Debug: mostrar el id recibido
+        console.log('ID recibido para actualizar:', userID);
+        document.getElementById("actualizarId").value = userID;
+        document.getElementById("actualizarNombre").value = nombre;
+        document.getElementById("actualizarApellido").value = apellido;
+        document.getElementById("actualizarTipo").value = tipo_documento;
+        document.getElementById("actualizarDocumento").value = documento;
+        document.getElementById("actualizarTelefono").value = telefono;
+        document.getElementById("actualizarDireccion").value = direccion;
+        document.getElementById("actualizarFecha_nacimiento").value = fecha_nacimiento;
+        // document.getElementById("actualizarExamen").value = examen_realizar;
+      }
+
+      // Limpiar el modal al cerrarlo para evitar valores residuales
+      document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('ActualizaruserModal');
+        if (modal) {
+          modal.addEventListener('hidden.bs.modal', function () {
+            document.getElementById("actualizarId").value = '';
+            document.getElementById("actualizarNombre").value = '';
+            document.getElementById("actualizarApellido").value = '';
+            document.getElementById("actualizarTipo").value = '';
+            document.getElementById("actualizarDocumento").value = '';
+            document.getElementById("actualizarTelefono").value = '';
+            document.getElementById("actualizarDireccion").value = '';
+            document.getElementById("actualizarFecha_nacimiento").value = '';
+            // document.getElementById("actualizarExamen").value = '';
+          });
+        }
+      });
+
+      // ==================== FUNCIONES DE BÚSQUEDA ====================
+
+      /**
+       * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
+       * Permite buscar en todas las columnas de ambas tablas
+       */
+      document.addEventListener("DOMContentLoaded", function () {
+        /**
+         * Elimina tildes y acentos de un texto y lo convierte a minúsculas
+         * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
+         * @param {string} texto - Texto a normalizar
+         * @returns {string} - Texto normalizado sin acentos y en minúsculas
+         */
+        function eliminarTildes(texto) {
+          return texto
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        }
+
+        // Obtener el input de búsqueda
+        const searchInput = document.getElementById("searchInput");
+
+        // Obtener las tablas de empleados y usuarios
+        const tablaPacientes = document.querySelector("table:nth-of-type(1)");
+
+        /*
+         * Filtra las filas de una tabla según el texto de búsqueda
+         * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
+         * @param {HTMLElement} tabla - Tabla a filtrar
+         * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+         */
+        function buscarEnTabla(tabla, textoBusqueda) {
+          // Eliminar tildes del texto de búsqueda para mejorar resultados
+          const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
+
+          // Obtener todas las filas del tbody, excluyendo el encabezado
+          const filas = tabla.querySelectorAll("tbody tr");
+
+          filas.forEach((fila) => {
+            // Flag para determinar si se muestra la fila
+            let mostrarFila = false;
+
+            // Obtener todas las celdas de la fila
+            const celdas = fila.querySelectorAll("td");
+
+            // Recorrer todas las celdas para buscar coincidencias
+            celdas.forEach((celda) => {
+              // Eliminar tildes del texto de la celda para comparación
+              const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+
+              // Si el texto de la celda contiene el texto buscado, mostrar la fila
+              if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
+                mostrarFila = true;
+              }
+            });
+
+            // Mostrar u ocultar fila según resultado de la búsqueda
+            fila.style.display = mostrarFila ? "" : "none";
+          });
+        }
+
+        // Configurar evento de búsqueda en tiempo real
+        if (searchInput) {
+          searchInput.addEventListener("input", function () {
+            const textoBusqueda = this.value;
+
+            // Buscar en tabla de empleados
+            if (tablaPacientes) {
+              buscarEnTabla(tablaPacientes, textoBusqueda);
+            }
+          });
+        }
+      });
+    </script>
+
+    {% endblock %}
+  </body>
+</html>

@@ -1,0 +1,220 @@
+/* Estilos generales - Configuración básica para toda la aplicación */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f4f8;
+    color: #333;
+}
+
+/* Estilos para el comportamiento modal del formulario - Contenedor principal */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* Estilos para el formulario principal como modal - Transiciones suaves */
+#calendarioForm {
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+/* Estado oculto del formulario */
+#calendarioForm.oculto {
+    display: none;
+}
+
+/* Transición suave para mostrar el calendario - Animación de entrada */
+#calendario {
+    margin-top: 0;
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+/* Estado visible del calendario */
+#calendario.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Botón para volver al formulario - Navegación entre vistas */
+.volver-btn {
+    background-color: #607D8B;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Efecto hover para el botón de volver */
+.volver-btn:hover {
+    background-color: #546E7A;
+    transform: translateY(-2px);
+}
+
+/* Ícono del botón volver */
+.volver-btn i {
+    font-size: 16px;
+}
+
+/* Estilos del encabezado - Título principal de la página */
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    padding-bottom: 15px;
+}
+
+/* Nuevo estilo para el header del calendario según la imagen */
+.calendario-header {
+    background-color: #f8f9fa;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Título del calendario */
+.calendario-header h2 {
+    margin: 0 0 15px 0;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+}
+
+/* Contenedor para las estadísticas */
+.stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #ddd;
+}
+
+/* Estilo para cada estadística */
+.stat-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Punto indicador para estadísticas */
+.stat-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+/* Colores para los diferentes puntos de estadísticas */
+.dot-total { background-color: #2196F3; }
+.dot-confirmadas { background-color: #4CAF50; }
+.dot-reservadas { background-color: #FF9800; }
+.dot-disponibles { background-color: #2196F3; }
+
+/* Contenedor para la información del centro */
+.info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #ddd;
+}
+
+/* Estilo para cada ítem de información */
+.info-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* Punto indicador para información */
+.info-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #2196F3;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+/* Contenedor para controles de fecha y botones */
+.controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Estilo para el selector de fecha */
+.controls-container input[type="date"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Estilo para el botón de exportar */
+.export-btn {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+/* Efecto hover para el botón de exportar */
+.export-btn:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px);
+}
+
+/* Contenedor para el filtro de procedimientos */
+.filtro-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Etiqueta del filtro */
+.filtro-container label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Selector desplegable del filtro */
+.filtro-container select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+}
+
+/* El resto del CSS se mantiene igual */

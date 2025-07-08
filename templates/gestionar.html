@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de calendarios</title>
+  <!-- <img src="../static/img/AndesBPO-Logo.png" rel="icon" alt="Gestión" width="24" height="24"> -->
+  <link rel="stylesheet" href="../static/css/buttons.css" />
+  <!-- Agregar esto para Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="../static/css/buttons.css">
+  <link rel="stylesheet" href="../static/css/tablas.css">
+  <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
+
+  <script src="../static/js/filtros.js"></script>
+  
+</head>
+
+<style>
+  .pagination-custom .page-item.active .page-link {
+    background-color: #20c997;
+    border-color: #20c997;
+    color: white;
+  }
+</style>
+
+<body>
+  {% extends "base.html" %} {% block content %}
+
+  <div class="container-fluid">
+    
+
+    <div class="card shadow">
+      <div class="header">
+        <h5 class="mb-3 mb-md-0 fw-semibold text-dark">
+          Gestionar
+        </h5> 
+
+         <!-- BUSCAR -->
+        <div class="search-group">
+          <i class="bi bi-search"></i>
+          <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
+        </div>
+
+        <!-- Filtro Tipificacion -->
+    <div class="filtro-group" style="position: relative;">
+          <select name="tipificacion" id="filtroTipoGestion" class="form-select" required>
+                <option value="" disabled selected>Tipificación</option>
+                {% for tipificacion in tipificaciones %}
+                  <option value="{{ tipificacion.nombre }}">
+                  {{ tipificacion.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+    </div> 
+    
+       <script>
+    // ==================== FUNCIONES DE BÚSQUEDA Y FILTRO ====================
+    document.addEventListener("DOMContentLoaded", function () {
+      function eliminarTildes(texto) {
+        return texto
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+      }
+
+      const searchInput = document.getElementById("searchInput");
+      const tablaCalendario = document.getElementById("tablaCalendario");
+      // Utilizamos el select que se muestra en la cabecera para filtrar por tipificación
+      const filtroTipificacion = document.getElementById("filtroTipoGestion");
+
+      // (Opcional) Si existen otros filtros, se pueden obtener aquí
+      const filtroMunicipio = document.getElementById("filtroMunicipio");
+      const filtroProceso = document.getElementById("filtroProceso");
+      const filtroNombre = document.getElementById("filtroNombre");
+
+      function buscarYFiltrarTabla() {
+        const textoBusqueda = searchInput ? eliminarTildes(searchInput.value).trim() : "";
+        const municipioFiltro = filtroMunicipio && filtroMunicipio.value ? eliminarTildes(filtroMunicipio.value).trim() : "";
+        const procesoFiltro = filtroProceso && filtroProceso.value ? eliminarTildes(filtroProceso.value).trim() : "";
+        const nombreFiltro = filtroNombre && filtroNombre.value ? eliminarTildes(filtroNombre.value).trim() : "";
+        const tipificacionFiltro = filtroTipificacion && filtroTipificacion.value ? eliminarTildes(filtroTipificacion.value).trim() : "";
+
+        const filas = tablaCalendario.querySelectorAll("tbody tr");
+        filas.forEach((fila) => {
+            let mostrarFila = true;
+            const celdas = fila.querySelectorAll("td");
+
+            // Extraer valores exactos de las celdas para cada filtro
+            const celdaMunicipio = eliminarTildes(celdas[12].textContent.trim());
+            const celdaProceso = eliminarTildes(celdas[14].textContent.trim());
+            const celdaNombre = eliminarTildes(celdas[2].textContent.trim());
+            const celdaTipificacion = eliminarTildes(celdas[15].textContent.trim());
+
+            // Comparación estricta: se requiere coincidencia exacta
+            if (municipioFiltro && celdaMunicipio !== municipioFiltro) {
+                mostrarFila = false;
+            }
+            if (procesoFiltro && celdaProceso !== procesoFiltro) {
+                mostrarFila = false;
+            }
+            if (nombreFiltro && celdaNombre !== nombreFiltro) {
+                mostrarFila = false;
+            }
+            if (tipificacionFiltro && celdaTipificacion !== tipificacionFiltro) {
+                mostrarFila = false;
+            }
+            // Búsqueda global estricta: se requiere que alguna celda coincida exactamente
+            if (textoBusqueda) {
+                let coincideBusqueda = false;
+                celdas.forEach((celda) => {
+                    const textoCelda = eliminarTildes(celda.textContent.trim());
+                    if (textoCelda === textoBusqueda) {
+                        coincideBusqueda = true;
+                    }
+                });
+                if (!coincideBusqueda) {
+                    mostrarFila = false;
+                }
+            }
+            fila.style.display = mostrarFila ? "" : "none";
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener("input", buscarYFiltrarTabla);
+      }
+      if (filtroTipificacion) {
+        filtroTipificacion.addEventListener("change", buscarYFiltrarTabla);
+      }
+      if (filtroMunicipio) {
+        filtroMunicipio.addEventListener("change", buscarYFiltrarTabla);
+      }
+      if (filtroProceso) {
+        filtroProceso.addEventListener("change", buscarYFiltrarTabla);
+      }
+      if (filtroNombre) {
+        filtroNombre.addEventListener("change", buscarYFiltrarTabla);
+      }
+    });
+</script>
+
+</div>
+
+        <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover mi-tabla" id="tablaCalendario">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Documento</th>
+            <th>Primer Nombre</th>
+            <th>Segundo Nombre</th>
+            <th>Primer Apellido</th>
+            <th>Segundo Apellido</th>
+            <th>Fecha</th>
+            <th>Edad</th>
+            <th>Estado Afiliación</th>
+            <th>Régimen Afiliado</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Municipio</th>
+            <th>Subregión</th>
+            <th>Proceso</th>
+
+            <th>Tipificación</th>
+            <th>Mejor Gestión</th>
+            <th>Asesor</th>
+            <th>Tipo Gestión</th>
+            <th>Fecha Gestión</th>
+            <th>Mes de Gestión</th>
+            <th>Cantidad Gestiones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if gestiones %}
+            {% for h in gestiones %}
+            <tr>
+              <td>{{ h.tipo_id }}</td>
+              <td>{{ h.num_id }}</td>
+              
+              <td>
+                <button type="button" onclick="mostrarModal('{{h.registro_id}}')" class="agregar_gestion">
+                  {{ h.primer_nombre }}
+                </button>
+              </td>
+              <td>{{ h.segundo_nombre }}</td>
+              <td>{{ h.primer_apellido }}</td>
+              <td>{{ h.segundo_apellido }}</td>
+              <td>{{ h.fecha }}</td>
+              <td>{{ h.edad }}</td>
+              <td>{{ h.estado_afiliacion }}</td>
+              <td>{{ h.regimen_afiliacion }}</td>
+              <td>{{ h.telefonos }}</td>
+              <td>{{ h.direccion }}</td>
+              <td>{{ h.municipio }}</td>
+              <td>{{ h.subregion }}</td>
+              <td>{{ h.proceso }}</td>
+
+              <td>{{ h.tipificacion }}</td>
+              <td>{{ h.mejor_gestion }}</td>
+              <td>{{ h.asesor }}</td>
+              <td>{{ h.tipo_gestion }}</td>
+              <td>{{ h.fecha_gestion }}</td>
+              <td>{{ h.mes }}</td>
+              <td>{{ h.cantidad_gestiones }}</td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="15" class="text-center">No hay gestiones registradas</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+  <div class="text-muted small">
+    Mostrando <span class="fw-semibold" style="color: #20c997;">{{ pagination.page }}</span> de 
+    <span class="fw-semibold" style="color: #20c997;">{{ pagination.pages }}</span> páginas
+  </div>
+  
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mb-0 pagination-custom">
+      <!-- Flecha Atrás -->
+      <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+        <a class="page-link rounded-start" href="?page={{ pagination.prev_num }}" aria-label="Previous">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      
+      <!-- Números de página -->
+      {% set left_range = [pagination.page - 1, 1]|max %}
+      {% set right_range = [pagination.page + 1, pagination.pages]|min %}
+      
+      {% if left_range > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1">1</a>
+        </li>
+        {% if left_range > 2 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+        {% endif %}
+      {% endif %}
+      
+      {% for page_num in range(left_range, right_range + 1) %}
+        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+      {% endfor %}
+      
+      {% if right_range < pagination.pages %}
+        {% if right_range < pagination.pages - 1 %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+        {% endif %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pagination.pages }}">{{ pagination.pages }}</a>
+        </li>
+      {% endif %}
+      
+      <!-- Flecha Adelante -->
+      <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+        <a class="page-link rounded-end" href="?page={{ pagination.next_num }}" aria-label="Next">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  
+  <div class="text-muted small">
+    <span class="fw-semibold" style="color: #20c997;">{{ pagination.total }}</span> registros totales
+  </div>
+</div>
+</div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form -->
+  <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="formModalLabel">Nueva Gestión</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <form action="{{url_for('insertar_gestiones.insert_gestiones')}}" id="registroForm" method="POST">
+            <input type="hidden" name="registro_id" id="registro_id" value="">
+            
+            <div class="mb-3">
+              <label for="tipificacion" class="form-label">Tipificación</label>
+              <select name="tipificacion" id="tipificacion" class="form-select" required>
+                <option value="" disabled selected>Seleccione una opción</option>
+                {% for tipificacion in tipificaciones %}
+                  <option value="{{ tipificacion.nombre }}">
+                  {{ tipificacion.nombre }}
+
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="motivo" class="form-label">Motivo</label>
+              <select name="motivo" id="motivo" class="form-select">
+                <option value="">Seleccione</option>
+                <option value="No tiene la edad">No tiene la edad</option>
+                <option value="Se ha realizado ecografias recientemente">Se ha realizado ecografias recientemente</option>
+                <option value="Se realizó hace poco biopsia">Se realizó hace poco biopsia</option>
+                <option value="Falta de tiempo">Falta de tiempo</option>
+                <option value="Se insiste y no desea realizarse el tamizaje">Se insiste y no desea realizarse el tamizaje</option>
+                <option value="Vive muy retirado de la Ips">Vive muy retirado de la Ips</option>
+                <option value="Fuera de la ciudad">Fuera de la ciudad</option>
+                <option value="Ya está afiliado a otra Eps">Ya está afiliado a otra Eps</option>
+                <option value="Motivos personales">Motivos personales</option>
+                <option value="Ya tiene cita agendada">Ya tiene cita agendada</option>
+                <option value="Ya se realizó la citología">Ya se realizó la citología</option>
+                <option value="Situación de discapacidad">Situación de discapacidad</option>
+                <option value="Enfermedad">Enfermedad</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label for="idLlamada" class="form-label">ID Llamada</label>
+              <input type="text" class="form-control" id="idLlamada" name="idLlamada" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="comentario" class="form-label">Comentario</label>
+              <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="cancelar" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancelar
+            </button>
+
+            <button type="submit" class="guardar">
+              <i class="fas fa-save me-2"></i>Guardar
+            </button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+  .agregar_gestion {
+  color: #444;
+  padding: 0.4em 0.8em;
+  font-size: 15px;
+  font-weight: 400;
+  border-radius: 6px;
+  background-color: #f2f2f2;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  outline: none;
+}
+
+.agregar_gestion:hover {
+  background-color: #e6e6e6;
+  border-color: #ccc;
+  transform: none;
+}
+
+.agregar_gestion:active {
+  background-color: #dcdcdc;
+  box-shadow: inset 1px 1px 2px #ccc;
+}
+
+.agregar_gestion:focus {
+  border-color: #aad4ff;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+/* Estilo para el input file más discreto */
+input[type="file"] {
+  display: inline-block;
+  padding: 6px 10px;
+  font-size: 14px;
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+input[type="file"]::file-selector-button {
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #555;
+  font-weight: normal;
+  transition: background-color 0.3s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #e0e0e0;
+}
+
+
+  </style>
+
+  <script>
+    // ==================== FUNCIONES DE BÚSQUEDA ====================
+
+    /**
+     * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
+     * Permite buscar en todas las columnas de ambas tablas
+     */
+    document.addEventListener("DOMContentLoaded", function () {
+      /**
+       * Elimina tildes y acentos de un texto y lo convierte a minúsculas
+       * Facilita la búsqueda sin importar acentos o mayúsculas/minúsculas
+       * @param {string} texto - Texto a normalizar
+       * @returns {string} - Texto normalizado sin acentos y en minúsculas
+       */
+      function eliminarTildes(texto) {
+        return texto
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+      }
+
+      // Obtener el input de búsqueda
+      const searchInput = document.getElementById("searchInput");
+
+      // Obtener la tabla de calendarios por su ID
+      const tablaCalendario = document.getElementById("tablaCalendario");
+
+      /*
+       * Filtra las filas de una tabla según el texto de búsqueda
+       * Muestra solo las filas que contienen el texto buscado en cualquiera de sus celdas
+       * @param {HTMLElement} tabla - Tabla a filtrar
+       * @param {string} textoBusqueda - Texto ingresado por el usuario para filtrar
+       */
+      function buscarEnTabla(tabla, textoBusqueda) {
+        // Eliminar tildes del texto de búsqueda para mejorar resultados
+        const textoBusquedaSinTildes = eliminarTildes(textoBusqueda);
+
+        // Obtener todas las filas del tbody, excluyendo el encabezado
+        const filas = tabla.querySelectorAll("tbody tr");
+
+        filas.forEach((fila) => {
+          // Flag para determinar si se muestra la fila
+          let mostrarFila = false;
+
+          // Obtener todas las celdas de la fila
+          const celdas = fila.querySelectorAll("td");
+
+          // Recorrer todas las celdas para buscar coincidencias
+          celdas.forEach((celda) => {
+            // Eliminar tildes del texto de la celda para comparación
+            const textoCeldaSinTildes = eliminarTildes(celda.textContent);
+
+            // Si el texto de la celda contiene el texto buscado, mostrar la fila
+            if (textoCeldaSinTildes.includes(textoBusquedaSinTildes)) {
+              mostrarFila = true;
+            }
+          });
+
+          // Mostrar u ocultar fila según resultado de la búsqueda
+          fila.style.display = mostrarFila ? "" : "none";
+        });
+      }
+
+      // Configurar evento de búsqueda en tiempo real
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          const textoBusqueda = this.value;
+
+          // Buscar en tabla de calendarios
+          if (tablaCalendario) {
+            buscarEnTabla(tablaCalendario, textoBusqueda);
+          }
+        });
+      }
+    });
+
+    function mostrarModal(registro_id) {
+      const modal = new bootstrap.Modal(document.getElementById('formModal'));
+      document.getElementById('registro_id').value = registro_id;
+      modal.show();
+    }
+
+// HABILITAR CAMPO MOTIVO
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const tipificacionSelect = document.getElementById("tipificacion");
+    const motivoSelect = document.getElementById("motivo");
+
+    // Bloquear motivo por defecto
+    motivoSelect.disabled = true;
+
+    tipificacionSelect.addEventListener("change", function () {
+      // Limpiamos y normalizamos la cadena seleccionada
+      const valorSeleccionado = this.value.trim().toLowerCase();
+
+      // Comparamos contra el valor esperado
+      if (valorSeleccionado === "no agenda cita") {
+        motivoSelect.disabled = false;
+      } else {
+        motivoSelect.disabled = true;
+        motivoSelect.value = ""; // Limpiar selección
+      }
+    });
+  });
+
+
+</script>
+
+  {% endblock %}
+</html>
