@@ -21,7 +21,7 @@ def insert_usuario():
             rol = request.form["rol"]
             
             # Contraseña predeterminada para todos los usuarios
-            password = "saviaSalud*2025_"
+            password = documento
            
             print("Datos recibidos: ", request.form)
 

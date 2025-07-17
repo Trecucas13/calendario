@@ -20,10 +20,12 @@ from models.inserciones.insert_calendario import insercion_calendario
 from models.inserciones.insert_usuario import insertar_usuario
 from models.inserciones.insert_pacientes import insertar_pacientes
 from models.inserciones.insert_gestionar import insertar_gestiones
-
+from models.inserciones.carga_gestion_bd import gestion_bp as carga_gestion
 # from models.vistas.calendario import obtener_citas
 from models.eliminar.eliminar_usuario import delete_usuarios
 from models.eliminar.eliminar_calendario import delete_calendario
+from models.eliminar.eliminar_municipio import delete_municipios
+from models.eliminar.eliminar_procedimiento import delete_procedimientos
 
 from models.actualizar.actualizarUsuario import actualizar_usuario
 from models.actualizar.actualizarForm import actualizar_calendario
@@ -51,6 +53,7 @@ app.register_blueprint(insertar_usuario)
 app.register_blueprint(insertar_citas)
 app.register_blueprint(insertar_pacientes)
 app.register_blueprint(insertar_gestiones)
+app.register_blueprint(carga_gestion)
 
 app.register_blueprint(vista_usuarios)
 app.register_blueprint(vista_gestiones)
@@ -61,6 +64,8 @@ app.register_blueprint(gestionar)
 
 app.register_blueprint(delete_usuarios)
 app.register_blueprint(delete_calendario)
+app.register_blueprint(delete_municipios)
+app.register_blueprint(delete_procedimientos)
 app.register_blueprint(actualizar_usuario)
 app.register_blueprint(actualizar_calendario)
 app.register_blueprint(actualizar_pacientes)
@@ -77,8 +82,16 @@ def login():
 @role_required([1, 2])
 def index():
     calendarios = datos_calendario()
-    print(calendarios)
-    return render_template("index.html", calendarios=calendarios)
+    # Obtener municipios y procedimientos para los modales
+    datos = datos_municipio()
+    municipios = datos.get('municipios', [])
+    procedimientos = datos.get('procedimientos', [])
+    return render_template(
+        "index.html",
+        calendarios=calendarios,
+        municipios=municipios,
+        procedimientos=procedimientos
+    )
 
 
 def datos_municipio():

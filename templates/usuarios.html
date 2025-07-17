@@ -33,6 +33,12 @@
         <button class="add" data-bs-toggle="modal" data-bs-target="#userModal">
             <i class="fas fa-user-plus me-2"></i>Nuevo Usuario
         </button>
+        <button class="add" data-bs-toggle="modal" data-bs-target="#userModal">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>Eliminar Municipio
+        </button>
+        <button class="add" data-bs-toggle="modal" data-bs-target="#userModal">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="m400-325 80-80 80 80 51-51-80-80 80-80-51-51-80 80-80-80-51 51 80 80-80 80 51 51Zm-88 181q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480Zm-336 0v480-480Z"/></svg>Eliminar Procedimiento
+        </button>
     </div>
 
     <!-- Tabla de usuarios -->
@@ -249,6 +255,39 @@
                         <i class="fas fa-times me-2"></i>Cancelar
                     </button>
                     <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ELIMINAR MUNICIPIO -->
+<div class="modal fade" id="deleteMunicipioModal" tabindex="-1" aria-labelledby="deleteMunicipioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('delete_municipios.delete_municipio') }}" method="post">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteMunicipioModalLabel">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar Municipio
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="municipioSelect">Seleccione Municipio:</label>
+                    <select class="form-select" name="municipio_id" id="municipioSelect" required>
+                        <option value="">Seleccionar municipio</option>
+                        {% for municipio in municipios %}
+                            <option value="{{ municipio.id }}">{{ municipio.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash-alt me-2"></i>Eliminar
                     </button>
                 </div>

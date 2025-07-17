@@ -88,8 +88,8 @@
               <div class="days">
                 {% for semana in semanas %} {% for dia in semana %}
                 <div
-                  class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango and dia.tiene_citas and not dia.es_domingo %}available-day{% endif %} {% if not dia.dentro_rango or dia.es_domingo %}disabled{% endif %}"
-                  {% if dia.dentro_rango and not dia.es_domingo %}onclick="abrirHorario('{{dia.fecha_completa}}')"{% endif %}
+                  class="{% if dia.hoy %}current-day{% endif %} {% if dia.dentro_rango %}available-day{% endif %} {% if not dia.dentro_rango %}disabled{% endif %}"
+                  {% if dia.dentro_rango %}onclick="abrirHorario('{{dia.fecha_completa}}')"{% endif %}
                 >
                   {{ dia.dia }}
                 </div>
@@ -296,6 +296,8 @@
               <option value="TI">Tarjeta de Identidad</option>
               <option value="CE">Cédula de Extranjería</option>
               <option value="PA">Pasaporte</option>
+              <option value="PPT">Permiso por Proteccion Temporal PPT</option>
+              <option value="SC">Savo Conducto SC</option>
             </select>
           </div>
 
@@ -778,6 +780,13 @@
           const secs = seconds % 60;
           return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
       }
+
+      // Recarga la página al insertar una cita
+      document.querySelector('.formulario').addEventListener('submit', function() {
+          setTimeout(function() {
+              window.location.reload();
+          }, 500); // Espera 0.5 segundos antes de recargar (ajusta si es necesario)
+      });
     </script>
   </body>
 </html>

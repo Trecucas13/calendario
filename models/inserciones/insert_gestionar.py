@@ -11,6 +11,7 @@ insertar_gestiones = Blueprint("insertar_gestiones", __name__)
 def insert_gestiones():
     if request.method == "POST":
         nombre_asesor = session.get("nombre")
+        print("Nombre del asesor:", nombre_asesor)  # Debug: imprimir nombre del asesor
         try:
             # Datos del formulario
             tipificacion = request.form["tipificacion"]

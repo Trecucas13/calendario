@@ -28,11 +28,12 @@ def obtener_historico_gestiones():
             g.tipificacion,
             g.comentario,
             g.id_llamada,
-            g.fecha_gestion,
+            -- Convert to Colombia timezone and format date
+            TO_CHAR((g.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'YYYY-MM-DD HH24:MI:SS') AS fecha_gestion,
             g.usuario AS asesor,
             g.registro_id,
             g.llave_compuesta,
-            g.motivo,
+            g.motivo as motivo,
             r.id AS registro_id,
             r.tipo_id,
             r.num_id,
@@ -64,12 +65,12 @@ def obtener_historico_gestiones():
             ) AS mejor_gestion,
             -- Mes de la última gestión
             (
-                SELECT TO_CHAR(g3.fecha_gestion, 'Month')
+                SELECT TO_CHAR((g3.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
                 FROM gestion g3
                 WHERE g3.registro_id = r.id
                 ORDER BY g3.fecha_gestion DESC
                 LIMIT 1
-            ) AS mes_gestion,
+            ) AS mes,
             -- Cantidad de gestiones
             (
                 SELECT COUNT(*)
@@ -90,6 +91,7 @@ def obtener_historico_gestiones():
         ORDER BY g.fecha_gestion DESC
     """)
     result = db.session.execute(sql).mappings().all()
+    print(result)
     return result
 
 def obtener_total_gestiones():
@@ -112,6 +114,7 @@ def obtener_total_gestiones():
             r.municipio,
             r.subregion,
             r.fecha_carga,
+            g.motivo as motivo,
             -- Mejor gestión (por menor ranking)
             COALESCE(
                 (
@@ -155,7 +158,7 @@ def obtener_total_gestiones():
                 LIMIT 1
             ) AS id_llamada,
             (
-                SELECT g7.fecha_gestion
+                SELECT TO_CHAR((g7.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'YYYY-MM-DD HH24:MI:SS')
                 FROM gestion g7
                 WHERE g7.registro_id = r.id
                 ORDER BY g7.fecha_gestion DESC
@@ -177,18 +180,19 @@ def obtener_total_gestiones():
                 LIMIT 1
             ) AS tipo_gestion,
             (
-                SELECT TO_CHAR(g10.fecha_gestion, 'Month')
+                SELECT TO_CHAR((g10.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
                 FROM gestion g10
                 WHERE g10.registro_id = r.id
                 ORDER BY g10.fecha_gestion DESC
                 LIMIT 1
-            ) AS mes_gestion,
+            ) AS mes,
             (
                 SELECT COUNT(*)
                 FROM gestion g11
                 WHERE g11.registro_id = r.id
             ) AS cantidad_gestiones
         FROM registro_base r
+        LEFT JOIN gestion g ON g.registro_id = r.id
         ORDER BY r.fecha_carga DESC
     """)
     result = db.session.execute(sql).mappings().all()
@@ -245,12 +249,12 @@ def obtener_gestiones_bd():
             ) AS mejor_gestion,
             -- Mes de la última gestión
             (
-                SELECT TO_CHAR(g3.fecha_gestion, 'Month')
+                SELECT TO_CHAR((g3.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
                 FROM gestion g3
                 WHERE g3.registro_id = r.id
                 ORDER BY g3.fecha_gestion DESC
                 LIMIT 1
-            ) AS mes_gestion,
+            ) AS mes,
             -- Cantidad de gestiones
             (
                 SELECT COUNT(*)
@@ -336,7 +340,7 @@ def obtener_total_mejor_gestiones():
                 LIMIT 1
             ) AS id_llamada,
             (
-                SELECT g7.fecha_gestion
+                SELECT TO_CHAR((g7.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'YYYY-MM-DD HH24:MI:SS')
                 FROM gestion g7
                 WHERE g7.registro_id = r.id
                 ORDER BY g7.fecha_gestion DESC
@@ -358,12 +362,12 @@ def obtener_total_mejor_gestiones():
                 LIMIT 1
             ) AS tipo_gestion,
             (
-                SELECT TO_CHAR(g10.fecha_gestion, 'Month')
+                SELECT TO_CHAR((g10.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
                 FROM gestion g10
                 WHERE g10.registro_id = r.id
                 ORDER BY g10.fecha_gestion DESC
                 LIMIT 1
-            ) AS mes_gestion,
+            ) AS mes,
             (
                 SELECT COUNT(*)
                 FROM gestion g11

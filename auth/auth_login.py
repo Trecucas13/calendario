@@ -43,7 +43,7 @@ def auth_login():
             session["id"] = user[0]
             session["documento"] = user[1]
             session["rol"] = user[4]
-            session["nombre"] = user[3]
+            session["nombre"] = user[2]
 
             # Redirección según el rol y estado del usuario
             if user[4] == 1:  # Administrador
