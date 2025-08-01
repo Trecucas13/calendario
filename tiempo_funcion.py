@@ -3,7 +3,7 @@ import os
 import time
 
 # 1. Función de benchmarking
-def benchmark_guardado(funcion, repeticiones=1000):
+def benchmark_guardado(funcion, repeticiones=1):
     proceso = psutil.Process(os.getpid())
     memoria_inicial = proceso.memory_info().rss
     cpu_inicial = proceso.cpu_times()

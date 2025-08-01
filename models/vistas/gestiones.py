@@ -441,4 +441,3 @@ def tabla_gestionar():
     return render_template("gestionar.html", gestiones=gestiones_paginado, tipificaciones=tipificaciones, pagination=pagination)
 
 
-

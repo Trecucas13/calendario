@@ -10,6 +10,36 @@
   <link rel="stylesheet" href="../../static/css/form.css"> <!-- LINK DE ESTILO PARA EL FORMULARIO-->
   <link rel="stylesheet" href="../../static/css/creacion_calendario.css"> <!-- LINK DE ESTILO ESPECÍFICO-->
   <link rel="icon" type="image/png" href="../static/img/andesBpo.png">
+  
+  <style>
+    /* Asegurar que el contenido ocupe el 100% del espacio disponible */
+    html, body {
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container-2 {
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    
+    /* Media query para pantallas de 1366px de ancho o menores */
+    @media screen and (max-width: 1366px) {
+      body {
+        zoom: 0.65;
+      }
+    }
+    
+    /* Para pantallas muy pequeñas (móviles), mantener escala normal */
+    @media screen and (max-width: 768px) {
+      body {
+        zoom: 1;
+      }
+    }
+  </style>
 </head>
 
 <body>

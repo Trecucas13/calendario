@@ -1,70 +1,442 @@
+/* Tabla ocupa 100% del espacio disponible */
 .table-responsive {
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 400px; /* Puedes ajustar este valor según el espacio disponible */
-  border: 1px solid #ddd;
+  height: 100%;
+  flex: 1;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* Tabla */
-/* .mi-tabla {
+.mi-tabla {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
-  font-family: sans-serif;
-} */
-
+  table-layout: auto;
+  font-family: inherit;
+  background: none;
+  border-radius: 0;
+  overflow: visible;
+  margin: 0;
+}
 
 .mi-tabla td {
-  /* padding: 8px 12px; */
+  padding: 10px 8px;
   text-align: center;
   border-bottom: 1px solid #ddd;
-  /*overflow: hidden;*/
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 14px;
+  color: inherit;
+  background: none;
 }
 
 .mi-tabla th {
-  /* width: 100%; */
-  white-space: wrap;
+  white-space: nowrap;
   text-align: center;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: white;
+  padding: 10px 8px;
 }
 
 /*ESTILOS DEL SUBIR ARCHIVOS*/
- .custom-file-wrapper {
-              display: flex;
-              align-items: center;
-              gap: 0.6em;
-              background-color: #e6f4f1;
-              padding: 0.6em 1em;
-              border-radius: 1em;
-              box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-              font-family: sans-serif;
-            }
+.custom-file-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  background-color: #e6f4f1;
+  padding: 0.6em 1em;
+  border-radius: 1em;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+}
 
-            .custom-file-label {
-              background-color:rgba(61, 156, 107, 0.71);
-              color: white;
-              padding: 6px 12px;
-              border-radius: 0.5em;
-              cursor: pointer;
-              font-size: 14px;
-              white-space: nowrap;
-              transition: background-color 0.3s;
-            }
+.custom-file-label {
+  background-color: rgba(61, 156, 107, 0.71);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 0.5em;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background-color 0.3s;
+}
 
-            .custom-file-label:hover {
-              background-color:rgb(59, 196, 148);
-            }
+.custom-file-label:hover {
+  background-color: rgb(59, 196, 148);
+}
 
-            .custom-file-input {
-              display: none;
-            }
+.custom-file-input {
+  display: none;
+}
 
-            .file-name {
-              font-size: 14px;
-              color: #333;
-              max-width: 150px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
+.file-name {
+  font-size: 14px;
+  color: #333;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  width: 100%;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* Header de la card */
+.card-container .header{
+  flex-shrink: 0;
+  padding: 15px 20px;
+  border-bottom: 1px solid #dee2e6;
+  /* background: white; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+
+
+/* Card body que contiene la tabla */
+.card-container .card-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+/* Estilos para búsqueda y paginación */
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.search-group input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 250px;
+  height: 38px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-group input:focus {
+  border-color: #20c997;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(32, 201, 151, 0.5);
+}
+
+.d-flex.justify-content-between.align-items-center.mt-3 {
+  flex-shrink: 0;
+  padding: 15px 20px;
+  border-top: 1px solid #dee2e6;
+  background: white;
+  margin-top: 0 !important;
+}
+
+/* Asegurar que la paginación no se rompa */
+.pagination {
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.pagination .page-link {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+/* Responsive Design para tablas */
+
+/* Tablets y pantallas medianas (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+  .card-container .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .custom-file-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .search-group {
+    justify-content: center;
+  }
+  
+  .search-group input {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .mi-tabla th,
+  .mi-tabla td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+  
+  .d-flex.justify-content-between.align-items-center.mt-3 {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .pagination {
+    justify-content: center;
+  }
+}
+
+/* Móviles grandes (481px - 767px) */
+@media screen and (max-width: 767px) {
+  .table-responsive {
+    font-size: 12px;
+  }
+  
+  .mi-tabla {
+    min-width: 800px; /* Permite scroll horizontal */
+  }
+  
+  .mi-tabla th,
+  .mi-tabla td {
+    padding: 6px 4px;
+    font-size: 12px;
+    min-width: 80px;
+  }
+  
+  .card-container .header h5 {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  
+  .custom-file-wrapper {
+    padding: 0.4em 0.6em;
+  }
+  
+  .custom-file-label {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .file-name {
+    font-size: 12px;
+    max-width: 120px;
+  }
+  
+  .search-group input {
+    font-size: 14px;
+    padding: 8px;
+  }
+  
+  .pagination .page-link {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  /* Ocultar algunas columnas menos importantes en móviles */
+  .mi-tabla th:nth-child(n+8),
+  .mi-tabla td:nth-child(n+8) {
+    display: none;
+  }
+}
+
+/* Móviles pequeños (320px - 480px) */
+@media screen and (max-width: 480px) {
+  .card-container .header {
+    padding: 10px 15px;
+  }
+  
+  .mi-tabla {
+    min-width: 600px;
+  }
+  
+  .mi-tabla th,
+  .mi-tabla td {
+    padding: 4px 2px;
+    font-size: 11px;
+    min-width: 60px;
+  }
+  
+  .card-container .header h5 {
+    font-size: 1rem;
+  }
+  
+  .search-group input {
+    font-size: 13px;
+    padding: 6px;
+  }
+  
+  .custom-file-wrapper {
+    padding: 0.3em 0.5em;
+  }
+  
+  .custom-file-label {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+  
+  .file-name {
+    font-size: 11px;
+    max-width: 100px;
+  }
+  
+  .d-flex.justify-content-between.align-items-center.mt-3 {
+    padding: 10px 15px;
+    font-size: 12px;
+  }
+  
+  .pagination .page-link {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  
+  /* En móviles muy pequeños, mostrar solo las columnas más importantes */
+  .mi-tabla th:nth-child(n+6),
+  .mi-tabla td:nth-child(n+6) {
+    display: none;
+  }
+}
+
+/* Pantallas muy grandes (1440px+) */
+@media screen and (min-width: 1440px) {
+  .mi-tabla th,
+  .mi-tabla td {
+    padding: 12px 10px;
+    font-size: 15px;
+  }
+  
+  .card-container .header {
+    padding: 20px 25px;
+  }
+  
+  .search-group input {
+    padding: 10px 14px;
+    font-size: 15px;
+  }
+  
+  .pagination .page-link {
+    padding: 8px 14px;
+    font-size: 15px;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+  .card-container .header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px 15px;
+  }
+  
+  .mi-tabla th:nth-child(n+10),
+  .mi-tabla td:nth-child(n+10) {
+    display: none;
+  }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+  /* Dispositivos táctiles */
+  .mi-tabla tbody tr {
+    transition: background-color 0.2s ease;
+  }
+  
+  .mi-tabla tbody tr:active {
+    background-color: #e9ecef !important;
+  }
+  
+  .pagination .page-link {
+    min-height: 44px; /* Área táctil mínima recomendada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .custom-file-label {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .search-group input {
+    min-height: 44px;
+  }
+  
+  /* Botones más grandes en táctil */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Scroll suave en dispositivos táctiles */
+.table-responsive {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Indicador visual de scroll horizontal en móviles */
+@media screen and (max-width: 767px) {
+  .table-responsive::after {
+    content: "← Desliza para ver más →";
+    position: sticky;
+    left: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    font-size: 11px;
+    text-align: center;
+    border-radius: 3px;
+    margin: 5px;
+    opacity: 0.8;
+  }
+}
+
+/* Alto contraste para accesibilidad */
+@media (prefers-contrast: high) {
+  .mi-tabla th {
+    background: #000;
+    color: #fff;
+    border: 2px solid #fff;
+  }
+  
+  .mi-tabla td {
+    border: 1px solid #000;
+  }
+  
+  .mi-tabla tbody tr:hover {
+    background: #333 !important;
+    color: #fff;
+  }
+}
+
+/* Reducir movimiento para usuarios sensibles */
+@media (prefers-reduced-motion: reduce) {
+  .mi-tabla tbody tr,
+  .pagination .page-link,
+  .custom-file-label {
+    transition: none !important;
+  }
+}

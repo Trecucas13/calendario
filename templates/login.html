@@ -24,22 +24,32 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <style>
-      /* .logo-savia {
-        max-width: 630px;
-        width: 100%;
-        max-height: 40px;
-        height: 100%;
-        background-color: #d4edea;
-        padding: 0;
-        justify-content: space-between;
-      } */
-
       body {
         background-color: #d4edea;
-        /* padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      ; */
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .container {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Media query para pantallas de 1366px de ancho o menores */
+      @media screen and (max-width: 1366px) {
+        body {
+          zoom: 0.65;
+        }
+      }
+      
+      /* Para pantallas muy pequeñas (móviles), mantener escala normal */
+      @media screen and (max-width: 768px) {
+        body {
+          zoom: 1;
+        }
       }
     </style>
   </head>

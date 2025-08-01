@@ -45,9 +45,9 @@ class Pagination:
 @role_required(1)
 def tabla_usuarios():
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = 11
     usuarios, total = datos_usuarios(page, per_page)
     pagination = Pagination(page=page, per_page=per_page, total=total)
     return render_template("usuarios.html", 
-                         usuarios=usuarios,
-                         pagination=pagination)
+                        usuarios=usuarios,
+                        pagination=pagination)

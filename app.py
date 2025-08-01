@@ -13,7 +13,7 @@ from models.vistas.gestiones import gestionar
 import math  # Necesario para math.ceil
 
 # from models.vistas.index import datos_citas
-
+from tiempo_funcion import benchmark_guardado  # Importa la función de benchmarking
 
 from models.inserciones.insert_citas import insertar_citas
 from models.inserciones.insert_calendario import insercion_calendario
@@ -82,6 +82,7 @@ def login():
 @role_required([1, 2])
 def index():
     calendarios = datos_calendario()
+    # benchmark_guardado(lambda: gestion_bd, repeticiones=1)  # Ejecuta el benchmark para la función gestion_bd
     # Obtener municipios y procedimientos para los modales
     datos = datos_municipio()
     municipios = datos.get('municipios', [])
@@ -175,7 +176,7 @@ def pacientes():
     procedimientos_list = procedimientos()
     # Paginación
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = 16
     total = len(pacientes)
     start = (page - 1) * per_page
     end = start + per_page

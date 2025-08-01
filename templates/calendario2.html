@@ -5,14 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendario de Citas</title>
     <link rel="stylesheet" href="../static/css/calendario.css" />
+    <link rel="stylesheet" href="../static/css/loader.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
+    
+    <style>
+      /* Asegurar que el contenido ocupe el 100% del espacio disponible */
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .container {
+        height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+      
+      /* Media query para pantallas de 1366px de ancho o menores */
+      @media screen and (max-width: 1366px) {
+        body {
+          zoom: 0.65;
+        }
+      }
+      
+      /* Para pantallas muy pequeñas (móviles), mantener escala normal */
+      @media screen and (max-width: 768px) {
+        body {
+          zoom: 1;
+        }
+      }
+    </style>
   </head>
 
   <body>
+    <div id="loader"><div class="spinner"></div></div>
     <div class="container">
       <!-- Sección de información de citas -->
       <div class="info-section">
@@ -787,6 +819,13 @@
               window.location.reload();
           }, 500); // Espera 0.5 segundos antes de recargar (ajusta si es necesario)
       });
+    </script>
+    <script>
+      function showLoader(){document.getElementById('loader').style.display='flex';}
+      function hideLoader(){document.getElementById('loader').style.display='none';}
+      window.addEventListener('load', hideLoader);
+      document.querySelectorAll('form').forEach(f=>f.addEventListener('submit', showLoader));
+      document.querySelectorAll('a').forEach(a=>a.addEventListener('click', showLoader));
     </script>
   </body>
 </html>
