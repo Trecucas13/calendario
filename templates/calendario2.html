@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="html">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,20 +13,6 @@
     <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
     
     <style>
-      /* Asegurar que el contenido ocupe el 100% del espacio disponible */
-      html, body {
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-      }
-      
-      .container {
-        height: 100vh;
-        padding: 20px;
-        box-sizing: border-box;
-        overflow-y: auto;
-      }
-      
       /* Media query para pantallas de 1366px de ancho o menores */
       @media screen and (max-width: 1366px) {
         body {
@@ -43,7 +29,7 @@
     </style>
   </head>
 
-  <body>
+  <body class="body">
     <div id="loader"><div class="spinner"></div></div>
     <div class="container">
       <!-- Sección de información de citas -->
@@ -57,6 +43,7 @@
             type="button"
             class="btn btn-secondary"
             onclick="window.location='/index'"
+            style="cursor: pointer"
           >
             <i class="fas fa-times me-2"></i>Volver
           </button>

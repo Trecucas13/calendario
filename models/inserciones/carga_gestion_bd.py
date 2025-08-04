@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, redirect, url_for
 from sqlalchemy.exc import SQLAlchemyError
 from io import BytesIO, StringIO
 import pandas as pd
@@ -243,7 +243,8 @@ def carga_gestion():
             'duplicados_info': duplicates_info[:100]  # Limitar a 100 para el modal
         }
         
-        return jsonify(response_data)
+        # Redirigir a la vista de gestión tras carga exitosa
+        return redirect(url_for('gestion_bd.tabla_gestiones_bd'))
         
     except Exception as e:
         # Manejo de errores

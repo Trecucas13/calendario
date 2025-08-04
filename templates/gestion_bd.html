@@ -59,7 +59,7 @@
       </label>
       <span class="file-name" id="file-name">Sin archivo seleccionado</span>
       <input type="file" id="file-upload" class="custom-file-input" name="file"/>
-      <button type="submit" style="background-color: #20c997; border: none; border-radius: 5px; padding: 5px 10px; color: white; cursor: pointer;">
+      <button type="submit" style="background-color: #20c997; border: none; border-radius: 5px; padding: 5px 10px; color: white, cursor: pointer;">
         <i class="bi bi-upload"></i>
       </button>
     </div>
@@ -76,6 +76,15 @@
    </button>
 </a>
 
+            <!-- Eliminar Base -->
+           <button id="delete-base-btn" style="background-color: #dc3545; border: none; border-radius: 5px; padding: 8px 15px; color: white; cursor: pointer; margin-left: 5px; font-size: 14px; display: inline-flex; align-items: center; gap:5px;"
+               onmouseover="this.style.backgroundColor='#c82333'"
+               onmouseout="this.style.backgroundColor='#dc3545'">
+               <i class="bi bi-trash" style="font-size:16px;"></i>
+               <span>Eliminar Base</span>
+           </button>
+           <form id="delete-base-form" action="{{ url_for('delete_carga.delete_registro_base') }}" method="post" style="display:none;"></form>
+
     </div>
 
        <div class="card-body">
@@ -91,7 +100,7 @@
           <th>Segundo Apellido</th>
           <th>Fecha</th>
           <th>Edad</th>
-          <th>Sexo</th>
+          <th>Estado Afiliación</th>
           <th>Régimen Afiliado</th>
           <th>Teléfono</th>
           <th>Dirección</th>
@@ -301,7 +310,42 @@
           document.getElementById("file-name").textContent = fileName;
         });
 
-        
+      // SweetAlert2 para confirmación de eliminación de base
+      document.getElementById('delete-base-btn').addEventListener('click', function () {
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: "Esta acción eliminará la base de datos actual. ¡No podrás deshacer esto!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#20c997',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Si el usuario confirma, enviar el formulario de eliminación
+            document.getElementById('delete-base-form').submit();
+          }
+        });
+      });
+    </script>
+    <script>
+      document.getElementById('delete-base-btn').addEventListener('click', function() {
+        Swal.fire({
+          title: '¿Eliminar todos los registros base?',
+          text: 'Esta acción no se puede deshacer.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            document.getElementById('delete-base-form').submit();
+          }
+        });
+      });
     </script>
     {% endblock %}
   </body>

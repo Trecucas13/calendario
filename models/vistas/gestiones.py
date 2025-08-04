@@ -417,7 +417,7 @@ gestion_bd = Blueprint('gestion_bd', __name__)
 @role_required([1 , 2])
 def tabla_gestiones_bd():
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = 17
     historial = obtener_total_mejor_gestiones()
     total = len(historial)
     historial_paginado = historial[(page-1)*per_page : page*per_page]
@@ -432,7 +432,7 @@ gestionar = Blueprint('gestionar', __name__)
 @role_required([1 , 2])
 def tabla_gestionar():
     page = request.args.get('page', 1, type=int)
-    per_page = 10
+    per_page = 17
     gestiones = obtener_total_gestiones()
     tipificaciones = obtener_tipificaciones()
     total = len(gestiones)

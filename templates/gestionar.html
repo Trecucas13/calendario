@@ -40,7 +40,7 @@
 
          <!-- BUSCAR -->
         <div class="search-group">
-          <i class="bi bi-search"></i>
+         <!--<i class="bi bi-search"></i>-->
           <input type="search" name="q" id="searchInput" placeholder="Buscar" value="{{ request.args.get('q', '') }}" />
         </div>
 
@@ -92,7 +92,7 @@
             const celdaMunicipio = eliminarTildes(celdas[12].textContent.trim());
             const celdaProceso = eliminarTildes(celdas[14].textContent.trim());
             const celdaNombre = eliminarTildes(celdas[2].textContent.trim());
-            const celdaTipificacion = eliminarTildes(celdas[15].textContent.trim());
+            const celdaTipificacion = eliminarTildes(celdas[16].textContent.trim());
 
             // Comparación estricta: se requiere coincidencia exacta
             if (municipioFiltro && celdaMunicipio !== municipioFiltro) {

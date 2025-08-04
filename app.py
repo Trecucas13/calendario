@@ -26,6 +26,8 @@ from models.eliminar.eliminar_usuario import delete_usuarios
 from models.eliminar.eliminar_calendario import delete_calendario
 from models.eliminar.eliminar_municipio import delete_municipios
 from models.eliminar.eliminar_procedimiento import delete_procedimientos
+from models.eliminar.eliminar_carga import delete_carga
+from models.eliminar.eliminar_paciente import borrar_pacientes
 
 from models.actualizar.actualizarUsuario import actualizar_usuario
 from models.actualizar.actualizarForm import actualizar_calendario
@@ -66,6 +68,8 @@ app.register_blueprint(delete_usuarios)
 app.register_blueprint(delete_calendario)
 app.register_blueprint(delete_municipios)
 app.register_blueprint(delete_procedimientos)
+app.register_blueprint(delete_carga)
+app.register_blueprint(borrar_pacientes)
 app.register_blueprint(actualizar_usuario)
 app.register_blueprint(actualizar_calendario)
 app.register_blueprint(actualizar_pacientes)

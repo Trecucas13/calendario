@@ -130,6 +130,15 @@
                       >
                         <i class="fas fa-edit"></i>
                       </button>
+                      <form action="{{ url_for('borrar_pacientes.delete_paciente') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="{{ pacientes.id_paciente }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                style="display:inline-flex; align-items:center; justify-content:center; padding:4px 8px;" 
+                                onmouseover="this.classList.remove('btn-outline-danger'); this.classList.add('btn-danger');" 
+                                onmouseout="this.classList.remove('btn-danger'); this.classList.add('btn-outline-danger');">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -315,6 +324,17 @@
                     required
                   />
                 </div>
+                <div class="col-md-12">
+                  <label class="form-label">
+                    <i class="fas fa-notes-medical me-2"></i>Procedimiento
+                  </label>
+                  <select class="form-select" name="examen_realizar" required>
+                    <option value="">Seleccionar</option>
+                    {% for examen in procedimientos %}
+                    <option value="{{ examen.id_procedimiento }}">{{ examen.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
               </div>
             </div>
             <div class="modal-footer">
@@ -462,23 +482,18 @@
                   />
                 </div>
 
-                <!-- <div class="col-md-12">
+                <div class="col-md-12">
                   <label class="form-label">
-                    <i class="fas fa-user-tag me-2"></i>Procedimiento
+                    <i class="fas fa-notes-medical me-2"></i>Procedimiento
                   </label>
-                  <select
-                    class="form-select"
-                    name="examen_realizar"
-                    id="actualizarExamen"
-                    required
-                  >
+                  <select class="form-select" name="examen_realizar" id="actualizarExamen" required>
                     <option value="">Seleccionar</option>
                     {% for examen in procedimientos %}
-                    <option value="{{ examen.id_procedimiento}}">{{ examen.nombre }}</option>
+                    <option value="{{ examen.id_procedimiento }}">{{ examen.nombre }}</option>
 
                     {% endfor %}
                   </select>
-                </div> -->
+                </div>
               </div>
             </div>
 
@@ -521,7 +536,7 @@
         document.getElementById("actualizarTelefono").value = telefono;
         document.getElementById("actualizarDireccion").value = direccion;
         document.getElementById("actualizarFecha_nacimiento").value = fecha_nacimiento;
-        // document.getElementById("actualizarExamen").value = examen_realizar;
+        document.getElementById("actualizarExamen").value = examen_realizar;
       }
 
       // Limpiar el modal al cerrarlo para evitar valores residuales
@@ -537,7 +552,7 @@
             document.getElementById("actualizarTelefono").value = '';
             document.getElementById("actualizarDireccion").value = '';
             document.getElementById("actualizarFecha_nacimiento").value = '';
-            // document.getElementById("actualizarExamen").value = '';
+            document.getElementById("actualizarExamen").value = '';
           });
         }
       });
@@ -547,6 +562,8 @@
       /**
        * Configura la funcionalidad de búsqueda para filtrar empleados y usuarios
        * Permite buscar en todas las columnas de ambas tablas
+       * @param {string} texto - Texto a normalizar
+       * @returns {string} - Texto normalizado sin acentos y en minúsculas
        */
       document.addEventListener("DOMContentLoaded", function () {
         /**

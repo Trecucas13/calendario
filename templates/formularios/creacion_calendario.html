@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="html">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,18 +15,7 @@
 
     <style>
       /* Asegurar que el contenido ocupe el 100% del espacio disponible */
-      html, body {
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-      }
       
-      .container-2 {
-        height: 100vh;
-        padding: 20px;
-        box-sizing: border-box;
-        overflow-y: auto;
-      }
       
       /* Media query para pantallas de 1366px de ancho o menores */
       @media screen and (max-width: 1366px) {
@@ -44,7 +33,7 @@
     </style>
   </head>
 
-  <body>
+  <body class="body">
     <div class="container-2">
       <h1>Creación de Calendario</h1>
       <form id="calendarioForm" action="/insertar_calendario" method="post">

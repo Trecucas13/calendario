@@ -28,9 +28,9 @@ def update_paciente():
         telefono = request.form["telefono"]
         direccion = request.form["direccion"]
         fecha_nacimiento = request.form["fecha_nacimiento"]
-        # examen_realizar = request.form["examen_realizar"]
+        # Obtener el nuevo procedimiento seleccionado
+        examen_realizar = request.form.get("examen_realizar")
         
-        # print("Datos recibidos:", id_paciente, nombre, apellido, tipo_documento, documento, telefono, direccion, fecha_nacimiento)
         # Actualizar usuario sin modificar la contraseña
         sql = text("""UPDATE pacientes SET 
                  nombre = :nombre,
@@ -39,7 +39,8 @@ def update_paciente():
                  numero_documento = :documento,
                  telefono = :telefono,
                  direccion = :direccion,
-                 fecha_nacimiento = :fecha_nacimiento
+                 fecha_nacimiento = :fecha_nacimiento,
+                 
                  WHERE id = :id_paciente""")
         result = db.session.execute(sql, {
             "nombre": nombre,
@@ -51,7 +52,13 @@ def update_paciente():
             "fecha_nacimiento": fecha_nacimiento,
             "id_paciente": id_paciente
         })
-        print(f"Filas actualizadas: {result.rowcount}")
+        print(f"Filas actualizadas en pacientes: {result.rowcount}")
+        # Actualizar procedimiento en citas para este paciente
+        if examen_realizar:
+            sql_cita = text("""UPDATE citas SET id_procedimiento = :examen_realizar WHERE id_paciente = :id_paciente""")
+            cita_result = db.session.execute(sql_cita, {"examen_realizar": examen_realizar, "id_paciente": id_paciente})
+            print(f"Filas actualizadas en citas: {cita_result.rowcount}")
+        # Confirmar cambios en ambas tablas
         db.session.commit()
         
         flash("Paciente actualizado exitosamente", "success")
