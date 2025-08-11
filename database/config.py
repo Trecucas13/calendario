@@ -14,15 +14,18 @@ def db_conexion(app):
     """
     # Configuración básica de conexión
     # HOST: Dirección del servidor PostgreSQL (por defecto: localhost)
-    db_host = os.getenv("POSTGRES_HOST", "database-savia.cla22m8co2v1.us-east-1.rds.amazonaws.com")
-    # USER: Usuario de PostgreSQL (por defecto: postgres)
-    db_user = os.getenv("POSTGRES_USER", "postgres")
-    # PASSWORD: Contraseña del usuario PostgreSQL (por defecto: postgres)
-    db_password = os.getenv("POSTGRES_PASSWORD", "89.J(GIidcx2^P9G")
-    # DB: Nombre de la base de datos a utilizar (por defecto: savia_salud)
-    db_name = os.getenv("POSTGRES_DB", "postgres")
-    # Puerto de conexión PostgreSQL (por defecto: 5432)
-    db_port = os.getenv("POSTGRES_PORT", "5432")
+    db_host = os.getenv("POSTGRES_HOST")
+    db_user = os.getenv("POSTGRES_USER")
+    db_password = os.getenv("POSTGRES_PASSWORD")
+    db_name = os.getenv("POSTGRES_DB")
+    db_port = os.getenv("POSTGRES_PORT")
+
+    db_host = 'database-savia.cla22m8co2v1.us-east-1.rds.amazonaws.com'
+    db_user = 'postgres'
+    db_password = '89.J(GIidcx2^P9G'
+    db_name = 'postgres'
+    db_port = '5432'
+
 
     # Construcción de la URI de conexión para SQLAlchemy
     app.config["SQLALCHEMY_DATABASE_URI"] = (

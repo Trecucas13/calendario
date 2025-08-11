@@ -11,16 +11,15 @@ from sqlalchemy import text  # Importar text
 datos_gestionados = Blueprint('datos_gestionados', __name__)
 @datos_gestionados.route("/exportar_registros_excel")
 @login_required
-@role_required(1)
+@role_required([1, 2])
 def exportar_registros_excel():
     """
     Genera un archivo Excel con los registros de la base de datos
     """
     try:
-        # Obtener los datos de la base de datos
+        # Obtener TODOS los datos de la base de datos (todos los registros de registro_base)
         registros = db.session.execute(text("""
             SELECT
-                g.fecha_gestion,
                 r.tipo_id, 
                 r.num_id, 
                 r.primer_nombre, 
@@ -29,10 +28,21 @@ def exportar_registros_excel():
                 r.segundo_apellido,
                 r.fecha,
                 r.edad,
+                r.estado_afiliacion,
+                r.regimen_afiliacion,
                 r.telefonos,
-                r.direccion
+                r.direccion,
+                r.municipio,
+                r.subregion,
+                r.proceso,
+                g.motivo,
+                g.fecha_gestion,
+                g.tipificacion,
+                g.comentario,
+                g.usuario AS asesor
             FROM registro_base r
-            INNER JOIN gestion g ON r.id = g.registro_id
+            LEFT JOIN gestion g ON r.id = g.registro_id
+            ORDER BY r.id
         """)).fetchall()
 
         # Crear un nuevo libro de Excel
@@ -40,9 +50,8 @@ def exportar_registros_excel():
         ws = wb.active
         ws.title = "Registros"
 
-        # Definir encabezados
+        # Definir encabezados actualizados
         headers = [
-            "Fecha Gestión", 
             "Tipo Documento",
             "Número Documento",
             "Primer Nombre",
@@ -51,8 +60,18 @@ def exportar_registros_excel():
             "Segundo Apellido",
             "Fecha Nacimiento",
             "Edad",
+            "Estado Afiliación",
+            "Régimen Afiliado",
             "Teléfonos",
-            "Dirección"
+            "Dirección",
+            "Municipio",
+            "Subregión",
+            "Proceso",
+            "Motivo",
+            "Fecha Gestión",
+            "Tipificación",
+            "Comentario",
+            "Asesor"
         ]
 
         # Estilo para encabezados
@@ -95,7 +114,7 @@ def exportar_registros_excel():
             excel_file,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             as_attachment=True,
-            download_name='registros_historico.xlsx'
+            download_name='registros_completos.xlsx'
         )
 
     except Exception as e:

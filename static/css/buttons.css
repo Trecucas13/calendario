@@ -48,7 +48,7 @@
 }
 
 .edit {
-    background-color: yellow;
+    background-color: rgba(253, 253, 62, 0.568);
     border-radius: 10px;
     border: none;
     max-width: 30px;
@@ -56,7 +56,7 @@
 }
 
 .eliminar {
-    background-color: red;
+    background-color: rgba(233, 45, 45, 0.562);
     border-radius: 10px;
     border: none;
     max-width: 30px;
@@ -108,8 +108,9 @@
     border: 1px solid #d4edea;
     border-radius: 20px;
     background-color: white;
-    font-size: 14px;
+    font-size: 15px;
     transition: all 0.3s ease;
+    height: 40px;
 }
 
 .search-group input:focus {

@@ -273,13 +273,78 @@
       function hideLoader() {
         document.getElementById('loader').style.display = 'none';
       }
-      // Ocultar loader al cargar la página
-      document.addEventListener('DOMContentLoaded', hideLoader);
+      
+      // Función para verificar si un enlace debe mostrar el loader
+      function shouldShowLoader(element) {
+        // No mostrar loader para enlaces con href="#" o javascript:
+        const href = element.getAttribute('href');
+        if (!href || href === '#' || href.startsWith('javascript:')) {
+          return false;
+        }
+        
+        // No mostrar loader para enlaces con target="_blank"
+        if (element.getAttribute('target') === '_blank') {
+          return false;
+        }
+        
+        // No mostrar loader para enlaces con data-no-loader
+        if (element.hasAttribute('data-no-loader')) {
+          return false;
+        }
+        
+        return true;
+      }
+      
+      // Configurar eventos cuando el DOM esté listo
+      document.addEventListener('DOMContentLoaded', function() {
+        hideLoader();
+        
+        // Añadir event listeners a todos los formularios
+        document.querySelectorAll('form').forEach(function(form) {
+          form.addEventListener('submit', function(e) {
+            // No mostrar loader para formularios con data-no-loader
+            if (!form.hasAttribute('data-no-loader')) {
+              showLoader();
+            }
+          });
+        });
+        
+        // Añadir event listeners a todos los enlaces
+        document.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            if (shouldShowLoader(link)) {
+              showLoader();
+            }
+          });
+        });
+        
+        // Añadir event listeners a botones que pueden navegar
+        document.querySelectorAll('button[onclick]').forEach(function(button) {
+          button.addEventListener('click', function(e) {
+            // Solo mostrar loader si el onclick no tiene data-no-loader
+            if (!button.hasAttribute('data-no-loader')) {
+              const onclick = button.getAttribute('onclick');
+              if (onclick && (onclick.includes('location') || onclick.includes('window.open'))) {
+                showLoader();
+              }
+            }
+          });
+        });
+      });
+      
+      // Ocultar loader al cargar la página completamente
+      window.addEventListener('load', hideLoader);
+      
       // Mostrar loader al navegar fuera de la página
       window.addEventListener('beforeunload', showLoader);
+      
+      // Función global para mostrar loader manualmente (para uso en JavaScript personalizado)
+      window.showGlobalLoader = showLoader;
+      window.hideGlobalLoader = hideLoader;
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/loader-utils.js') }}"></script>
 
 </body>
 </html>

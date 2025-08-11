@@ -10,6 +10,7 @@ from models.vistas.usuarios import vista_usuarios
 from models.vistas.gestiones import vista_gestiones
 from models.vistas.gestiones import gestion_bd
 from models.vistas.gestiones import gestionar
+# from models.vistas.descarga_gestionados import datos_gestionados
 import math  # Necesario para math.ceil
 
 # from models.vistas.index import datos_citas
@@ -60,6 +61,7 @@ app.register_blueprint(carga_gestion)
 app.register_blueprint(vista_usuarios)
 app.register_blueprint(vista_gestiones)
 app.register_blueprint(gestion_bd)
+app.register_blueprint(datos_gestionados)
 app.register_blueprint(gestionar)
 # app.register_blueprint(datos_citas)
 
@@ -74,7 +76,7 @@ app.register_blueprint(actualizar_usuario)
 app.register_blueprint(actualizar_calendario)
 app.register_blueprint(actualizar_pacientes)
 
-app.register_blueprint(datos_gestionados)
+# app.register_blueprint(datos_gestionados)
 app.register_blueprint(datos_citas)
 @app.route("/")
 def login():

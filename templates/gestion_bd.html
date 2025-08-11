@@ -15,8 +15,11 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
     
-
+    <link rel="stylesheet" href="../static/css/busqueda.css"/>
     <link rel="icon" type="image/png" href="../static/img/andesBpo.png" />
+    
+    <!-- SweetAlert2 para alertas mejoradas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
 
 
@@ -27,7 +30,27 @@
     background-color: #20c997;
     border-color: #20c997;
     color: white;
-  }|
+  }
+
+  /* Estilos para el loader */
+  .loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff40;
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .downloading {
+    opacity: 0.7;
+    cursor: not-allowed !important;
+  }
 </style>  
 
   <body>
@@ -59,22 +82,19 @@
       </label>
       <span class="file-name" id="file-name">Sin archivo seleccionado</span>
       <input type="file" id="file-upload" class="custom-file-input" name="file"/>
-      <button type="submit" style="background-color: #20c997; border: none; border-radius: 5px; padding: 5px 10px; color: white, cursor: pointer;">
+      <button type="submit" style="background-color: #20c997; border: none; border-radius: 5px; padding: 5px 10px; color: white; cursor: pointer;">
         <i class="bi bi-upload"></i>
       </button>
     </div>
   </form>
 
             <!-- Descargar (Nuevo) -->
-             <a href="{{ url_for('datos_gestionados.exportar_registros_excel') }}" 
-                style="display: inline-block; text-decoration: none;">
-             <button style="background-color: #20c997; border: none; border-radius: 5px; padding: 8px 15px; color: white; cursor: pointer; margin-left: 5px; font-size: 14px; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 5px;"
-           onmouseover="this.style.backgroundColor='#1aa179'"
-           onmouseout="this.style.backgroundColor='#20c997'">
-      <i class="bi bi-download" style="font-size: 16px;"></i>
-      <span>Exportar Excel</span>
-   </button>
-</a>
+      <button id="download-btn" style="background-color: #20c997; border: none; border-radius: 5px; padding: 8px 15px; color: white; cursor: pointer; margin-left: 5px; font-size: 14px; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 5px;"
+              onmouseover="this.style.backgroundColor='#1aa179'"
+              onmouseout="this.style.backgroundColor='#20c997'">
+          <i class="bi bi-download" style="font-size: 16px;" id="download-icon"></i>
+          <span id="download-text">Exportar Excel</span>
+      </button>
 
             <!-- Eliminar Base -->
            <button id="delete-base-btn" style="background-color: #dc3545; border: none; border-radius: 5px; padding: 8px 15px; color: white; cursor: pointer; margin-left: 5px; font-size: 14px; display: inline-flex; align-items: center; gap:5px;"
@@ -225,6 +245,76 @@
     <script>
       // console.log("Historico Gestiones: " + historico);
 
+      // ==================== FUNCIONES DE DESCARGA ====================
+      
+      /**
+       * Maneja la descarga del archivo Excel con loader que se desactiva al completar
+       */
+      document.getElementById('download-btn').addEventListener('click', function() {
+        const btn = this;
+        const icon = document.getElementById('download-icon');
+        const text = document.getElementById('download-text');
+        
+        // Función para restaurar el botón a su estado original
+        function restaurarBoton() {
+          btn.classList.remove('downloading');
+          btn.disabled = false;
+          icon.className = 'bi bi-download';
+          text.textContent = 'Exportar Excel';
+        }
+        
+        // Activar estado de descarga
+        btn.classList.add('downloading');
+        btn.disabled = true;
+        icon.className = 'loader';
+        text.textContent = 'Descargando...';
+        
+        // Usar fetch para manejar mejor la descarga
+        fetch("{{ url_for('datos_gestionados.exportar_registros_excel') }}")
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error en la descarga: ' + response.statusText);
+            }
+            return response.blob();
+          })
+          .then(blob => {
+            // Crear un enlace para descargar el archivo
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'registros_completos.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // Restaurar botón
+            restaurarBoton();
+            
+            // Mostrar mensaje de éxito
+            Swal.fire({
+              icon: 'success',
+              title: '¡Descarga completada!',
+              text: 'El archivo Excel se ha descargado correctamente.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            restaurarBoton();
+            
+            // Mostrar mensaje de error
+            Swal.fire({
+              icon: 'error',
+              title: 'Error en la descarga',
+              text: 'Hubo un problema al descargar el archivo. Por favor, inténtelo de nuevo.',
+              confirmButtonColor: '#20c997'
+            });
+          });
+      });
+
       // ==================== FUNCIONES DE BÚSQUEDA ====================
 
       /**
@@ -324,24 +414,6 @@
         }).then((result) => {
           if (result.isConfirmed) {
             // Si el usuario confirma, enviar el formulario de eliminación
-            document.getElementById('delete-base-form').submit();
-          }
-        });
-      });
-    </script>
-    <script>
-      document.getElementById('delete-base-btn').addEventListener('click', function() {
-        Swal.fire({
-          title: '¿Eliminar todos los registros base?',
-          text: 'Esta acción no se puede deshacer.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#dc3545',
-          cancelButtonColor: '#6c757d',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
             document.getElementById('delete-base-form').submit();
           }
         });

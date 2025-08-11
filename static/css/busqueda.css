@@ -1,20 +1,101 @@
 
-.filter {
-  display: flex;
-  flex-direction: row-reverse; /* Acomoda los elementos en columna */
-  gap: 16px; /* Espacio entre los elementos */
-  width: 100%; /* Ancho completo */
-  /* padding: 20px;  */
-  /* background-color: */
-  /* border-radius: 8px; 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);  */
-  justify-content: center; /* Alinea los elementos al final */
+/* Estilos para el componente de búsqueda */
+.search-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 300px;
+    width: 100%;
 }
 
+.search-group i {
+    position: absolute;
+    left: 12px;
+    color: #03a591;
+    font-size: 16px;
+    z-index: 1;
+}
 
-.form-select {
-  display: flex;
-  flex-direction: column; /* Acomoda los elementos en columna */
-  gap: 8px; /* Espacio entre los elementos */
-  width: 100%; /* Ancho completo */
+.search-group input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #d4edea;
+    border-radius: 20px;
+    background-color: white;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    height: 40px;
+}
+
+.search-group input:focus {
+    outline: none;
+    border-color: #03a591;
+    box-shadow: 0 0 0 2px rgba(3, 165, 145, 0.2);
+}
+
+.search-group input::placeholder {
+    color: #aaa;
+}
+
+/* Estilos para el contenedor de filtros */
+.filtro-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 200px;
+}
+
+.filtro-group .form-select {
+    padding: 8px 12px;
+    border: 1px solid #d4edea;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    height: 40px;
+}
+
+.filtro-group .form-select:focus {
+    outline: none;
+    border-color: #03a591;
+    box-shadow: 0 0 0 2px rgba(3, 165, 145, 0.2);
+}
+
+/* Contenedor general para filtros */
+.filter {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Estilos responsivos para búsqueda y filtros */
+@media (max-width: 768px) {
+    .filter {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .search-group,
+    .filtro-group {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .search-group input {
+        font-size: 14px;
+        padding: 8px 8px 8px 32px;
+        height: 38px;
+    }
+    
+    .filtro-group .form-select {
+        font-size: 13px;
+        height: 38px;
+    }
 }

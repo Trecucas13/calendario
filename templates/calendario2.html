@@ -30,7 +30,6 @@
   </head>
 
   <body class="body">
-    <div id="loader"><div class="spinner"></div></div>
     <div class="container">
       <!-- Sección de información de citas -->
       <div class="info-section">
@@ -806,13 +805,6 @@
               window.location.reload();
           }, 500); // Espera 0.5 segundos antes de recargar (ajusta si es necesario)
       });
-    </script>
-    <script>
-      function showLoader(){document.getElementById('loader').style.display='flex';}
-      function hideLoader(){document.getElementById('loader').style.display='none';}
-      window.addEventListener('load', hideLoader);
-      document.querySelectorAll('form').forEach(f=>f.addEventListener('submit', showLoader));
-      document.querySelectorAll('a').forEach(a=>a.addEventListener('click', showLoader));
     </script>
   </body>
 </html>
