@@ -603,178 +603,237 @@ def obtener_tipificaciones():
     result = db.session.execute(sql).mappings().all()
     return result
 
-def obtener_gestiones_bd():
+@log_query_performance
+def obtener_municipios():
+    """
+    Obtiene la lista de municipios disponibles
+    """
     sql = text("""
+        SELECT DISTINCT municipio as nombre
+        FROM registro_base 
+        WHERE municipio IS NOT NULL AND municipio != ''
+        ORDER BY municipio ASC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
+
+@log_query_performance
+def obtener_procedimientos():
+    """
+    Obtiene la lista de procedimientos/procesos disponibles
+    """
+    sql = text("""
+        SELECT DISTINCT proceso as nombre
+        FROM registro_base 
+        WHERE proceso IS NOT NULL AND proceso != ''
+        ORDER BY proceso ASC
+    """)
+    result = db.session.execute(sql).mappings().all()
+    return result
+
+@log_query_performance
+def obtener_total_gestiones_paginado_filtrado(page=1, per_page=17, municipio_filtro=None, proceso_filtro=None, tipificacion_filtro=None):
+    """
+    Obtiene los registros de gestión con paginación y filtros por municipio, proceso y tipificación
+    """
+    offset = (page - 1) * per_page
+    
+    # Construir condiciones WHERE dinámicamente
+    where_conditions = []
+    params = {"per_page": per_page, "offset": offset}
+    
+    if municipio_filtro and municipio_filtro.strip():
+        where_conditions.append("r.municipio = :municipio")
+        params["municipio"] = municipio_filtro.strip()
+    
+    if proceso_filtro and proceso_filtro.strip():
+        where_conditions.append("r.proceso = :proceso")
+        params["proceso"] = proceso_filtro.strip()
+    
+    # For tipificación filter, we need to join with gestion table
+    tipificacion_join = ""
+    if tipificacion_filtro and tipificacion_filtro.strip():
+        tipificacion_join = """
+        JOIN (
+            SELECT DISTINCT g_tip.registro_id
+            FROM gestion g_tip
+            WHERE g_tip.tipificacion = :tipificacion
+        ) tip_filter ON tip_filter.registro_id = r.id
+        """
+        params["tipificacion"] = tipificacion_filtro.strip()
+    
+    where_clause = ""
+    if where_conditions:
+        where_clause = "WHERE " + " AND ".join(where_conditions)
+    
+    sql = text(f"""
+        WITH registro_gestiones AS (
+            SELECT DISTINCT
+                r.id AS registro_id,
+                r.tipo_id,
+                r.num_id,
+                r.primer_nombre,
+                r.segundo_nombre,
+                r.primer_apellido,
+                r.segundo_apellido,
+                r.fecha,
+                r.edad,
+                r.estado_afiliacion,
+                r.regimen_afiliacion,
+                r.proceso,
+                r.telefonos,
+                r.direccion,
+                r.municipio,
+                r.subregion,
+                r.fecha_carga,
+                g.motivo
+            FROM registro_base r
+            LEFT JOIN gestion g ON g.registro_id = r.id
+            {tipificacion_join}
+            {where_clause}
+            ORDER BY r.fecha_carga DESC
+            LIMIT :per_page OFFSET :offset
+        ),
+        mejores_gestiones AS (
+            SELECT 
+                rg.registro_id,
+                COALESCE(
+                    (
+                        SELECT g2.tipificacion
+                        FROM gestion g2
+                        JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
+                        WHERE g2.registro_id = rg.registro_id
+                        ORDER BY t2.ranking ASC
+                        LIMIT 1
+                    ),
+                    'Sin gestión'
+                ) AS mejor_gestion
+            FROM registro_gestiones rg
+        ),
+        ultimas_gestiones AS (
+            SELECT 
+                rg.registro_id,
+                (
+                    SELECT g3.tipificacion
+                    FROM gestion g3
+                    WHERE g3.registro_id = rg.registro_id
+                    ORDER BY g3.fecha_gestion DESC
+                    LIMIT 1
+                ) AS tipificacion,
+                (
+                    SELECT t3.tipo_contacto
+                    FROM gestion g4
+                    JOIN tipificacion t3 ON t3.nombre = g4.tipificacion
+                    WHERE g4.registro_id = rg.registro_id
+                    ORDER BY g4.fecha_gestion DESC
+                    LIMIT 1
+                ) AS tipo_contacto,
+                (
+                    SELECT g5.comentario
+                    FROM gestion g5
+                    WHERE g5.registro_id = rg.registro_id
+                    ORDER BY g5.fecha_gestion DESC
+                    LIMIT 1
+                ) AS comentario,
+                (
+                    SELECT g6.id_llamada
+                    FROM gestion g6
+                    WHERE g6.registro_id = rg.registro_id
+                    ORDER BY g6.fecha_gestion DESC
+                    LIMIT 1
+                ) AS id_llamada,
+                (
+                    SELECT TO_CHAR((g7.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'YYYY-MM-DD HH24:MI:SS')
+                    FROM gestion g7
+                    WHERE g7.registro_id = rg.registro_id
+                    ORDER BY g7.fecha_gestion DESC
+                    LIMIT 1
+                ) AS fecha_gestion,
+                (
+                    SELECT g8.usuario
+                    FROM gestion g8
+                    WHERE g8.registro_id = rg.registro_id
+                    ORDER BY g8.fecha_gestion DESC
+                    LIMIT 1
+                ) AS asesor,
+                (
+                    SELECT CASE WHEN t4.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
+                    FROM gestion g9
+                    JOIN tipificacion t4 ON t4.nombre = g9.tipificacion
+                    WHERE g9.registro_id = rg.registro_id
+                    ORDER BY g9.fecha_gestion DESC
+                    LIMIT 1
+                ) AS tipo_gestion,
+                (
+                    SELECT TO_CHAR((g10.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
+                    FROM gestion g10
+                    WHERE g10.registro_id = rg.registro_id
+                    ORDER BY g10.fecha_gestion DESC
+                    LIMIT 1
+                ) AS mes,
+                (
+                    SELECT COUNT(*)
+                    FROM gestion g11
+                    WHERE g11.registro_id = rg.registro_id
+                ) AS cantidad_gestiones
+            FROM registro_gestiones rg
+        )
         SELECT 
-            g.id AS gestion_id,
-            g.tipificacion,
-            g.comentario,
-            g.id_llamada,
-            g.fecha_gestion,
-            g.usuario AS asesor,
-            g.registro_id,
-            g.llave_compuesta,
-            g.motivo,
-            r.tipo_id,
-            r.num_id,
-            r.primer_nombre,
-            r.segundo_nombre,
-            r.primer_apellido,
-            r.segundo_apellido,
-            r.fecha,
-            r.edad,
-            r.estado_afiliacion,
-            r.regimen_afiliacion,
-            r.telefonos,
-            r.direccion,
-            r.municipio,
-            r.subregion,
-            r.proceso,
-            r.fecha_carga,
-            -- Mejor gestión (por menor ranking)
-            COALESCE(
-                (
-                    SELECT g2.tipificacion
-                    FROM gestion g2
-                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
-                    WHERE g2.registro_id = r.id
-                    ORDER BY t2.ranking ASC
-                    LIMIT 1
-                ),
-                'Sin gestión'
-            ) AS mejor_gestion,
-            -- Mes de la última gestión
-            (
-                SELECT TO_CHAR((g3.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
-                FROM gestion g3
-                WHERE g3.registro_id = r.id
-                ORDER BY g3.fecha_gestion DESC
-                LIMIT 1
-            ) AS mes,
-            -- Cantidad de gestiones
-            (
-                SELECT COUNT(*)
-                FROM gestion g4
-                WHERE g4.registro_id = r.id
-            ) AS cantidad_gestiones,
-            -- Tipo de gestión (efectivo/no efectivo)
-            (
-                SELECT CASE WHEN t3.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
-                FROM gestion g5
-                JOIN tipificacion t3 ON t3.nombre = g5.tipificacion
-                WHERE g5.registro_id = r.id
-                ORDER BY g5.fecha_gestion DESC
-                LIMIT 1
-            ) AS tipo_gestion
-        FROM gestion g
-        JOIN registro_base r ON r.id = g.registro_id
-        ORDER BY g.fecha_gestion DESC
+            rg.*,
+            mg.mejor_gestion,
+            ug.tipificacion,
+            ug.tipo_contacto,
+            ug.comentario,
+            ug.id_llamada,
+            ug.fecha_gestion,
+            ug.asesor,
+            ug.tipo_gestion,
+            ug.mes,
+            ug.cantidad_gestiones
+        FROM registro_gestiones rg
+        LEFT JOIN mejores_gestiones mg ON mg.registro_id = rg.registro_id
+        LEFT JOIN ultimas_gestiones ug ON ug.registro_id = rg.registro_id
+        ORDER BY rg.fecha_carga DESC
     """)
-    result = db.session.execute(sql).mappings().all()
+    
+    result = db.session.execute(sql, params).mappings().all()
     return result
 
-def obtener_total_mejor_gestiones():
-    sql = text("""
-        SELECT
-            r.id AS registro_id,
-            r.tipo_id,
-            r.num_id,
-            r.primer_nombre,
-            r.segundo_nombre,
-            r.primer_apellido,
-            r.segundo_apellido,
-            r.fecha,
-            r.edad,
-            r.estado_afiliacion,
-            r.regimen_afiliacion,
-            r.proceso,
-            r.telefonos,
-            r.direccion,
-            r.municipio,
-            r.subregion,
-            r.fecha_carga,
-            -- Mejor gestión (por menor ranking)
-            COALESCE(
-                (
-                    SELECT g2.tipificacion
-                    FROM gestion g2
-                    JOIN tipificacion t2 ON t2.nombre = g2.tipificacion
-                    WHERE g2.registro_id = r.id
-                    ORDER BY t2.ranking ASC
-                    LIMIT 1
-                ),
-                'Sin gestión'
-            ) AS mejor_gestion,
-            -- Última gestión
-            (
-                SELECT g3.tipificacion
-                FROM gestion g3
-                WHERE g3.registro_id = r.id
-                ORDER BY g3.fecha_gestion DESC
-                LIMIT 1
-            ) AS tipificacion,
-            (
-                SELECT t3.tipo_contacto
-                FROM gestion g4
-                JOIN tipificacion t3 ON t3.nombre = g4.tipificacion
-                WHERE g4.registro_id = r.id
-                ORDER BY g4.fecha_gestion DESC
-                LIMIT 1
-            ) AS tipo_contacto,
-            (
-                SELECT g5.comentario
-                FROM gestion g5
-                WHERE g5.registro_id = r.id
-                ORDER BY g5.fecha_gestion DESC
-                LIMIT 1
-            ) AS comentario,
-            (
-                SELECT g6.id_llamada
-                FROM gestion g6
-                WHERE g6.registro_id = r.id
-                ORDER BY g6.fecha_gestion DESC
-                LIMIT 1
-            ) AS id_llamada,
-            (
-                SELECT TO_CHAR((g7.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'YYYY-MM-DD HH24:MI:SS')
-                FROM gestion g7
-                WHERE g7.registro_id = r.id
-                ORDER BY g7.fecha_gestion DESC
-                LIMIT 1
-            ) AS fecha_gestion,
-            (
-                SELECT g8.usuario
-                FROM gestion g8
-                WHERE g8.registro_id = r.id
-                ORDER BY g8.fecha_gestion DESC
-                LIMIT 1
-            ) AS asesor,
-            (
-                SELECT CASE WHEN t4.tipo_contacto = 'efectivo' THEN 'efectivo' ELSE 'no efectivo' END
-                FROM gestion g9
-                JOIN tipificacion t4 ON t4.nombre = g9.tipificacion
-                WHERE g9.registro_id = r.id
-                ORDER BY g9.fecha_gestion DESC
-                LIMIT 1
-            ) AS tipo_gestion,
-            (
-                SELECT TO_CHAR((g10.fecha_gestion AT TIME ZONE 'UTC') AT TIME ZONE 'America/Bogota', 'Month')
-                FROM gestion g10
-                WHERE g10.registro_id = r.id
-                ORDER BY g10.fecha_gestion DESC
-                LIMIT 1
-            ) AS mes,
-            (
-                SELECT COUNT(*)
-                FROM gestion g11
-                WHERE g11.registro_id = r.id
-            ) AS cantidad_gestiones
-        FROM registro_base r
-        ORDER BY r.fecha_carga DESC
-    """)
-    result = db.session.execute(sql).mappings().all()
-    return result
-
+@log_query_performance
+def obtener_total_gestiones_count_filtrado(municipio_filtro=None, proceso_filtro=None, tipificacion_filtro=None):
+    """
+    Obtiene el conteo total de registros con filtros aplicados
+    """
+    where_conditions = []
+    params = {}
+    
+    if municipio_filtro and municipio_filtro.strip():
+        where_conditions.append("r.municipio = :municipio")
+        params["municipio"] = municipio_filtro.strip()
+    
+    if proceso_filtro and proceso_filtro.strip():
+        where_conditions.append("r.proceso = :proceso")
+        params["proceso"] = proceso_filtro.strip()
+    
+    # For tipificación filter, we need to join with gestion table
+    tipificacion_join = ""
+    if tipificacion_filtro and tipificacion_filtro.strip():
+        tipificacion_join = """
+        JOIN (
+            SELECT DISTINCT g_tip.registro_id
+            FROM gestion g_tip
+            WHERE g_tip.tipificacion = :tipificacion
+        ) tip_filter ON tip_filter.registro_id = r.id
+        """
+        params["tipificacion"] = tipificacion_filtro.strip()
+    
+    where_clause = ""
+    if where_conditions:
+        where_clause = "WHERE " + " AND ".join(where_conditions)
+    
+    sql = text(f"SELECT COUNT(DISTINCT r.id) as total FROM registro_base r {tipificacion_join} {where_clause}")
+    result = db.session.execute(sql, params).fetchone()
+    return result.total if result else 0
 
 # ================== RUTAS ==================
 # Clase de paginación igual que antes
@@ -833,12 +892,33 @@ def tabla_gestionar():
     page = request.args.get('page', 1, type=int)
     per_page = 17
     
-    # Usar funciones optimizadas con paginación SQL
-    gestiones_paginado = obtener_total_gestiones_paginado(page, per_page)
-    total = obtener_total_gestiones_count()
+    # Obtener filtros de la URL
+    municipio_filtro = request.args.get('municipio')
+    proceso_filtro = request.args.get('proceso')
+    tipificacion_filtro = request.args.get('tipificacion')
+    
+    # Usar funciones optimizadas con paginación SQL y filtros
+    if municipio_filtro or proceso_filtro or tipificacion_filtro:
+        gestiones_paginado = obtener_total_gestiones_paginado_filtrado(page, per_page, municipio_filtro, proceso_filtro, tipificacion_filtro)
+        total = obtener_total_gestiones_count_filtrado(municipio_filtro, proceso_filtro, tipificacion_filtro)
+    else:
+        gestiones_paginado = obtener_total_gestiones_paginado(page, per_page)
+        total = obtener_total_gestiones_count()
+    
+    # Obtener datos para los filtros
     tipificaciones = obtener_tipificaciones()
+    municipios = obtener_municipios()
+    procedimientos = obtener_procedimientos()
     
     pagination = Pagination(page, per_page, total)
-    return render_template("gestionar.html", gestiones=gestiones_paginado, tipificaciones=tipificaciones, pagination=pagination)
+    return render_template("gestionar.html", 
+                          gestiones=gestiones_paginado, 
+                          tipificaciones=tipificaciones, 
+                          municipios=municipios,
+                          procedimientos=procedimientos,
+                          pagination=pagination,
+                          municipio_seleccionado=municipio_filtro,
+                          proceso_seleccionado=proceso_filtro,
+                          tipificacion_seleccionada=tipificacion_filtro)
 
 

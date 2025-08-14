@@ -78,7 +78,20 @@ def insert_gestiones():
                 )
 
             db.session.commit()
-            # print("Gestión insertada exitosamente")
+            
+            # Verificar si el trigger está funcionando
+            print(f"Gestión insertada para registro_id: {registro_id}")
+            
+            # Verificar la cantidad actualizada (solo para debug)
+            try:
+                cantidad_actual = db.session.execute(
+                    text("SELECT cantidad_gestiones FROM registro_base WHERE id = :registro_id"),
+                    {"registro_id": registro_id}
+                ).scalar()
+                print(f"Cantidad de gestiones actual para registro {registro_id}: {cantidad_actual}")
+            except Exception as e:
+                print(f"Error al verificar cantidad_gestiones: {e}")
+            
             flash("Gestión insertada exitosamente", "success")
             # benchmark_guardado(lambda: cur.fetchall(), repeticiones=1000)  # Benchmarking de la inserción
 

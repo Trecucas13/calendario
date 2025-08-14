@@ -18,6 +18,11 @@
   
 </head>
 
+<!-- Macro for pagination links with filters -->
+{% macro pagination_url(page_num) %}
+?page={{ page_num }}{% if municipio_seleccionado %}&municipio={{ municipio_seleccionado|urlencode }}{% endif %}{% if proceso_seleccionado %}&proceso={{ proceso_seleccionado|urlencode }}{% endif %}{% if tipificacion_seleccionada %}&tipificacion={{ tipificacion_seleccionada|urlencode }}{% endif %}
+{% endmacro %}
+
 <style>
   .pagination-custom .page-item.active .page-link {
     background-color: #20c997;
@@ -100,6 +105,19 @@
           Gestionar
         </h5> 
 
+        <!-- Filters Status Indicator -->
+        {% if municipio_seleccionado or proceso_seleccionado or tipificacion_seleccionada %}
+        <div class="alert alert-info alert-sm d-flex align-items-center" style="padding: 8px 12px; margin: 10px 0; border-radius: 6px; font-size: 14px;">
+          <i class="bi bi-funnel me-2"></i> <strong>Filtros activos:</strong>
+          {% if municipio_seleccionado %}<span class="badge bg-primary me-1 ms-2">Municipio: {{ municipio_seleccionado }}</span>{% endif %}
+          {% if proceso_seleccionado %}<span class="badge bg-success me-1">Proceso: {{ proceso_seleccionado }}</span>{% endif %}
+          {% if tipificacion_seleccionada %}<span class="badge bg-warning me-1">Tipificación: {{ tipificacion_seleccionada }}</span>{% endif %}
+          <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="limpiarFiltros()" title="Limpiar filtros">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        {% endif %} 
+
          <!-- BUSCAR -->
         <div class="search-group">
          <i class="bi bi-search"></i>
@@ -112,18 +130,48 @@
               />
         </div>
 
-        <!-- Filtro Tipificacion -->
-    <div class="filtro-group" style="position: relative;">
-          <select name="tipificacion" id="filtroTipoGestion" class="form-select" required>
-                <option value="" disabled selected>Tipificación</option>
-                {% for tipificacion in tipificaciones %}
-                  <option value="{{ tipificacion.nombre }}">
-                  {{ tipificacion.nombre }}
-                  </option>
-                {% endfor %}
-              </select>
-    </div> 
-    
+          <!-- Filtro Tipificacion -->
+      <div class="filtro-group" style="position: relative;">
+            <select name="tipificacion" id="filtroTipoGestion" class="form-select" required>
+                  <option value="" disabled selected>Tipificación</option>
+                  {% for tipificacion in tipificaciones %}
+                    <option value="{{ tipificacion.nombre }}" {% if tipificacion_seleccionada == tipificacion.nombre %}selected{% endif %}>
+                    {{ tipificacion.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+      </div> 
+      
+          <div class="filtro-group" style="position: relative;">
+            <select name="municipio" id="filtroMunicipio" class="form-select" required>
+                  <option value="" disabled selected>Municipio</option>
+                  {% for municipio in municipios %}
+                    <option value="{{ municipio.nombre }}" {% if municipio_seleccionado == municipio.nombre %}selected{% endif %}>
+                    {{ municipio.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+          </div>
+
+          <div class="filtro-group" style="position: relative;">
+            <select name="procedimiento" id="filtroProceso" class="form-select" required>
+                  <option value="" disabled selected>Procedimiento</option>
+                  {% for procedimiento in procedimientos %}
+                    <option value="{{ procedimiento.nombre }}" {% if proceso_seleccionado == procedimiento.nombre %}selected{% endif %}>
+                    {{ procedimiento.nombre }}
+                    </option>
+                  {% endfor %}
+                </select>
+          </div> 
+
+          <!-- Clear Filters Button -->
+          <div class="filtro-group" style="position: relative;">
+            <button type="button" class="btn btn-outline-secondary" onclick="limpiarFiltros()" title="Limpiar filtros">
+              <i class="bi bi-x-circle"></i> Limpiar
+            </button>
+          </div>
+      </div>
+
        <script>
     // ==================== FUNCIONES DE BÚSQUEDA Y FILTRO ====================
     document.addEventListener("DOMContentLoaded", function () {
@@ -196,21 +244,73 @@
         searchInput.addEventListener("input", buscarYFiltrarTabla);
       }
       if (filtroTipificacion) {
-        filtroTipificacion.addEventListener("change", buscarYFiltrarTabla);
+        filtroTipificacion.addEventListener("change", function() {
+          // Server-side filtering for tipificacion
+          aplicarFiltrosServidor();
+        });
       }
       if (filtroMunicipio) {
-        filtroMunicipio.addEventListener("change", buscarYFiltrarTabla);
+        filtroMunicipio.addEventListener("change", function() {
+          // Server-side filtering for municipio
+          aplicarFiltrosServidor();
+        });
       }
       if (filtroProceso) {
-        filtroProceso.addEventListener("change", buscarYFiltrarTabla);
+        filtroProceso.addEventListener("change", function() {
+          // Server-side filtering for proceso
+          aplicarFiltrosServidor();
+        });
       }
       if (filtroNombre) {
         filtroNombre.addEventListener("change", buscarYFiltrarTabla);
       }
+
+      // Function to apply server-side filters
+      function aplicarFiltrosServidor() {
+        const url = new URL(window.location);
+        
+        // Get filter values
+        const municipio = filtroMunicipio ? filtroMunicipio.value : '';
+        const proceso = filtroProceso ? filtroProceso.value : '';
+        const tipificacion = filtroTipificacion ? filtroTipificacion.value : '';
+        
+        // Update URL parameters
+        if (municipio && municipio !== '') {
+          url.searchParams.set('municipio', municipio);
+        } else {
+          url.searchParams.delete('municipio');
+        }
+        
+        if (proceso && proceso !== '') {
+          url.searchParams.set('proceso', proceso);
+        } else {
+          url.searchParams.delete('proceso');
+        }
+        
+        if (tipificacion && tipificacion !== '') {
+          url.searchParams.set('tipificacion', tipificacion);
+        } else {
+          url.searchParams.delete('tipificacion');
+        }
+        
+        // Reset to first page when applying filters
+        url.searchParams.delete('page');
+        
+        // Reload page with new filters
+        window.location.href = url.toString();
+      }
+
+      // Function to clear all filters
+      window.limpiarFiltros = function() {
+        const url = new URL(window.location);
+        url.searchParams.delete('municipio');
+        url.searchParams.delete('proceso');
+        url.searchParams.delete('tipificacion');
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+      }
     });
 </script>
-
-</div>
 
         <div class="card-body">
     <div class="table-responsive">
@@ -290,15 +390,24 @@
 
     <div class="d-flex justify-content-between align-items-center mt-3">
   <div class="text-muted small">
-    Mostrando <span class="fw-semibold" style="color: #20c997;">{{ pagination.page }}</span> de 
-    <span class="fw-semibold" style="color: #20c997;">{{ pagination.pages }}</span> páginas
+    {% if municipio_seleccionado or proceso_seleccionado or tipificacion_seleccionada %}
+      <i class="bi bi-funnel me-1"></i>
+      <span class="fw-semibold" style="color: #20c997;">{{ pagination.total }}</span> registros filtrados
+      {% if municipio_seleccionado %} en <em>{{ municipio_seleccionado }}</em>{% endif %}
+      {% if proceso_seleccionado %} para <em>{{ proceso_seleccionado }}</em>{% endif %}
+      {% if tipificacion_seleccionada %} con <em>{{ tipificacion_seleccionada }}</em>{% endif %}
+    {% else %}
+      <span class="fw-semibold" style="color: #20c997;">{{ pagination.total }}</span> registros totales
+    {% endif %}
+    | Página <span class="fw-semibold" style="color: #20c997;">{{ pagination.page }}</span> de 
+    <span class="fw-semibold" style="color: #20c997;">{{ pagination.pages }}</span>
   </div>
   
   <nav aria-label="Page navigation">
     <ul class="pagination pagination-sm mb-0 pagination-custom">
       <!-- Flecha Atrás -->
       <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-        <a class="page-link rounded-start" href="?page={{ pagination.prev_num }}" aria-label="Previous">
+        <a class="page-link rounded-start" href="{{ pagination_url(pagination.prev_num) }}" aria-label="Previous">
           <i class="bi bi-chevron-left"></i>
         </a>
       </li>
@@ -309,7 +418,7 @@
       
       {% if left_range > 1 %}
         <li class="page-item">
-          <a class="page-link" href="?page=1">1</a>
+          <a class="page-link" href="{{ pagination_url(1) }}">1</a>
         </li>
         {% if left_range > 2 %}
           <li class="page-item disabled">
@@ -320,7 +429,7 @@
       
       {% for page_num in range(left_range, right_range + 1) %}
         <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-          <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+          <a class="page-link" href="{{ pagination_url(page_num) }}">{{ page_num }}</a>
         </li>
       {% endfor %}
       
@@ -331,13 +440,13 @@
           </li>
         {% endif %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ pagination.pages }}">{{ pagination.pages }}</a>
+          <a class="page-link" href="{{ pagination_url(pagination.pages) }}">{{ pagination.pages }}</a>
         </li>
       {% endif %}
       
       <!-- Flecha Adelante -->
       <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-        <a class="page-link rounded-end" href="?page={{ pagination.next_num }}" aria-label="Next">
+        <a class="page-link rounded-end" href="{{ pagination_url(pagination.next_num) }}" aria-label="Next">
           <i class="bi bi-chevron-right"></i>
         </a>
       </li>
@@ -600,4 +709,5 @@ input[type="file"]::file-selector-button:hover {
 </script>
 
   {% endblock %}
+</body>
 </html>

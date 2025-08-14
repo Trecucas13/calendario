@@ -7,7 +7,7 @@ flask_process = [
     "app.py",
 ]
 
-flask_cwd = "."
+flask_cwd = "./"
 
 
 fastapi_process = [
