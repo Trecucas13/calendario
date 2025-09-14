@@ -29,6 +29,6 @@ def cargar_multiples_tipificaciones(data: List[TipificacionBase], db: Session = 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/", response_model=List[TipificacionResponse])
+@router.get("/lista_tipificaciones/", response_model=List[TipificacionResponse])
 def obtener_todas(db: Session = Depends(get_db)):
     return crud.listar_tipificaciones(db)

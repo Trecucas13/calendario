@@ -6,7 +6,7 @@ class TipificacionBase(BaseModel):
     tipo_contacto: str
 
 class TipificacionResponse(TipificacionBase):
-    id: str
+    id: int
 
     class Config:
         from_attributes = True

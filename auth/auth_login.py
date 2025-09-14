@@ -53,7 +53,9 @@ def auth_login():
             session["id"] = user["id"]
             session["documento"] = user["documento"]
             session["rol"] = user["rol"]
+            session["nombre"] = user["nombre"]
 
+            # session["nombre"] = user.get("nombre", "Usuario")  # Manejo de nombre por si no existe
             # session["accesoSistema"] = acceso["accesoSistema"]
 
             # Redirección según el rol y estado del usuario

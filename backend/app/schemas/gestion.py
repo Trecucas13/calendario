@@ -24,13 +24,13 @@ class GestionHistorico(BaseModel):
     primer_apellido: str
     segundo_apellido: Optional[str]
     proceso: str
-
     tipificacion: str
     tipo_contacto: str
     comentario: Optional[str]
     id_llamada: Optional[str]
     fecha_gestion: datetime
     usuario: str
+    
 
     class Config:
         from_attributes = True
